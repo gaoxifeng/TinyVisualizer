@@ -5,8 +5,12 @@
 #define _USE_MATH_DEFINES // for C++
 #include <cmath>
 #define NOMINMAX
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #include <Windows.h>
 #include <GL/GLU.h>
+#else
+#include <GL/glu.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <string>
 #include <Eigen/Eigen>
