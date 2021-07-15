@@ -2,8 +2,12 @@
 #define DRAWER_UTILITY_H
 
 #include <GL/glew.h>
+#define _USE_MATH_DEFINES // for C++
+#include <cmath>
+#define NOMINMAX
+#include <Windows.h>
+#include <GL/GLU.h>
 #include <GLFW/glfw3.h>
-#include <GL/glu.h>
 #include <string>
 #include <Eigen/Eigen>
 #include <set>

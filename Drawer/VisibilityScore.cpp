@@ -80,7 +80,7 @@ void VisibilityScore::debugVisibility() {
     glColor3f(1,1,1);
     B.drawScreenQuad(-0.5,-0.5,0.75,0.75);
   };
-  compute(&ref,&curr,true);
+  compute(&ref,&curr,false);
 }
 void VisibilityScore::beginXOR() {
   const FBO& A=_fboRef;
