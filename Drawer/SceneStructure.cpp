@@ -26,7 +26,10 @@ std::shared_ptr<SceneNode> SceneNode::update(std::shared_ptr<SceneNode> root,std
     loc=root->_loc;
   } else {
     sz=1;
-    loc=s->getBB().segment<3>(0).cast<int>();
+    ASSERT(s!=NULL || toBeAdjusted!=NULL)
+    if(s)
+      loc=s->getBB().segment<3>(0).cast<int>();
+    else loc=toBeAdjusted->getBB().segment<3>(0).cast<int>();
   }
   for(std::shared_ptr<Shape> sAdj=toBeAdjusted; sAdj; sAdj=sAdj->_next) {
     Eigen::Matrix<GLfloat,6,1> bb=sAdj->getBB();
