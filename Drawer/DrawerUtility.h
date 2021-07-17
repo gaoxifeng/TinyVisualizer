@@ -1,7 +1,7 @@
 #ifndef DRAWER_UTILITY_H
 #define DRAWER_UTILITY_H
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 #define _USE_MATH_DEFINES // for C++
 #include <cmath>
 #define NOMINMAX

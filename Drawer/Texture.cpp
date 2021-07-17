@@ -1,5 +1,4 @@
 #include "Texture.h"
-#include <tinypng/png.h>
 
 namespace DRAWER {
 Texture::Texture(int width,int height,GLenum format):_format(format) {

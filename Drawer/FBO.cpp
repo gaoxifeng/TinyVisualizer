@@ -1,5 +1,6 @@
 #include "FBO.h"
-#include <tinypng/png.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb/stb_image_write.h>
 
 namespace DRAWER {
 //FBO
@@ -104,8 +105,7 @@ std::vector<std::uint8_t> FBO::read() const {
 }
 void FBO::saveImage(const std::string& path) const {
   std::vector<std::uint8_t> data=read();
-  tinypng::PNG png(width(),height(),&data[0]);
-  png.writeToFile(path);
+  stbi_write_png(path.c_str(),width(),height(),4,&data[0],width()*4);
 }
 int FBO::width() const {
   return _rbo->width();
@@ -181,8 +181,7 @@ void FBOShadow::saveImage(int d,const std::string& path) const {
   std::vector<std::uint8_t> dataRGBA(data.size()*4,255);
   for(int i=0; i<(int)data.size(); i++)
     dataRGBA[i*4+0]=dataRGBA[i*4+1]=dataRGBA[i*4+2]=data[i];
-  tinypng::PNG png(width(),height(),&dataRGBA[0]);
-  png.writeToFile(path);
+  stbi_write_png(path.c_str(),width(),height(),4,&dataRGBA[0],width()*4);
 }
 int FBOShadow::width() const {
   GLint ret;

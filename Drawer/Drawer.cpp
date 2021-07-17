@@ -64,7 +64,8 @@ Drawer::Drawer(int argc,char** argv)
                            windowTitle.c_str(), NULL, NULL);
   ASSERT_MSG(_window,"Failed initializing GLFW!")
   glfwMakeContextCurrent(_window);
-  ASSERT_MSG(glewInit()==GLEW_OK,"Failed initializing GLEW!")
+  int version=gladLoadGL(glfwGetProcAddress);
+  ASSERT_MSG(version!=0,"Failed initializing GLAD!")
   glfwSwapInterval(1);
   glClearDepth(1.0f);
   glEnable(GL_MULTISAMPLE);
