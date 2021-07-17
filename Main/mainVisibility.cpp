@@ -1,5 +1,5 @@
-#include <Drawer/Drawer.h>
-#include <Drawer/VisibilityScore.h>
+#include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/VisibilityScore.h>
 
 using namespace DRAWER;
 

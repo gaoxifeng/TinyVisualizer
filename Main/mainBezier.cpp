@@ -1,5 +1,5 @@
-#include <Drawer/Drawer.h>
-#include <Drawer/BezierCurveShape.h>
+#include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/BezierCurveShape.h>
 
 using namespace DRAWER;
 

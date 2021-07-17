@@ -1,6 +1,6 @@
-#include <Drawer/Drawer.h>
-#include <Drawer/ArrowShape.h>
-#include <Drawer/ShadowAndLight.h>
+#include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/ArrowShape.h>
+#include <TinyVisualizer/ShadowAndLight.h>
 
 using namespace DRAWER;
 

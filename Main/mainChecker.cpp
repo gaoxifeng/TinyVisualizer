@@ -1,5 +1,5 @@
-#include <Drawer/Drawer.h>
-#include <Drawer/MakeTexture.h>
+#include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/MakeTexture.h>
 
 using namespace DRAWER;
 

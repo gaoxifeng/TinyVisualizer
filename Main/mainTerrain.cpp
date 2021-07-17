@@ -1,9 +1,9 @@
-#include <Drawer/Drawer.h>
-#include <Drawer/MakeMesh.h>
-#include <Drawer/MakeTexture.h>
-#include <Drawer/TerrainShape.h>
-#include <Drawer/ShadowAndLight.h>
-#include <Drawer/Bullet3DShape.h>
+#include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/MakeMesh.h>
+#include <TinyVisualizer/MakeTexture.h>
+#include <TinyVisualizer/TerrainShape.h>
+#include <TinyVisualizer/ShadowAndLight.h>
+#include <TinyVisualizer/Bullet3DShape.h>
 #include <iostream>
 
 using namespace DRAWER;
