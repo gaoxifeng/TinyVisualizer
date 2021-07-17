@@ -36,10 +36,10 @@ SEARCH_SOURCE(TinyVisualizer TinyVisualizer)
 SEARCH_SOURCE(GLAD extern/glad)
 
 #BUILD LIBRARY
-ADD_LIBRARY(TinyVisualizer STATIC ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD})
+ADD_LIBRARY(TinyVisualizer SHARED ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD})
 SET_TARGET_PROPERTIES(TinyVisualizer PROPERTIES PUBLIC_HEADER "${headerTinyVisualizer}" PRIVATE_HEADER "${headerGLAD}")
 TARGET_LINK_LIBRARIES(TinyVisualizer ${ALL_LIBRARIES})
-INSTALL(TARGETS TinyVisualizer ARCHIVE DESTINATION "/usr/local/lib" PUBLIC_HEADER DESTINATION "/usr/local/include/TinyVisualizer" PRIVATE_HEADER DESTINATION "/usr/local/include/glad")
+INSTALL(TARGETS TinyVisualizer LIBRARY DESTINATION "/usr/local/lib" PUBLIC_HEADER DESTINATION "/usr/local/include/TinyVisualizer" PRIVATE_HEADER DESTINATION "/usr/local/include/glad")
 
 #EXE
 MACRO(ADD_EXE NAME)
