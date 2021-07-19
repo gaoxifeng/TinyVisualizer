@@ -35,8 +35,6 @@ int main(int argc,char** argv) {
   std::shared_ptr < DRAWER::Plugin> menu = std::shared_ptr < DRAWER::ImGuiPlugin> (menup);
 
   drawer.addPlugin(menu);
-
-
   drawer.mainLoop();
 
   VisibilityScore score(10);
