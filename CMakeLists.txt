@@ -23,23 +23,49 @@ ELSE()
 ENDIF()
 SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE})
 
+# Compile with compiler warnings
+IF(MSVC)
+  IF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  ELSE()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  ENDIF()
+ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter")
+  IF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-anonymous-struct -Wno-c99-extensions -Wno-nested-anon-types")
+  ENDIF()
+ENDIF()
+
 #LIBRARY
 INCLUDE("${PROJECT_SOURCE_DIR}/cmake/LoadLibs.cmake")
 
 #THIRD PARTY HEADERS
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/extern ${PROJECT_SOURCE_DIR}/extern/glad/include)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/extern ${PROJECT_SOURCE_DIR}/extern/imgui ${PROJECT_SOURCE_DIR}/extern/glad/include)
 MACRO(SEARCH_SOURCE NAME DIRPRJ)
   FILE(GLOB_RECURSE header${NAME} ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.h ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.hpp ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.hh)
   FILE(GLOB_RECURSE source${NAME} ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.cpp ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.cc ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.c)
 ENDMACRO(SEARCH_SOURCE)
 SEARCH_SOURCE(TinyVisualizer TinyVisualizer)
 SEARCH_SOURCE(GLAD extern/glad)
+
 SET(JOMPEG ${PROJECT_SOURCE_DIR}/extern/jo_mpeg.h)
+
+FILE(GLOB IMGUI 
+${PROJECT_SOURCE_DIR}/extern/imgui/*.h
+${PROJECT_SOURCE_DIR}/extern/imgui/*.cpp
+${PROJECT_SOURCE_DIR}/TinyVisualizer/imgui/*.h
+${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.h
+${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.cpp
+${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.h
+${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.cpp
+)
+
 #BUILD LIBRARY
 IF(MSVC)
-  ADD_LIBRARY(TinyVisualizer STATIC ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${JOMPEG})
+  ADD_LIBRARY(TinyVisualizer STATIC ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${JOMPEG} ${IMGUI})
 ELSE(MSVC)
-  ADD_LIBRARY(TinyVisualizer SHARED ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${JOMPEG})
+  ADD_LIBRARY(TinyVisualizer SHARED ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${JOMPEG} ${IMGUI})
 ENDIF(MSVC)
 SET_TARGET_PROPERTIES(TinyVisualizer PROPERTIES PUBLIC_HEADER "${headerTinyVisualizer}" PRIVATE_HEADER "${headerGLAD}")
 TARGET_LINK_LIBRARIES(TinyVisualizer ${ALL_LIBRARIES})
@@ -50,12 +76,11 @@ IF(MSVC)
   ARCHIVE DESTINATION ${INSTALL_REL_DIRECTORY}/lib
   LIBRARY DESTINATION ${INSTALL_REL_DIRECTORY}/lib
   PUBLIC_HEADER DESTINATION ${INSTALL_REL_DIRECTORY}/include/TinyVisualizer
-  PRIVATE_HEADER DESTINATION ${INSTALL_REL_DIRECTORY}/include/glad_jo_mpeg
+  PRIVATE_HEADER DESTINATION ${INSTALL_REL_DIRECTORY}/include/glad
   )
 ELSE(MSVC)
   INSTALL(TARGETS TinyVisualizer LIBRARY DESTINATION "/usr/local/lib" PUBLIC_HEADER DESTINATION "/usr/local/include/TinyVisualizer" PRIVATE_HEADER DESTINATION "/usr/local/include/glad")
 ENDIF(MSVC)
-
 
 #EXE
 MACRO(ADD_EXE NAME)

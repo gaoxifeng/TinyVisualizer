@@ -138,6 +138,9 @@ void Drawer::draw() {
       s->draw(true);
     },&viewFrustum);
   });
+  //plugin predraw
+  for (std::shared_ptr<Plugin> pi : _plugins)
+      pi->preDraw();
   //draw appearance
   if(_root) {
     Eigen::Matrix<GLfloat,-1,1> viewFrustum;
@@ -154,7 +157,7 @@ void Drawer::draw() {
   //custom
   _draw();
   for(std::shared_ptr<Plugin> pi:_plugins)
-    pi->draw();
+    pi->postDraw();
 }
 void Drawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
@@ -244,6 +247,10 @@ Camera& Drawer::getCamera() {
   ASSERT(_camera);
   return *_camera;
 }
+GLFWwindow* Drawer::getWindow() {
+    ASSERT(_window);
+    return _window;
+}
 void Drawer::mainLoop() {
   while (!glfwWindowShouldClose(_window)) {
     draw();
@@ -259,6 +266,12 @@ int Drawer::FPS() {
 void Drawer::addPlugin(std::shared_ptr<Plugin> pi) {
   if(std::find(_plugins.begin(),_plugins.end(),pi)==_plugins.end())
     _plugins.push_back(pi);
+  
+  // Init all plugins
+  for (int i = 0; i < _plugins.size(); ++i)
+  {
+      _plugins[i]->init(_window);
+  }
 }
 void Drawer::removeShape(std::shared_ptr<Shape> s) {
   _root=SceneNode::remove(_root,s);
@@ -271,6 +284,10 @@ void Drawer::focusOn(std::shared_ptr<Shape> s) {
     _camera->focusOn(s);
 }
 void Drawer::clear() {
+  for (int i = 0; i < _plugins.size(); ++i)
+  {
+      _plugins[i]->clear();
+  }
   _plugins.clear();
   _root=NULL;
 }

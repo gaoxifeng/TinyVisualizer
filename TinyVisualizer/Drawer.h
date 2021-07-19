@@ -60,13 +60,16 @@ class Camera {
 //Plugin
 class Plugin {
  public:
+  virtual void init(GLFWwindow* window){}
   virtual void finalize() {}
-  virtual void draw() {}
+  virtual void preDraw() {}
+  virtual void postDraw() {}
   virtual void frame(std::shared_ptr<SceneNode>&) {}
   virtual void mouse(GLFWwindow* wnd,int button,int action,int mods) {}
   virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset) {}
   virtual void motion(GLFWwindow* wnd,double x,double y) {}
   virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) {}
+  virtual void clear() {}
 };
 //Drawer
 class Drawer {
@@ -98,6 +101,7 @@ class Drawer {
   Eigen::Matrix<GLfloat,2,1> getWorldPos();
   ShadowLight& getLight();
   Camera& getCamera();
+  GLFWwindow* getWindow();
   void mainLoop();
   int FPS();
   //getter/setter
