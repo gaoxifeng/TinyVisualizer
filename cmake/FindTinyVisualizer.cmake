@@ -6,7 +6,9 @@ FIND_PATH(TinyVisualizer_INCLUDE_DIR TinyVisualizer/Drawer.h
   $ENV{TinyVisualizer_ROOT}/include
   $ENV{TinyVisualizer_ROOT}
   /usr/include
-  /usr/local/include)
+  /usr/local/include
+  C:/TinyVisualizer/include
+  )
 
 FIND_LIBRARY(TinyVisualizer_LIBRARY NAMES TinyVisualizer PATHS 
   ${PROJECT_SOURCE_DIR}/lib
@@ -14,7 +16,9 @@ FIND_LIBRARY(TinyVisualizer_LIBRARY NAMES TinyVisualizer PATHS
   $ENV{TinyVisualizer_ROOT}/lib
   $ENV{TinyVisualizer_ROOT}
   /usr/lib
-  /usr/local/lib)
+  /usr/local/lib
+  C:/TinyVisualizer/lib
+  )
 
 #GLUT/GLFW
 FIND_PACKAGE(OpenGL QUIET)

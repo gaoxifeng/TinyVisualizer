@@ -79,6 +79,10 @@ class Drawer {
   void setDrawFunc(std::function<void()> draw);
   void addCamera2D(GLfloat xExt);
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up=Eigen::Matrix<GLfloat,3,1>(0,0,1));
+  void addCamera3D(GLfloat angle, Eigen::Matrix<GLfloat, 3, 1> up,
+      Eigen::Matrix<GLfloat, 3, 1> pos, Eigen::Matrix<GLfloat, 3, 1> dir);
+  //addcamera3d-firstperson
+  //addcamera3d-trackball
   Eigen::Matrix<GLfloat,2,1> getWorldPos(double x,double y);
   Eigen::Matrix<GLfloat,2,1> getWorldPos();
   ShadowLight& getLight();

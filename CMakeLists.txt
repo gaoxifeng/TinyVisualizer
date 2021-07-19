@@ -37,13 +37,25 @@ SEARCH_SOURCE(GLAD extern/glad)
 
 #BUILD LIBRARY
 IF(MSVC)
-  ADD_LIBRARY(TinyVisualizer ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD})
+  ADD_LIBRARY(TinyVisualizer STATIC ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD})
 ELSE(MSVC)
   ADD_LIBRARY(TinyVisualizer SHARED ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD})
 ENDIF(MSVC)
 SET_TARGET_PROPERTIES(TinyVisualizer PROPERTIES PUBLIC_HEADER "${headerTinyVisualizer}" PRIVATE_HEADER "${headerGLAD}")
 TARGET_LINK_LIBRARIES(TinyVisualizer ${ALL_LIBRARIES})
-INSTALL(TARGETS TinyVisualizer LIBRARY DESTINATION "/usr/local/lib" PUBLIC_HEADER DESTINATION "/usr/local/include/TinyVisualizer" PRIVATE_HEADER DESTINATION "/usr/local/include/glad")
+
+IF(MSVC)
+  SET(INSTALL_REL_DIRECTORY "C:/TinyVisualizer")
+  INSTALL(TARGETS TinyVisualizer 
+  ARCHIVE DESTINATION ${INSTALL_REL_DIRECTORY}/lib
+  LIBRARY DESTINATION ${INSTALL_REL_DIRECTORY}/lib
+  PUBLIC_HEADER DESTINATION ${INSTALL_REL_DIRECTORY}/include/TinyVisualizer
+  PRIVATE_HEADER DESTINATION ${INSTALL_REL_DIRECTORY}/include/glad
+  )
+ELSE(MSVC)
+  INSTALL(TARGETS TinyVisualizer LIBRARY DESTINATION "/usr/local/lib" PUBLIC_HEADER DESTINATION "/usr/local/include/TinyVisualizer" PRIVATE_HEADER DESTINATION "/usr/local/include/glad")
+ENDIF(MSVC)
+
 
 #EXE
 MACRO(ADD_EXE NAME)

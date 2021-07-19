@@ -206,6 +206,13 @@ void Drawer::addCamera2D(GLfloat xExt) {
 void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up) {
   _camera.reset(new Camera3D(angle,up));
 }
+void Drawer::addCamera3D(GLfloat angle, Eigen::Matrix<GLfloat, 3, 1> up,
+    Eigen::Matrix<GLfloat, 3, 1> pos, Eigen::Matrix<GLfloat, 3, 1> dir){
+    Camera3D camera(angle, up);
+    camera.setDirection(dir);
+    camera.setPosition(pos);
+    _camera.reset(&camera);
+}
 Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos(double x,double y) {
   ASSERT(_camera);
   return _camera->getCameraRay(_window,x,y);

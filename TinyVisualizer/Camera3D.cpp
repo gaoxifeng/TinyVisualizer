@@ -193,4 +193,15 @@ GLfloat Camera3D::clampMin(GLfloat val) {
     return (val<minVal)?0:val;
   else return (val>-minVal)?0:val;
 }
+
+void Camera3D::setPosition(Eigen::Matrix<GLfloat, 3, 1> pos){
+    _pos = pos;
+}
+void Camera3D::setDirection(Eigen::Matrix<GLfloat, 3, 1> dir) {
+    _dir = dir;
+}
+void Camera3D::setUp(Eigen::Matrix<GLfloat, 3, 1> up) {
+    _up = up;
+}
+
 }
