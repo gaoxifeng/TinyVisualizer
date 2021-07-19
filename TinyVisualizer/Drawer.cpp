@@ -105,6 +105,8 @@ void Drawer::timer() {
     if(_camera)
       _camera->frame(_window,1.0f/FPS());
     _frame(_root);
+    for(std::shared_ptr<Plugin> pi:_plugins)
+      pi->frame(_root);
     if(_root) {
       _root=SceneNode::update(_root);
       //_root->check();
@@ -151,34 +153,47 @@ void Drawer::draw() {
   }
   //custom
   _draw();
+  for(std::shared_ptr<Plugin> pi:_plugins)
+    pi->draw();
 }
 void Drawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
   if(drawer->_camera)
     drawer->_camera->mouse(wnd,button,action,mods);
   drawer->_mouse(wnd,button,action,mods);
+  for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+    pi->mouse(wnd,button,action,mods);
 }
 void Drawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
   if(drawer->_camera)
     drawer->_camera->wheel(wnd,xoffset,yoffset);
   drawer->_wheel(wnd,xoffset,yoffset);
+  for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+    pi->wheel(wnd,xoffset,yoffset);
 }
 void Drawer::motion(GLFWwindow* wnd,double x,double y) {
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
   if(drawer->_camera)
     drawer->_camera->motion(wnd,x,y);
   drawer->_motion(wnd,x,y);
+  for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+    pi->motion(wnd,x,y);
 }
 void Drawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
   if(drawer->_camera)
     drawer->_camera->key(wnd,key,scan,action,mods);
   drawer->_key(wnd,key,scan,action,mods);
+  for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+    pi->key(wnd,key,scan,action,mods);
   switch (key) {
   case GLFW_KEY_ESCAPE:
-    if(action==GLFW_PRESS)
+    if(action==GLFW_PRESS) {
       glfwSetWindowShouldClose(wnd,GLFW_TRUE);
+      for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+        pi->finalize();
+    }
     break;
   }
 }
@@ -234,6 +249,13 @@ int Drawer::FPS() {
   return _FPS;
 }
 //getter/setter
+void Drawer::addPlugin(std::shared_ptr<Plugin> pi) {
+  if(std::find(_plugins.begin(),_plugins.end(),pi)==_plugins.end())
+    _plugins.push_back(pi);
+}
+void Drawer::removeShape(std::shared_ptr<Shape> s) {
+  _root=SceneNode::remove(_root,s);
+}
 void Drawer::addShape(std::shared_ptr<Shape> s) {
   _root=SceneNode::update(_root,s);
 }
@@ -242,6 +264,7 @@ void Drawer::focusOn(std::shared_ptr<Shape> s) {
     _camera->focusOn(s);
 }
 void Drawer::clear() {
+  _plugins.clear();
   _root=NULL;
 }
 }
