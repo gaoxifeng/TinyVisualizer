@@ -1,8 +1,8 @@
 #ifdef BULLET_SUPPORT
-#include <Drawer/Drawer.h>
-#include <Drawer/MakeTexture.h>
-#include <Drawer/Bullet3DShape.h>
-#include <Drawer/ShadowAndLight.h>
+#include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/MakeTexture.h>
+#include <TinyVisualizer/Bullet3DShape.h>
+#include <TinyVisualizer/ShadowAndLight.h>
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 

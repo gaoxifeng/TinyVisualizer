@@ -57,6 +57,17 @@ class Camera {
     return Eigen::Matrix<GLfloat,-1,1>();
   }
 };
+//Plugin
+class Plugin {
+ public:
+  virtual void finalize() {}
+  virtual void draw() {}
+  virtual void frame(std::shared_ptr<SceneNode>&) {}
+  virtual void mouse(GLFWwindow* wnd,int button,int action,int mods) {}
+  virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset) {}
+  virtual void motion(GLFWwindow* wnd,double x,double y) {}
+  virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) {}
+};
 //Drawer
 class Drawer {
  public:
@@ -90,6 +101,8 @@ class Drawer {
   void mainLoop();
   int FPS();
   //getter/setter
+  void addPlugin(std::shared_ptr<Plugin> pi);
+  void removeShape(std::shared_ptr<Shape> s);
   void addShape(std::shared_ptr<Shape> s);
   void focusOn(std::shared_ptr<Shape> s);
   void clear();
@@ -102,6 +115,7 @@ class Drawer {
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<SceneNode> _root;
   std::shared_ptr<ShadowLight> _light;
+  std::vector<std::shared_ptr<Plugin>> _plugins;
   std::function<void(GLFWwindow*,int,int,int)> _mouse;
   std::function<void(GLFWwindow*,double,double)> _wheel;
   std::function<void(GLFWwindow*,double,double)> _motion;

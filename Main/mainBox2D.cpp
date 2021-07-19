@@ -1,7 +1,7 @@
 #ifdef BOX2D_SUPPORT
-#include <Drawer/Drawer.h>
-#include <Drawer/Box2DShape.h>
-#include <Drawer/SceneStructure.h>
+#include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Box2DShape.h>
+#include <TinyVisualizer/SceneStructure.h>
 #include <Box2D/Box2D.h>
 
 using namespace DRAWER;
