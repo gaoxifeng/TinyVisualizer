@@ -38,11 +38,16 @@ namespace DRAWER {
 
 		// Can be overwritten by `callback_draw_viewer_menu`
 		virtual void drawViewerMenu();
+		// Can be overwritten by `callback_draw_custom_window`
+		virtual void drawCustomWindow() { }
+
+		// Easy-to-customize callbacks
+		std::function<void(void)> callbackDrawViewerWindow;
+		std::function<void(void)> callbackDrawViewerMenu;
+		std::function<void(void)> callbackDrawCustomWindow;
 
 		float pixelRatio();
-
 		float hidpiScaling();
-
 		float menuScaling() { return _hidpiScaling / pixel_ratio_; }
 
 	private:

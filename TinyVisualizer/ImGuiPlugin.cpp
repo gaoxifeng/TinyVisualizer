@@ -68,7 +68,20 @@ namespace DRAWER {
 	// Draw menu
 	void ImGuiPlugin::drawMenu() {
 		// Viewer settings
-		drawViewerWindow();
+		
+		if (callbackDrawViewerWindow) { 
+			callbackDrawViewerWindow(); 
+		}
+		else { 
+			drawViewerWindow();
+		}
+		// Other windows
+		if (callbackDrawCustomWindow) { 
+			callbackDrawCustomWindow(); 
+		}
+		else { 
+			drawCustomWindow(); 
+		}
 	}
 
 	void ImGuiPlugin::drawViewerWindow() {
