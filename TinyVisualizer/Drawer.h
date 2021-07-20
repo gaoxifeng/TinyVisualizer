@@ -97,6 +97,7 @@ class Drawer {
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir);
   Eigen::Matrix<GLfloat,2,1> getWorldPos(double x,double y);
   Eigen::Matrix<GLfloat,2,1> getWorldPos();
+  std::shared_ptr<SceneNode> root();
   ShadowLight& getLight();
   Camera& getCamera();
   void mainLoop();

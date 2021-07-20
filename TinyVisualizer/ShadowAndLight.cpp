@@ -202,7 +202,6 @@ bool ShadowLight::hasShadow() const {
 }
 void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func) {
   if(_shadow>0) {
-    GLint vp[4];
     GLfloat zNear,zFar,far_plane=(bb.segment<3>(3)-bb.segment<3>(0)).norm();
     _shaderShadow->begin();
     _shaderShadow->setUniformFloat("far_plane",far_plane);
@@ -221,14 +220,9 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
         gluPerspective(90,1,zNear,far_plane);
 
         l._shadowMap->begin(d);
-        glGetIntegerv(GL_VIEWPORT,vp);
-        glViewport(0,0,l._shadowMap->width(),l._shadowMap->height());
-        glScissor(0,0,l._shadowMap->width(),l._shadowMap->height());
         glClear(GL_DEPTH_BUFFER_BIT);
         if(zNear<zFar)
           func(l._viewFrustum[d]);
-        glViewport(vp[0],vp[1],vp[2],vp[3]);
-        glScissor(vp[0],vp[1],vp[2],vp[3]);
         l._shadowMap->end();
 
         glMatrixMode(GL_MODELVIEW);

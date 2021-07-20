@@ -27,7 +27,7 @@ bool Shape::useLight() const {
   return _useLight;
 }
 //Drawer
-static void errFunc(int error, const char* description) {
+static void errFunc(int error,const char* description) {
   ASSERT_MSGV(false,"GLFW error=%d, message: %s!",error,description)
 }
 void mouseNothing(GLFWwindow*,int,int,int) {}
@@ -47,21 +47,21 @@ Drawer::Drawer(int argc,char** argv)
   if(_invoked)
     return;
   _invoked=true;
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
   glfwSetErrorCallback(errFunc);
   glfwDefaultWindowHints();
 #ifdef __APPLE__
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
 #endif
   glfwWindowHint(GLFW_SAMPLES, argparseRange(argc,argv,"MSAA",4));
   glfwWindowHint(GLFW_VISIBLE, argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
   std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
   _window=glfwCreateWindow(argparseRange(argc,argv,"width",512),
                            argparseRange(argc,argv,"height",512),
-                           windowTitle.c_str(), NULL, NULL);
+                           windowTitle.c_str(),NULL,NULL);
   ASSERT_MSG(_window,"Failed initializing GLFW!")
   glfwMakeContextCurrent(_window);
   int version=gladLoadGL(glfwGetProcAddress);
@@ -87,8 +87,8 @@ Drawer::Drawer(int argc,char** argv)
   else std::cout << "Context reports MSAA is unavailable" << std::endl;
 }
 Drawer::~Drawer() {
+  clear();
   glfwDestroyWindow(_window);
-  glfwTerminate();
 }
 void Drawer::setRes(int width,int height) {
   glfwSetWindowSize(_window,width,height);
@@ -225,10 +225,9 @@ void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up) {
   _camera.reset(new Camera3D(angle,up));
 }
 void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir) {
-  Camera3D camera(angle,up);
-  camera.setDirection(dir);
-  camera.setPosition(pos);
-  _camera.reset(&camera);
+  _camera.reset(new Camera3D(angle,up));
+  std::dynamic_pointer_cast<Camera3D>(_camera)->setDirection(dir);
+  std::dynamic_pointer_cast<Camera3D>(_camera)->setPosition(pos);
 }
 Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos(double x,double y) {
   ASSERT(_camera);
@@ -238,6 +237,9 @@ Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos() {
   double x=0,y=0;
   glfwGetCursorPos(_window,&x,&y);
   return getWorldPos(x,y);
+}
+std::shared_ptr<SceneNode> Drawer::root() {
+  return _root;
 }
 ShadowLight& Drawer::getLight() {
   return *_light;

@@ -1,4 +1,6 @@
 #include "VisibilityScore.h"
+#include "SceneStructure.h"
+#include "MakeMesh.h"
 #include "Camera3D.h"
 #include <iostream>
 
@@ -27,7 +29,10 @@ VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDe
   :_shaderXOR("","",XORFrag),_shaderTexCopy("","",TexCopyFrag),
    _fboPP(0,levelMax,formatColor,formatDepth),
    _fboRef(1<<levelMax,1<<levelMax,formatColor,formatDepth) {}
-Eigen::Matrix<GLfloat,2,1> VisibilityScore::compute(std::function<void(const FBO&)>* ref,std::function<void(const FBO&)>* curr,bool debugOutput) {
+Eigen::Matrix<GLfloat,2,1> VisibilityScore::compute
+(std::function<void(const FBO&)>* ref,
+ std::function<void(const FBO&)>* curr,
+ bool debugOutput) {
   GLfloat cc[4];
   glGetFloatv(GL_COLOR_CLEAR_VALUE,cc);
   glClearColor(0,0,0,0);
@@ -72,6 +77,34 @@ Eigen::Matrix<GLfloat,2,1> VisibilityScore::compute(std::function<void(const FBO
   glClearColor(cc[0],cc[1],cc[2],cc[3]);
   return ret;
 }
+std::pair<Eigen::Matrix<GLfloat,2,1>,Eigen::Matrix<GLfloat,2,1>> VisibilityScore::compute
+    (Drawer& drawer,const Eigen::Vector3f& up,
+     const std::vector<Eigen::Matrix<GLfloat,3,1>>& eyes,
+     const std::vector<Eigen::Matrix<GLfloat,3,1>>& dirs,
+     std::shared_ptr<MeshShape> shapeA,std::shared_ptr<MeshShape> shapeB,
+bool debugOutput) {
+  Eigen::Matrix<GLfloat,6,1> bb=unionBB(shapeA->getBB(),shapeB->getBB());
+  std::function<void(const FBO&)> ref=[&](const FBO&) {
+    drawer.getCamera().draw(glfwGetCurrentContext(),bb);
+    shapeA->draw(false);
+  };
+  std::function<void(const FBO&)> curr=[&](const FBO&) {
+    drawer.getCamera().draw(glfwGetCurrentContext(),bb);
+    shapeB->draw(false);
+  };
+  Eigen::Matrix<GLfloat,2,1> maxS=Eigen::Matrix<GLfloat,2,1>::Zero();
+  Eigen::Matrix<GLfloat,2,1> avgS=Eigen::Matrix<GLfloat,2,1>::Zero();
+  for(int i=0; i<(int)eyes.size(); i++) {
+    drawer.addCamera3D(90,up,eyes[i],dirs[i]);
+    Eigen::Matrix<GLfloat,2,1> ret=compute(&ref,&curr,debugOutput);
+    maxS=maxS.cwiseMax(ret);
+    avgS+=ret;
+  }
+  avgS/=(int)eyes.size();
+  if(debugOutput)
+    std::cout << "Visibility score: ave=" << avgS.transpose() << " max=" << maxS.transpose() << "!" << std::endl;
+  return std::make_pair(avgS,maxS);
+}
 void VisibilityScore::debugVisibility() {
   std::function<void(const FBO&)> ref=[](const FBO& A) {
     glColor3f(1,1,1);
@@ -83,32 +116,13 @@ void VisibilityScore::debugVisibility() {
   };
   compute(&ref,&curr,true);
 }
-void VisibilityScore::debugVisibility(Drawer& drawer,const Eigen::Vector3f& up,
-                                      const std::vector<Eigen::Vector3f>& eyes,const std::vector<Eigen::Vector3f>& dirs,
-                                      std::shared_ptr<MeshShape> shapeA,std::shared_ptr<MeshShape> shapeB) {
-  drawer.addShape(shapeA);
-  drawer.addShape(shapeB);
-  std::function<void(const FBO&)> ref=[&](const FBO&) {
-    glColor3f(1,1,1);
-    shapeA->setEnabled(true);
-    shapeB->setEnabled(false);
-    drawer.draw();
-  };
-  std::function<void(const FBO&)> curr=[&](const FBO&) {
-    glColor3f(1,1,1);
-    shapeA->setEnabled(false);
-    shapeB->setEnabled(true);
-    drawer.draw();
-  };
-  int ave=0,max=0;
-  for(int i=0; i<(int)eyes.size(); i++) {
-    drawer.addCamera3D(90,up,eyes[i],dirs[i]);
-    auto ret=compute(&ref,&curr,true);
-    ave+=ret[1];
-    if(max<ret[1])
-      max=ret[1];
-  }
-  std::cout << "Visibility score: ave max " << ave << " " << max << std::endl;
+void VisibilityScore::debugVisibility(Drawer& drawer) {
+  Eigen::Matrix<GLfloat,3,1> up(0,0,1);
+  Eigen::Matrix<GLfloat,3,1> eye(2,2,2);
+  Eigen::Matrix<GLfloat,3,1> dir(-1,-1,-1);
+  std::shared_ptr<MeshShape> shapeA=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(1,1,1));
+  std::shared_ptr<MeshShape> shapeB=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(.8,.8,.8));
+  compute(drawer,up, {eye}, {dir},shapeA,shapeB,true);
 }
 void VisibilityScore::beginXOR() {
   const FBO& A=_fboRef;

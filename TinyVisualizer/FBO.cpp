@@ -53,11 +53,6 @@ void FBO::drawScreenQuad(GLfloat minx,GLfloat miny,GLfloat maxx,GLfloat maxy,boo
   });
 }
 void FBO::drawScreenQuad(std::function<void()> func) const {
-  GLint vp[4];
-  glGetIntegerv(GL_VIEWPORT,vp);
-  glViewport(0,0,width(),height());
-  glScissor(0,0,width(),height());
-
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
@@ -71,14 +66,16 @@ void FBO::drawScreenQuad(std::function<void()> func) const {
   glPopMatrix();
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
-
-  glViewport(vp[0],vp[1],vp[2],vp[3]);
-  glScissor(vp[0],vp[1],vp[2],vp[3]);
 }
 void FBO::begin() const {
   glBindFramebuffer(GL_FRAMEBUFFER,_fbo);
+  glGetIntegerv(GL_VIEWPORT,const_cast<GLint*>(_vp));
+  glViewport(0,0,width(),height());
+  glScissor(0,0,width(),height());
 }
 void FBO::end() const {
+  glViewport(_vp[0],_vp[1],_vp[2],_vp[3]);
+  glScissor(_vp[0],_vp[1],_vp[2],_vp[3]);
   glBindFramebuffer(GL_FRAMEBUFFER,0);
 }
 GLfloat FBO::getPixel00() const {
@@ -157,8 +154,13 @@ void FBOShadow::begin(int d) const {
   glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_CUBE_MAP_POSITIVE_X+d,_dbo,0);
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
+  glGetIntegerv(GL_VIEWPORT,const_cast<GLint*>(_vp));
+  glViewport(0,0,width(),height());
+  glScissor(0,0,width(),height());
 }
 void FBOShadow::end() const {
+  glViewport(_vp[0],_vp[1],_vp[2],_vp[3]);
+  glScissor(_vp[0],_vp[1],_vp[2],_vp[3]);
   glBindFramebuffer(GL_FRAMEBUFFER,0);
 }
 void FBOShadow::beginShadow() const {

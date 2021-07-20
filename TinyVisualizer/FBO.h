@@ -31,6 +31,7 @@ class FBO {
   GLenum _formatColor;
   GLenum _formatDepth;
   GLuint _fbo,_dbo;
+  GLint _vp[4];
 };
 class FBOShadow {
  public:
@@ -51,6 +52,7 @@ class FBOShadow {
   void clear();
   GLenum _formatDepth;
   GLuint _fbo,_dbo;
+  GLint _vp[4];
 };
 class FBOPingPong {
  public:

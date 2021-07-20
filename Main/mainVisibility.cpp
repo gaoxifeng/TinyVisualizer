@@ -5,7 +5,7 @@ using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
-  VisibilityScore score(10);
-  score.debugVisibility();
+  std::shared_ptr<VisibilityScore> score(new VisibilityScore(10));
+  score->debugVisibility(drawer);
   return 0;
 }

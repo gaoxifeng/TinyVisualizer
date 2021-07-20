@@ -197,9 +197,9 @@ void Camera3D::setPosition(const Eigen::Matrix<GLfloat,3,1>& pos) {
   _pos=pos;
 }
 void Camera3D::setDirection(const Eigen::Matrix<GLfloat,3,1>& dir) {
-  _dir=dir;
+  _dir=dir.normalized();
 }
 void Camera3D::setUp(const Eigen::Matrix<GLfloat,3,1>& up) {
-  _up=up;
+  _up=up.normalized();
 }
 }
