@@ -37,6 +37,14 @@ ENDIF(GLFW_FOUND)
 
 #IMGUI
 INCLUDE_DIRECTORIES(${EXTERN_DIRECTORY}/imgui)
+FILE(GLOB IMGUI
+${PROJECT_SOURCE_DIR}/extern/imgui/*.h
+${PROJECT_SOURCE_DIR}/extern/imgui/*.cpp
+${PROJECT_SOURCE_DIR}/TinyVisualizer/imgui/*.h
+${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.h
+${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.cpp
+${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.h
+${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.cpp)
 
 #Box2D
 OPTION(USE_BOX2D "Add internal support for Box2D" OFF)

@@ -139,8 +139,8 @@ void Drawer::draw() {
     },&viewFrustum);
   });
   //plugin predraw
-  for (std::shared_ptr<Plugin> pi : _plugins)
-      pi->preDraw();
+  for(std::shared_ptr<Plugin> pi:_plugins)
+    pi->preDraw();
   //draw appearance
   if(_root) {
     Eigen::Matrix<GLfloat,-1,1> viewFrustum;
@@ -224,12 +224,11 @@ void Drawer::addCamera2D(GLfloat xExt) {
 void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up) {
   _camera.reset(new Camera3D(angle,up));
 }
-void Drawer::addCamera3D(GLfloat angle, Eigen::Matrix<GLfloat, 3, 1> up,
-    Eigen::Matrix<GLfloat, 3, 1> pos, Eigen::Matrix<GLfloat, 3, 1> dir){
-    Camera3D camera(angle, up);
-    camera.setDirection(dir);
-    camera.setPosition(pos);
-    _camera.reset(&camera);
+void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir) {
+  Camera3D camera(angle,up);
+  camera.setDirection(dir);
+  camera.setPosition(pos);
+  _camera.reset(&camera);
 }
 Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos(double x,double y) {
   ASSERT(_camera);
@@ -248,8 +247,8 @@ Camera& Drawer::getCamera() {
   return *_camera;
 }
 GLFWwindow* Drawer::getWindow() {
-    ASSERT(_window);
-    return _window;
+  ASSERT(_window);
+  return _window;
 }
 void Drawer::mainLoop() {
   while (!glfwWindowShouldClose(_window)) {
@@ -266,12 +265,7 @@ int Drawer::FPS() {
 void Drawer::addPlugin(std::shared_ptr<Plugin> pi) {
   if(std::find(_plugins.begin(),_plugins.end(),pi)==_plugins.end())
     _plugins.push_back(pi);
-  
-  // Init all plugins
-  for (int i = 0; i < _plugins.size(); ++i)
-  {
-      _plugins[i]->init(_window);
-  }
+  pi->init(_window);
 }
 void Drawer::removeShape(std::shared_ptr<Shape> s) {
   _root=SceneNode::remove(_root,s);
@@ -284,10 +278,8 @@ void Drawer::focusOn(std::shared_ptr<Shape> s) {
     _camera->focusOn(s);
 }
 void Drawer::clear() {
-  for (int i = 0; i < _plugins.size(); ++i)
-  {
-      _plugins[i]->clear();
-  }
+  for(std::shared_ptr<Plugin> pi:_plugins)
+    pi->clear();
   _plugins.clear();
   _root=NULL;
 }

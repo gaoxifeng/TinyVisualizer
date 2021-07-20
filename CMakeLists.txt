@@ -49,38 +49,25 @@ ENDMACRO(SEARCH_SOURCE)
 SEARCH_SOURCE(TinyVisualizer TinyVisualizer)
 SEARCH_SOURCE(GLAD extern/glad)
 
-SET(JOMPEG ${PROJECT_SOURCE_DIR}/extern/jo_mpeg.h)
-
-FILE(GLOB IMGUI 
-${PROJECT_SOURCE_DIR}/extern/imgui/*.h
-${PROJECT_SOURCE_DIR}/extern/imgui/*.cpp
-${PROJECT_SOURCE_DIR}/TinyVisualizer/imgui/*.h
-${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.h
-${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.cpp
-${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.h
-${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.cpp
-)
-
 #BUILD LIBRARY
 IF(MSVC)
-  ADD_LIBRARY(TinyVisualizer STATIC ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${JOMPEG} ${IMGUI})
+  ADD_LIBRARY(TinyVisualizer STATIC ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${IMGUI})
 ELSE(MSVC)
-  ADD_LIBRARY(TinyVisualizer SHARED ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${JOMPEG} ${IMGUI})
+  ADD_LIBRARY(TinyVisualizer SHARED ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${IMGUI})
 ENDIF(MSVC)
 SET_TARGET_PROPERTIES(TinyVisualizer PROPERTIES PUBLIC_HEADER "${headerTinyVisualizer}" PRIVATE_HEADER "${headerGLAD}")
 TARGET_LINK_LIBRARIES(TinyVisualizer ${ALL_LIBRARIES})
 
 IF(MSVC)
   SET(INSTALL_REL_DIRECTORY "C:/TinyVisualizer")
-  INSTALL(TARGETS TinyVisualizer 
+ELSE(MSVC)
+  SET(INSTALL_REL_DIRECTORY "/usr/local")
+ENDIF(MSVC)
+INSTALL(TARGETS TinyVisualizer
   ARCHIVE DESTINATION ${INSTALL_REL_DIRECTORY}/lib
   LIBRARY DESTINATION ${INSTALL_REL_DIRECTORY}/lib
   PUBLIC_HEADER DESTINATION ${INSTALL_REL_DIRECTORY}/include/TinyVisualizer
-  PRIVATE_HEADER DESTINATION ${INSTALL_REL_DIRECTORY}/include/glad
-  )
-ELSE(MSVC)
-  INSTALL(TARGETS TinyVisualizer LIBRARY DESTINATION "/usr/local/lib" PUBLIC_HEADER DESTINATION "/usr/local/include/TinyVisualizer" PRIVATE_HEADER DESTINATION "/usr/local/include/glad")
-ENDIF(MSVC)
+  PRIVATE_HEADER DESTINATION ${INSTALL_REL_DIRECTORY}/include/glad)
 
 #EXE
 MACRO(ADD_EXE NAME)

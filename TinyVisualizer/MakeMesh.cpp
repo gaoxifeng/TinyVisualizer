@@ -165,30 +165,22 @@ std::shared_ptr<MeshShape> makeCapsule(int RES,bool fill,GLfloat rad,GLfloat hei
 std::shared_ptr<MeshShape> makeSphere(int RES,bool fill,GLfloat rad) {
   return makeSphericalBox(RES,fill,rad,Eigen::Matrix<GLfloat,3,1>(0,0,0));
 }
-std::shared_ptr<MeshShape> makeTriMesh(bool fill, const Eigen::Matrix<GLfloat, -1, -1>& V, const Eigen::Matrix<int, -1, -1>& F){
-    std::shared_ptr<MeshShape> shape(new MeshShape);
-    for (int i = 0; i < V.rows(); i++) {
-        Eigen::Matrix<GLfloat, 3, 1> v(V(i,0), V(i, 1), V(i, 2));
-        shape->addVertex(v);
-    }
-    for (int i = 0; i < F.rows(); i++) {
-        Eigen::Matrix<int, 3, 1> f(F(i, 0), F(i, 1), F(i, 2));
-        shape->addIndex(f);
-    }
-    shape->setMode(fill ? GL_TRIANGLES : GL_LINES);
-    return shape;
+std::shared_ptr<MeshShape> makeTriMesh(bool fill,const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& F) {
+  std::shared_ptr<MeshShape> shape(new MeshShape);
+  for (int i=0; i<V.rows(); i++)
+    shape->addVertex(V.row(i));
+  for (int i=0; i<F.rows(); i++)
+    shape->addIndex(F.row(i));
+  shape->setMode(fill?GL_TRIANGLES:GL_LINES);
+  return shape;
 }
-std::shared_ptr<MeshShape> makeWires(const Eigen::Matrix<GLfloat, -1, -1>& V, const Eigen::Matrix<int, -1, -1>& E) {
-    std::shared_ptr<MeshShape> shape(new MeshShape);
-    for (int i = 0; i < V.rows(); i++) {
-        Eigen::Matrix<GLfloat, 3, 1> v(V(i, 0), V(i, 1), V(i, 2));
-        shape->addVertex(v);
-    }
-    for (int i = 0; i < E.rows(); i++) {
-        Eigen::Matrix<int, 2, 1> f(E(i, 0), E(i, 1));
-        shape->addIndex(f);
-    }
-    shape->setMode(GL_LINES);
-    return shape;
+std::shared_ptr<MeshShape> makeWires(const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& E) {
+  std::shared_ptr<MeshShape> shape(new MeshShape);
+  for(int i=0; i<V.rows(); i++)
+    shape->addVertex(V.row(i));
+  for(int i=0; i<E.rows(); i++)
+    shape->addIndex(E.row(i));
+  shape->setMode(GL_LINES);
+  return shape;
 }
 }
