@@ -1,12 +1,14 @@
 #include <TinyVisualizer/Drawer.h>
 #include <TinyVisualizer/ImGuiPlugin.h>
 #include <TinyVisualizer/imgui/ImGuiHelpers.h>
+#include <TinyVisualizer/CapturePlugin.h>
 #include <iostream>
 
 using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
+  drawer.addPlugin(std::shared_ptr<Plugin>(new CapturePlugin(GLFW_KEY_1,"record.mp2",drawer.FPS())));
   DRAWER::ImGuiPlugin *menup=new DRAWER::ImGuiPlugin;
   // Draw additional windows
   menup->callbackDrawCustomWindow=[&]() {
