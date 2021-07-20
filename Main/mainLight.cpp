@@ -10,7 +10,6 @@ using namespace DRAWER;
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
   std::shared_ptr<Texture> checker=drawChecker();
-  drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
 
   std::shared_ptr<Bullet3DShape> shapeTA(new Bullet3DShape);
   std::shared_ptr<MeshShape> sphere=makeSphere(8,true,0.25f);
@@ -28,23 +27,10 @@ int main(int argc,char** argv) {
   shapeTB->addShape(box);
   drawer.addShape(shapeTB);
 
-#define USE_LIGHT
-#ifdef USE_LIGHT
-  GLfloat theta=0;
-  drawer.addLightSystem();
-  Eigen::Matrix<GLfloat,4,4> T;
-  drawer.getLight().lightSz()=10;
-  drawer.getLight().addLight(Eigen::Matrix<GLfloat,3,1>(0,0, 0.2f),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(0,0,1));
-  drawer.getLight().addLight(Eigen::Matrix<GLfloat,3,1>(0,0,-0.2f),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(1,0,0));
-#endif
   bool sim=false;
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>) {
+    Eigen::Matrix<GLfloat,4,4> T;
+    GLfloat theta=0;
     T.setIdentity();
     T(0,0)=std::cos(theta);
     T(0,1)=-std::sin(theta);

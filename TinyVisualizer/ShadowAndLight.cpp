@@ -125,7 +125,8 @@ const std::string ShadowFrag=
   "  //write this as modified depth\n"\
   "  gl_FragDepth=lightDistance;\n"\
   "}\n";
-ShadowLight::ShadowLight(int shadow,int softShadow):_bias(0.1f),_softShadow(softShadow),_shadow(shadow),_lightSz(0) {
+ShadowLight::ShadowLight(int shadow,int softShadow,bool autoAdjust)
+  :_bias(0.1f),_softShadow(softShadow),_autoAdjust(autoAdjust),_shadow(shadow),_lightSz(0) {
   if(!_shader) {
     _shader.reset(new Shader(ShadowLightVert,"",ShadowLightFrag));
     _shaderShadow.reset(new Shader(ShadowVert,"",ShadowFrag));
@@ -150,6 +151,32 @@ int ShadowLight::addLight(const Eigen::Matrix<GLfloat,3,1>& pos,
   _lights.push_back(l);
   ASSERT_MSG(_lights.size()<=16,"At most 16 lights supported!")
   return (int)_lights.size()-1;
+}
+void ShadowLight::setDefaultLight(const Eigen::Matrix<GLfloat,6,1>& bb,
+                                  const Eigen::Matrix<GLfloat,3,1>& ambient,
+                                  const Eigen::Matrix<GLfloat,3,1>& diffuse,
+                                  const Eigen::Matrix<GLfloat,3,1>& specular) {
+  while(_lights.size()>8)
+    _lights.pop_back();
+  while(_lights.size()<8)
+    addLight(Eigen::Matrix<GLfloat,3,1>::Zero(),ambient,diffuse,specular);
+
+  int index=0;
+  for(GLfloat x: {
+        bb[0],bb[3]
+      })
+    for(GLfloat y: {
+          bb[1],bb[4]
+        })
+      for(GLfloat z: {
+            bb[2],bb[5]
+          }) {
+        setLightPos(index,Eigen::Matrix<GLfloat,3,1>(x,y,z));
+        getLightAmbient(index)=ambient;
+        getLightDiffuse(index)=diffuse;
+        getLightSpecular(index)=specular;
+        index++;
+      }
 }
 void ShadowLight::setLightPos(int i,const Eigen::Matrix<GLfloat,3,1>& pos) {
   _lights[i]._position.segment<3>(0)=pos;
@@ -176,11 +203,20 @@ Eigen::Map<Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightSpecular(int i) {
 Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightSpecular(int i) const {
   return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(_lights[i]._specular.data());
 }
+void ShadowLight::clear() {
+  _lights.clear();
+}
 int ShadowLight::softShadow() const {
   return _softShadow;
 }
 int& ShadowLight::softShadow() {
   return _softShadow;
+}
+bool ShadowLight::autoAdjust() const {
+  return _autoAdjust;
+}
+bool& ShadowLight::autoAdjust() {
+  return _autoAdjust;
 }
 int ShadowLight::lightSz() const {
   return _lightSz;

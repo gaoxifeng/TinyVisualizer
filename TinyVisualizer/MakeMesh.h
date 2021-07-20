@@ -12,7 +12,7 @@ extern std::shared_ptr<MeshShape> makeBox(int RES,bool fill,const Eigen::Matrix<
 extern std::shared_ptr<MeshShape> makeSphericalBox(int RES,bool fill,GLfloat rad,const Eigen::Matrix<GLfloat,3,1>& halfExt);
 extern std::shared_ptr<MeshShape> makeCapsule(int RES,bool fill,GLfloat rad,GLfloat height);
 extern std::shared_ptr<MeshShape> makeSphere(int RES,bool fill,GLfloat rad);
-extern std::shared_ptr<MeshShape> makeTriMesh(bool fill, const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& F);
+extern std::shared_ptr<MeshShape> makeTriMesh(bool fill, const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& F,bool faceBased=true);
 extern std::shared_ptr<MeshShape> makeWires(const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& E);
 }
 

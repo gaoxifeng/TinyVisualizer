@@ -78,7 +78,7 @@ class Drawer {
   virtual ~Drawer();
   void setRes(int width,int height);
   void setBackground(GLfloat r=1,GLfloat g=1,GLfloat b=1);
-  void addLightSystem(int shadow=1024,int softShadow=10);
+  void addLightSystem(int shadow=1024,int softShadow=10,bool autoAdjust=false);
   void timer();
   void draw();
   static void mouse(GLFWwindow* wnd,int button,int action,int mods);
@@ -107,6 +107,7 @@ class Drawer {
   void removeShape(std::shared_ptr<Shape> s);
   void addShape(std::shared_ptr<Shape> s);
   void focusOn(std::shared_ptr<Shape> s);
+  void clearScene();
   void clear();
  private:
   Drawer(const Drawer& other) {}

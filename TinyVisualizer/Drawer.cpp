@@ -1,6 +1,7 @@
 #include "Drawer.h"
 #include "Camera2D.h"
 #include "Camera3D.h"
+#include "MeshShape.h"
 #include "ShadowAndLight.h"
 #include "SceneStructure.h"
 #include <iostream>
@@ -85,6 +86,21 @@ Drawer::Drawer(int argc,char** argv)
   if(samples)
     std::cout << "Context reports MSAA is available with " << samples << " samples" << std::endl;
   else std::cout << "Context reports MSAA is unavailable" << std::endl;
+  //force initial MeshShape::Texture
+  MeshShape();
+  //add default light
+  if(argparseRange(argc,argv,"defaultLight",1,Eigen::Matrix<int,2,1>(0,2))) {
+    addLightSystem(argparseRange(argc,argv,"defaultShadow",0,Eigen::Matrix<int,2,1>(0,2049)),
+                   argparseRange(argc,argv,"defaultShadowSoftness",20,Eigen::Matrix<int,2,1>(0,21)),
+                   argparseRange(argc,argv,"defaultAutoAdjust",1,Eigen::Matrix<int,2,1>(0,2)));
+    getLight().lightSz()=argparseRange(argc,argv,"defaultLightSz",20,Eigen::Matrix<int,2,1>(0,101));
+  }
+  //add default camera
+  if(argparseRange(argc,argv,"defaultCamera2D",0,Eigen::Matrix<int,2,1>(0,2)))
+    addCamera2D(argparseRange(argc,argv,"defaultCamera2DExt",10,Eigen::Matrix<int,2,1>(0,11)));
+  else if(argparseRange(argc,argv,"defaultCamera3D",1,Eigen::Matrix<int,2,1>(0,2)))
+    addCamera3D(argparseRange(argc,argv,"defaultCamera3DFovy",90,Eigen::Matrix<int,2,1>(0,271)),
+                Eigen::Matrix<GLfloat,3,1>::Unit(argparseRange(argc,argv,"defaultCamera3DUp",2,Eigen::Matrix<int,2,1>(0,3))));
 }
 Drawer::~Drawer() {
   clear();
@@ -96,8 +112,8 @@ void Drawer::setRes(int width,int height) {
 void Drawer::setBackground(GLfloat r,GLfloat g,GLfloat b) {
   glClearColor(r,g,b,1);
 }
-void Drawer::addLightSystem(int shadow,int softShadow) {
-  _light.reset(new ShadowLight(shadow,softShadow));
+void Drawer::addLightSystem(int shadow,int softShadow,bool autoAdjust) {
+  _light.reset(new ShadowLight(shadow,softShadow,autoAdjust));
 }
 void Drawer::timer() {
   double t=glfwGetTime();
@@ -267,18 +283,25 @@ void Drawer::addPlugin(std::shared_ptr<Plugin> pi) {
 }
 void Drawer::removeShape(std::shared_ptr<Shape> s) {
   _root=SceneNode::remove(_root,s);
+  if(_root && _light && _light->autoAdjust())
+    _light->setDefaultLight(_root->getBB());
 }
 void Drawer::addShape(std::shared_ptr<Shape> s) {
   _root=SceneNode::update(_root,s);
+  if(_light && _light->autoAdjust())
+    _light->setDefaultLight(_root->getBB());
 }
 void Drawer::focusOn(std::shared_ptr<Shape> s) {
   if(_camera)
     _camera->focusOn(s);
 }
+void Drawer::clearScene() {
+  _root=NULL;
+}
 void Drawer::clear() {
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->clear();
   _plugins.clear();
-  _root=NULL;
+  clearScene();
 }
 }
