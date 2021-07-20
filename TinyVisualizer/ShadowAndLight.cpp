@@ -152,7 +152,8 @@ int ShadowLight::addLight(const Eigen::Matrix<GLfloat,3,1>& pos,
   ASSERT_MSG(_lights.size()<=16,"At most 16 lights supported!")
   return (int)_lights.size()-1;
 }
-void ShadowLight::setDefaultLight(const Eigen::Matrix<GLfloat,6,1>& bb,
+void ShadowLight::setDefaultLight(Eigen::Matrix<GLfloat,6,1> bb,
+                                  const GLfloat relativeDistance,
                                   const Eigen::Matrix<GLfloat,3,1>& ambient,
                                   const Eigen::Matrix<GLfloat,3,1>& diffuse,
                                   const Eigen::Matrix<GLfloat,3,1>& specular) {
@@ -162,6 +163,9 @@ void ShadowLight::setDefaultLight(const Eigen::Matrix<GLfloat,6,1>& bb,
     addLight(Eigen::Matrix<GLfloat,3,1>::Zero(),ambient,diffuse,specular);
 
   int index=0;
+  Eigen::Matrix<GLfloat,3,1> ext=bb.segment<3>(3)-bb.segment<3>(0);
+  bb.segment<3>(0)-=ext*relativeDistance;
+  bb.segment<3>(3)+=ext*relativeDistance;
   for(GLfloat x: {
         bb[0],bb[3]
       })

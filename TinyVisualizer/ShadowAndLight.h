@@ -22,7 +22,7 @@ class ShadowLight {
                const Eigen::Matrix<GLfloat,3,1>& ambient=Eigen::Matrix<GLfloat,3,1>(1,1,1),
                const Eigen::Matrix<GLfloat,3,1>& diffuse=Eigen::Matrix<GLfloat,3,1>(1,1,1),
                const Eigen::Matrix<GLfloat,3,1>& specular=Eigen::Matrix<GLfloat,3,1>(1,1,1));
-  void setDefaultLight(const Eigen::Matrix<GLfloat,6,1>& bb,
+  void setDefaultLight(Eigen::Matrix<GLfloat,6,1> bb,const GLfloat relativeDistance=.2,
                        const Eigen::Matrix<GLfloat,3,1>& ambient=Eigen::Matrix<GLfloat,3,1>(1,1,1),
                        const Eigen::Matrix<GLfloat,3,1>& diffuse=Eigen::Matrix<GLfloat,3,1>(1,1,1),
                        const Eigen::Matrix<GLfloat,3,1>& specular=Eigen::Matrix<GLfloat,3,1>(1,1,1));

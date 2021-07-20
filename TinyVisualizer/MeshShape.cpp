@@ -4,14 +4,24 @@
 
 namespace DRAWER {
 //MeshShape
+#define DEFAULT_R 200/255.
+#define DEFAULT_G 143/255.
+#define DEFAULT_B 29/255.
+#define DEFAULT_S 10.
 MeshShape::MeshShape()
-  :_bb(resetBB()),_pointSize(1),_lineWidth(1),_rs(1),_gs(1),_bs(1),_s(1),_ra(0),_ga(0),_ba(0),_r(1),_g(1),_b(1),_dirty(true) {
+  :_bb(resetBB()),_pointSize(1),_lineWidth(1),
+   _rs(DEFAULT_R),_gs(DEFAULT_G),_bs(DEFAULT_B),_s(DEFAULT_S),
+   _ra(0),_ga(0),_ba(0),
+   _r(DEFAULT_R),_g(DEFAULT_G),_b(DEFAULT_B),_dirty(true) {
   if(!_texWhite)
     _texWhite=getWhiteTexture();
   _tex=_texWhite;
 }
 MeshShape::MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLuint>& indices,GLenum mode)
-  :_bb(resetBB()),_pointSize(1),_lineWidth(1),_rs(1),_gs(1),_bs(1),_s(1),_ra(0),_ga(0),_ba(0),_r(1),_g(1),_b(1),_dirty(true) {
+  :_bb(resetBB()),_pointSize(1),_lineWidth(1),
+   _rs(DEFAULT_R),_gs(DEFAULT_G),_bs(DEFAULT_B),_s(DEFAULT_S),
+   _ra(0),_ga(0),_ba(0),
+   _r(DEFAULT_R),_g(DEFAULT_G),_b(DEFAULT_B),_dirty(true) {
   _vertices=vertices;
   _indices=indices;
   _bb=resetBB();
