@@ -1,17 +1,17 @@
-#include "Capture.h"
+#include "CapturePlugin.h"
 #include <jo_mpeg.h>
 #include <iostream>
 
 namespace DRAWER {
-Capture::Capture(int hotkey,const std::string& name,int FPS)
+CapturePlugin::CapturePlugin(int hotkey,const std::string& name,int FPS)
   :_key(hotkey),_recordFPS(FPS),_recordFile(NULL),_recordFileName(name) {}
-void Capture::finalize() {
+void CapturePlugin::finalize() {
   stopRecording();
 }
-void Capture::frame(std::shared_ptr<SceneNode>&) {
+void CapturePlugin::frame(std::shared_ptr<SceneNode>&) {
   addFrame();
 }
-void Capture::key(GLFWwindow*,int key,int,int action,int) {
+void CapturePlugin::key(GLFWwindow*,int key,int,int action,int) {
   if(key==_key && action==GLFW_PRESS) {
     if(!_recordFile)
       startRecording();
@@ -19,7 +19,7 @@ void Capture::key(GLFWwindow*,int key,int,int action,int) {
   }
 }
 //helper
-void Capture::startRecording() {
+void CapturePlugin::startRecording() {
   if(_recordFile!=NULL) {
     std::cout << "Alreading started recording, cannot accept duplicate calls!" << std::endl;
     return;
@@ -34,7 +34,7 @@ void Capture::startRecording() {
     _height=viewport[3];
   }
 }
-void Capture::addFrame() {
+void CapturePlugin::addFrame() {
   if(!_recordFile)
     return;
   //read screen
@@ -59,7 +59,7 @@ void Capture::addFrame() {
     } else break;
   jo_write_mpeg(_recordFile,&_recordFrame[0],viewport[2],viewport[3],_recordFPS);
 }
-void Capture::stopRecording() {
+void CapturePlugin::stopRecording() {
   if(_recordFile) {
     fclose(_recordFile);
     std::cout << "Stopped recording to " << _recordFileName << std::endl;

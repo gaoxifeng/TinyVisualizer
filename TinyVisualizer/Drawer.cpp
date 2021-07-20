@@ -246,10 +246,6 @@ Camera& Drawer::getCamera() {
   ASSERT(_camera);
   return *_camera;
 }
-GLFWwindow* Drawer::getWindow() {
-  ASSERT(_window);
-  return _window;
-}
 void Drawer::mainLoop() {
   while (!glfwWindowShouldClose(_window)) {
     draw();

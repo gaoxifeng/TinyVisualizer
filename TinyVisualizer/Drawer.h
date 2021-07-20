@@ -92,15 +92,13 @@ class Drawer {
   void setFrameFunc(std::function<void(std::shared_ptr<SceneNode>&)> frame);
   void setDrawFunc(std::function<void()> draw);
   void addCamera2D(GLfloat xExt);
+  //addCamera3D-FirstPerson/TrackBall
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up=Eigen::Matrix<GLfloat,3,1>(0,0,1));
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir);
-  //addcamera3d-firstperson
-  //addcamera3d-trackball
   Eigen::Matrix<GLfloat,2,1> getWorldPos(double x,double y);
   Eigen::Matrix<GLfloat,2,1> getWorldPos();
   ShadowLight& getLight();
   Camera& getCamera();
-  GLFWwindow* getWindow();
   void mainLoop();
   int FPS();
   //getter/setter

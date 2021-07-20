@@ -1,12 +1,12 @@
-#ifndef CAPTURE_H
-#define CAPTURE_H
+#ifndef CAPTURE_PLUGIN_H
+#define CAPTURE_PLUGIN_H
 
 #include "Drawer.h"
 
 namespace DRAWER {
-class Capture : public Plugin {
+class CapturePlugin : public Plugin {
  public:
-  Capture(int hotkey,const std::string& name,int FPS);
+  CapturePlugin(int hotkey,const std::string& name,int FPS);
   virtual void finalize() override;
   virtual void frame(std::shared_ptr<SceneNode>&) override;
   virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) override;

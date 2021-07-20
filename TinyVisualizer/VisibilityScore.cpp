@@ -73,46 +73,42 @@ Eigen::Matrix<GLfloat,2,1> VisibilityScore::compute(std::function<void(const FBO
   return ret;
 }
 void VisibilityScore::debugVisibility() {
-      std::function<void(const FBO&)> ref=[](const FBO& A) {
-        glColor3f(1,1,1);
-        A.drawScreenQuad(-0.75,-0.75,0.5,0.5);
-      };
-      std::function<void(const FBO&)> curr=[](const FBO& B) {
-        glColor3f(1,1,1);
-        B.drawScreenQuad(-0.5,-0.5,0.75,0.75);
-      };
-      compute(&ref,&curr,true);
+  std::function<void(const FBO&)> ref=[](const FBO& A) {
+    glColor3f(1,1,1);
+    A.drawScreenQuad(-0.75,-0.75,0.5,0.5);
+  };
+  std::function<void(const FBO&)> curr=[](const FBO& B) {
+    glColor3f(1,1,1);
+    B.drawScreenQuad(-0.5,-0.5,0.75,0.75);
+  };
+  compute(&ref,&curr,true);
 }
-void VisibilityScore::debugVisibility(Drawer& drawer, const Eigen::Vector3f &up,
-    const std::vector<Eigen::Vector3f>& eyes,
-    const std::vector<Eigen::Vector3f>& dirs,
-    std::shared_ptr<MeshShape> shapeA, std::shared_ptr<MeshShape> shapeB) {
-
-    drawer.addShape(shapeA);
-    drawer.addShape(shapeB);
-    std::function<void(const FBO&)> ref = [&](const FBO& A) {
-        glColor3f(1, 1, 1);
-        shapeA->setEnabled(true);
-        shapeB->setEnabled(false);
-        drawer.draw();
-    };
-    std::function<void(const FBO&)> curr = [&](const FBO& B) {
-        glColor3f(1, 1, 1);
-        shapeA->setEnabled(false);
-        shapeB->setEnabled(true);
-        drawer.draw();
-    };
-
-    int ave = 0, max = 0;
-    for (int i = 0; i < eyes.size(); i++)
-    {
-        drawer.addCamera3D(90, up, eyes[i], dirs[i]);
-        auto ret= compute(&ref, &curr, true);
-        ave += ret[1];
-        if (max < ret[1])
-            max = ret[1];
-    }
-    std::cout << "Visibility score: ave max " << ave << " " << max << std::endl;
+void VisibilityScore::debugVisibility(Drawer& drawer,const Eigen::Vector3f& up,
+                                      const std::vector<Eigen::Vector3f>& eyes,const std::vector<Eigen::Vector3f>& dirs,
+                                      std::shared_ptr<MeshShape> shapeA,std::shared_ptr<MeshShape> shapeB) {
+  drawer.addShape(shapeA);
+  drawer.addShape(shapeB);
+  std::function<void(const FBO&)> ref=[&](const FBO&) {
+    glColor3f(1,1,1);
+    shapeA->setEnabled(true);
+    shapeB->setEnabled(false);
+    drawer.draw();
+  };
+  std::function<void(const FBO&)> curr=[&](const FBO&) {
+    glColor3f(1,1,1);
+    shapeA->setEnabled(false);
+    shapeB->setEnabled(true);
+    drawer.draw();
+  };
+  int ave=0,max=0;
+  for(int i=0; i<(int)eyes.size(); i++) {
+    drawer.addCamera3D(90,up,eyes[i],dirs[i]);
+    auto ret=compute(&ref,&curr,true);
+    ave+=ret[1];
+    if(max<ret[1])
+      max=ret[1];
+  }
+  std::cout << "Visibility score: ave max " << ave << " " << max << std::endl;
 }
 void VisibilityScore::beginXOR() {
   const FBO& A=_fboRef;
