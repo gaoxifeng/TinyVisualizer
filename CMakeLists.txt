@@ -81,6 +81,7 @@ ENDMACRO(ADD_EXE)
 #DEBUG
 ADD_EXE(mainBox2D)
 ADD_EXE(mainBullet3D)
+ADD_EXE(mainImGuiPlugin)
 ADD_EXE(mainVisibility)
 ADD_EXE(mainSphericalBox)
 ADD_EXE(mainTerrain)
