@@ -16,9 +16,9 @@ class Camera3D : public Camera {
   void draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) override;
   Eigen::Matrix<GLfloat,-1,1> getCameraRay(GLFWwindow* wnd,double x,double y) const override;
   Eigen::Matrix<GLfloat,-1,1> getViewFrustum() const override;
-  void setPosition(Eigen::Matrix<GLfloat, 3, 1> pos);
-  void setDirection(Eigen::Matrix<GLfloat, 3, 1> dir);
-  void setUp(Eigen::Matrix<GLfloat, 3, 1> up);
+  void setPosition(const Eigen::Matrix<GLfloat,3,1>& pos);
+  void setDirection(const Eigen::Matrix<GLfloat,3,1>& dir);
+  void setUp(const Eigen::Matrix<GLfloat,3,1>& up);
  private:
   void begin(GLfloat& theta,GLfloat& phi) const;
   void end(GLfloat theta,GLfloat phi);
