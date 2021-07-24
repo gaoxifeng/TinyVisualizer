@@ -99,6 +99,7 @@ class Drawer {
   Eigen::Matrix<GLfloat,2,1> getWorldPos();
   std::shared_ptr<SceneNode> root();
   ShadowLight& getLight();
+  void clearLight();
   Camera& getCamera();
   void mainLoop();
   int FPS();

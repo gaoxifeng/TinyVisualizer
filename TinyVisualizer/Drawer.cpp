@@ -260,6 +260,9 @@ std::shared_ptr<SceneNode> Drawer::root() {
 ShadowLight& Drawer::getLight() {
   return *_light;
 }
+void Drawer::clearLight() {
+  _light=NULL;
+}
 Camera& Drawer::getCamera() {
   ASSERT(_camera);
   return *_camera;
