@@ -1,7 +1,9 @@
 #ifdef BOX2D_SUPPORT
 #include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Camera2D.h>
 #include <TinyVisualizer/Box2DShape.h>
 #include <TinyVisualizer/SceneStructure.h>
+#include <TinyVisualizer/MakeTexture.h>
 #include <Box2D/Box2D.h>
 
 using namespace DRAWER;
@@ -98,6 +100,8 @@ int main(int argc,char** argv) {
   AABBCallback cb;
   Drawer drawer(argc,argv);
   drawer.addCamera2D(10);
+  drawer.clearLight();
+  dynamic_cast<Camera2D&>(drawer.getCamera()).setTexture(drawChecker(6,Eigen::Matrix<GLfloat,3,1>(1,1,1),Eigen::Matrix<GLfloat,3,1>(0,.3,.5)),Eigen::Matrix<GLfloat,2,1>(.1,.1));
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>& root) {
     if(sim)
       world->Step(0.01f,100,100);

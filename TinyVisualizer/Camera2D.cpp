@@ -1,4 +1,5 @@
 #include "Camera2D.h"
+#include "Texture.h"
 
 namespace DRAWER {
 //Camera2D
@@ -55,6 +56,34 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
   _yExt=_xExt*(GLfloat)h/(GLfloat)w;
   glOrtho(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,
           _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,10);
+
+  if(_tex) {
+    glActiveTexture(GL_TEXTURE0);
+    _tex->begin();
+    glActiveTexture(GL_TEXTURE1);
+
+    glBegin(GL_QUADS);
+    glColor3f(1,1,1);
+    glTexCoord2f((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]);
+    glVertex2f(_xCtr-_xExt*_scale,_yCtr-_yExt*_scale);
+
+    glColor3f(1,1,1);
+    glTexCoord2f((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]);
+    glVertex2f(_xCtr+_xExt*_scale,_yCtr-_yExt*_scale);
+
+    glColor3f(1,1,1);
+    glTexCoord2f((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]);
+    glVertex2f(_xCtr+_xExt*_scale,_yCtr+_yExt*_scale);
+
+    glColor3f(1,1,1);
+    glTexCoord2f((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]);
+    glVertex2f(_xCtr-_xExt*_scale,_yCtr+_yExt*_scale);
+    glEnd();
+
+    _tex->end();
+    glActiveTexture(GL_TEXTURE0);
+  }
+
   if(_debug) {
     GLfloat delta=0.3f;
     glLineWidth(5);
@@ -92,5 +121,9 @@ Eigen::Matrix<GLfloat,-1,1> Camera2D::getCameraRay(GLFWwindow* wnd,double x,doub
 }
 Eigen::Matrix<GLfloat,-1,1> Camera2D::getViewFrustum() const {
   return getViewFrustum2DPlanes();
+}
+void Camera2D::setTexture(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,2,1>& tcMult) {
+  _tex=tex;
+  _tcMult=tcMult;
 }
 }
