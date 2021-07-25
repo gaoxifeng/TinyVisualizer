@@ -31,6 +31,11 @@ T interp2D(const T& v0,const T& v1,const T& v2,const T& v3,const TF& px,const TF
   return interp1D(interp1D(v0,v1,px),
                   interp1D(v2,v3,px),py);
 }
+enum class CameraType {
+    camera2D=0,
+    cameraFirstPerson,
+    cameraThirdPerson
+};
 extern Eigen::Matrix<GLfloat,6,1> resetBB();
 extern Eigen::Matrix<GLfloat,6,1> unionBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,6,1>& b);
 extern Eigen::Matrix<GLfloat,6,1> unionBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,3,1>& b);

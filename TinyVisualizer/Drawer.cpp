@@ -1,6 +1,7 @@
 #include "Drawer.h"
 #include "Camera2D.h"
 #include "Camera3D.h"
+#include "CameraThirdPerson.h"
 #include "MeshShape.h"
 #include "ShadowAndLight.h"
 #include "SceneStructure.h"
@@ -96,11 +97,22 @@ Drawer::Drawer(int argc,char** argv)
     getLight().lightSz()=argparseRange(argc,argv,"defaultLightSz",20,Eigen::Matrix<int,2,1>(0,101));
   }
   //add default camera
-  if(argparseRange(argc,argv,"defaultCamera2D",0,Eigen::Matrix<int,2,1>(0,2)))
-    addCamera2D(argparseRange(argc,argv,"defaultCamera2DExt",10,Eigen::Matrix<int,2,1>(0,11)));
-  else if(argparseRange(argc,argv,"defaultCamera3D",1,Eigen::Matrix<int,2,1>(0,2)))
-    addCamera3D(argparseRange(argc,argv,"defaultCamera3DFovy",90,Eigen::Matrix<int,2,1>(0,271)),
-                Eigen::Matrix<GLfloat,3,1>::Unit(argparseRange(argc,argv,"defaultCamera3DUp",2,Eigen::Matrix<int,2,1>(0,3))));
+  cameraType = CameraType::cameraThirdPerson;
+
+  if (argparseRange(argc, argv, "defaultCamera2D", 0, Eigen::Matrix<int, 2, 1>(0, 2))){
+      cameraType = CameraType::camera2D;
+      addCamera2D(argparseRange(argc, argv, "defaultCamera2DExt", 10, Eigen::Matrix<int, 2, 1>(0, 11)));
+  }
+  else if (argparseRange(argc, argv, "defaultCamera3D", 0, Eigen::Matrix<int, 2, 1>(0, 2))) {
+      cameraType = CameraType::cameraFirstPerson;
+      addCamera3D(argparseRange(argc, argv, "defaultCamera3DFovy", 90, Eigen::Matrix<int, 2, 1>(0, 271)),
+          Eigen::Matrix<GLfloat, 3, 1>::Unit(argparseRange(argc, argv, "defaultCamera3DUp", 2, Eigen::Matrix<int, 2, 1>(0, 3))));
+  }
+  else {
+      cameraType = CameraType::cameraThirdPerson;
+      addCamera3D(argparseRange(argc, argv, "defaultCamera3DFovy", 90, Eigen::Matrix<int, 2, 1>(0, 271)),
+          Eigen::Matrix<GLfloat, 3, 1>::Unit(argparseRange(argc, argv, "defaultCamera3DUp", 2, Eigen::Matrix<int, 2, 1>(0, 3))));
+  }
 }
 Drawer::~Drawer() {
   clear();
@@ -235,15 +247,25 @@ void Drawer::setDrawFunc(std::function<void()> draw) {
   _draw=draw;
 }
 void Drawer::addCamera2D(GLfloat xExt) {
-  _camera.reset(new Camera2D(xExt));
+   if (cameraType == CameraType::camera2D)
+      _camera.reset(new Camera2D(xExt));
 }
 void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up) {
-  _camera.reset(new Camera3D(angle,up));
+  if(cameraType==CameraType::cameraFirstPerson)
+    _camera.reset(new Camera3D(angle,up));
+  else if(cameraType == CameraType::cameraThirdPerson)
+      _camera.reset(new CameraThirdPerson(angle, up));
 }
 void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir) {
-  _camera.reset(new Camera3D(angle,up));
-  std::dynamic_pointer_cast<Camera3D>(_camera)->setDirection(dir);
-  std::dynamic_pointer_cast<Camera3D>(_camera)->setPosition(pos);
+  addCamera3D(angle,up);
+  if (cameraType == CameraType::cameraFirstPerson) {
+      std::dynamic_pointer_cast<Camera3D>(_camera)->setDirection(dir);
+      std::dynamic_pointer_cast<Camera3D>(_camera)->setPosition(pos);
+  }
+  else{
+      std::dynamic_pointer_cast<CameraThirdPerson>(_camera)->setDirection(dir);
+      std::dynamic_pointer_cast<CameraThirdPerson>(_camera)->setPosition(pos);
+  }
 }
 Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos(double x,double y) {
   ASSERT(_camera);
