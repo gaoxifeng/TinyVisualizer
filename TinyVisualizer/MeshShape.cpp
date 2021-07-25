@@ -43,6 +43,12 @@ void MeshShape::setMode(GLenum mode) {
 int MeshShape::nrVertex() const {
   return (int)_vertices.size()/3;
 }
+void MeshShape::clear() {
+  _vertices.clear();
+  _normals.clear();
+  _texcoords.clear();
+  _indices.clear();
+}
 void MeshShape::computeNormals() {
   ASSERT_MSGV(_mode==GL_TRIANGLES,"Compute normals is only available when mode(%d)=GL_TRIANGLES!",_mode)
   _normals.assign(_vertices.size(),0);

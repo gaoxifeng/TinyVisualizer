@@ -35,6 +35,7 @@ class MeshShape : public Shape {
   void addIndexSingle(int i);
   void setMode(GLenum mode);
   int nrVertex() const;
+  void clear();
   virtual void computeNormals();
   Eigen::Map<Eigen::Matrix<GLfloat,3,1>> getNormal(int i);
   Eigen::Map<Eigen::Matrix<GLfloat,3,1>> getVertex(int i);

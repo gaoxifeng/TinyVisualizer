@@ -267,9 +267,9 @@ void SceneNode::draw(std::function<void(std::shared_ptr<Shape>)> f,const Eigen::
   });
 }
 bool SceneNode::contain(const Eigen::Matrix<int,3,1>& loc,int sz,const Eigen::Matrix<GLfloat,6,1>& bb) {
-  if(!(bb.segment<3>(0).array()>=(loc.cast<GLfloat>()*_RES).array()).all())
+  if(!(bb.segment<3>(0).array()>(loc.cast<GLfloat>()*_RES).array()).all())
     return false;
-  if(!(bb.segment<3>(3).array()<=((loc.cast<GLfloat>().array()+sz)*_RES)).all())
+  if(!(bb.segment<3>(3).array()<((loc.cast<GLfloat>().array()+sz)*_RES)).all())
     return false;
   return true;
 }

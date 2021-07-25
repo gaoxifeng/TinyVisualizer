@@ -285,11 +285,33 @@ void Drawer::addPlugin(std::shared_ptr<Plugin> pi) {
   pi->init(_window);
 }
 void Drawer::removeShape(std::shared_ptr<Shape> s) {
+  bool alreadyAdded=false;
+  if(_root)
+    _root->visit([&](std::shared_ptr<Shape> sRef)->bool{
+    if(sRef==s) {
+      alreadyAdded=true;
+      return false;
+    }
+    return true;
+  });
+  if(!alreadyAdded)
+    return;
   _root=SceneNode::remove(_root,s);
   if(_root && _light && _light->autoAdjust())
     _light->setDefaultLight(_root->getBB());
 }
 void Drawer::addShape(std::shared_ptr<Shape> s) {
+  bool alreadyAdded=false;
+  if(_root)
+    _root->visit([&](std::shared_ptr<Shape> sRef)->bool{
+    if(sRef==s) {
+      alreadyAdded=true;
+      return false;
+    }
+    return true;
+  });
+  if(alreadyAdded)
+    return;
   _root=SceneNode::update(_root,s);
   if(_light && _light->autoAdjust())
     _light->setDefaultLight(_root->getBB());
