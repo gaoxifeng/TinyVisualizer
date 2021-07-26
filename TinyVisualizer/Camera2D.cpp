@@ -3,6 +3,7 @@
 
 namespace DRAWER {
 //Camera2D
+#define MAX_DEPTH 256
 Camera2D::Camera2D(GLfloat xExt)
   :_xExt(xExt),_xCtr(0),_yCtr(0),_scale(1),_inMotion(false),_debug(false) {}
 void Camera2D::focusOn(std::shared_ptr<Shape> s) {
@@ -55,7 +56,7 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
   glfwGetWindowSize(wnd,&w,&h);
   _yExt=_xExt*(GLfloat)h/(GLfloat)w;
   glOrtho(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,
-          _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,10);
+          _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,MAX_DEPTH);
 
   if(_tex) {
     glActiveTexture(GL_TEXTURE0);
@@ -65,19 +66,19 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
     glBegin(GL_QUADS);
     glColor3f(1,1,1);
     glTexCoord2f((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]);
-    glVertex2f(_xCtr-_xExt*_scale,_yCtr-_yExt*_scale);
+    glVertex3f(_xCtr-_xExt*_scale,_yCtr-_yExt*_scale,-(MAX_DEPTH-1));
 
     glColor3f(1,1,1);
     glTexCoord2f((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]);
-    glVertex2f(_xCtr+_xExt*_scale,_yCtr-_yExt*_scale);
+    glVertex3f(_xCtr+_xExt*_scale,_yCtr-_yExt*_scale,-(MAX_DEPTH-1));
 
     glColor3f(1,1,1);
     glTexCoord2f((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]);
-    glVertex2f(_xCtr+_xExt*_scale,_yCtr+_yExt*_scale);
+    glVertex3f(_xCtr+_xExt*_scale,_yCtr+_yExt*_scale,-(MAX_DEPTH-1));
 
     glColor3f(1,1,1);
     glTexCoord2f((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]);
-    glVertex2f(_xCtr-_xExt*_scale,_yCtr+_yExt*_scale);
+    glVertex3f(_xCtr-_xExt*_scale,_yCtr+_yExt*_scale,-(MAX_DEPTH-1));
     glEnd();
 
     _tex->end();
