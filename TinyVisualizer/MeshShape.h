@@ -46,6 +46,7 @@ class MeshShape : public Shape {
   virtual void setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,GLfloat BA) override;
   virtual void setColorSpecular(GLenum mode,GLfloat RS,GLfloat GS,GLfloat BS) override;
   virtual void setTexture(std::shared_ptr<Texture> tex) override;
+  virtual void setDepth(GLfloat depth) override;
   virtual void setShininess(GLenum mode,GLfloat S) override;
   virtual void draw(bool shadowPass) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;

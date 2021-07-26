@@ -33,6 +33,10 @@ void CompositeShape::setTexture(std::shared_ptr<Texture> tex) {
   for(int i=0; i<(int)_shapes.size(); i++)
     _shapes[i]->setTexture(tex);
 }
+void CompositeShape::setDepth(GLfloat depth) {
+  for(int i=0; i<(int)_shapes.size(); i++)
+    _shapes[i]->setDepth(depth);
+}
 void CompositeShape::draw(bool shadowPass) const {
   if(!enabled() || (!_castShadow && shadowPass))
     return;

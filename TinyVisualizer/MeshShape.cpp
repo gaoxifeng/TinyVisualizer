@@ -116,6 +116,10 @@ void MeshShape::setTexture(std::shared_ptr<Texture> tex) {
     _tex=tex;
   else _tex=getWhiteTexture();
 }
+void MeshShape::setDepth(GLfloat depth) {
+  for(int i=0; i<(int)_vertices.size(); i+=3)
+    _vertices[i+2]=depth;
+}
 void MeshShape::draw(bool shadowPass) const {
   if(_vertices.empty() || !enabled() || (!_castShadow && shadowPass))
     return;

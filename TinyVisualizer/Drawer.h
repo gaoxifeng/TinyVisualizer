@@ -26,6 +26,7 @@ class Shape {
   virtual void setColorSpecular(GLenum,GLfloat,GLfloat,GLfloat) {}
   virtual void setShininess(GLenum,GLfloat) {}
   virtual void setTexture(std::shared_ptr<Texture>) {}
+  virtual void setDepth(GLfloat) {}
   virtual void setEnabled(bool enabled);
   virtual void setCastShadow(bool castShadow);
   virtual void setUseLight(bool useLight);
