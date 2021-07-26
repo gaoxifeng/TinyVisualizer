@@ -1,8 +1,11 @@
 #ifdef BULLET_SUPPORT
 #include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/MakeTexture.h>
 #include <TinyVisualizer/Bullet3DShape.h>
 #include <TinyVisualizer/ShadowAndLight.h>
+#include <TinyVisualizer/FirstPersonCameraManipulator.h>
+#include <TinyVisualizer/TrackballCameraManipulator.h>
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
@@ -92,7 +95,6 @@ int main(int argc,char** argv) {
                              Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
   std::shared_ptr<Texture> checker=drawGrid();
-  drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>& root) {
     if(sim)
       dynamicsWorld->stepSimulation(0.01f);

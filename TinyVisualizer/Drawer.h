@@ -11,6 +11,9 @@ namespace DRAWER {
 class Texture;
 class SceneNode;
 class ShadowLight;
+class Drawer;
+class Camera2D;
+class Camera3D;
 //Shape for OpenGL drawing
 class Shape {
  public:
@@ -60,6 +63,8 @@ class Camera {
 //Plugin
 class Plugin {
  public:
+  Plugin();
+  void setDrawer(Drawer* drawer);
   virtual void init(GLFWwindow* window) {}
   virtual void finalize() {}
   virtual void preDraw() {}
@@ -70,6 +75,8 @@ class Plugin {
   virtual void motion(GLFWwindow* wnd,double x,double y) {}
   virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) {}
   virtual void clear() {}
+ private:
+  Drawer* _drawer;
 };
 //Drawer
 class Drawer {
@@ -101,6 +108,8 @@ class Drawer {
   ShadowLight& getLight();
   void clearLight();
   Camera& getCamera();
+  Camera2D& getCamera2D();
+  Camera3D& getCamera3D();
   void mainLoop();
   int FPS();
   //getter/setter
@@ -116,7 +125,6 @@ class Drawer {
     return *this;
   }
   //data
-  CameraType cameraType;
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<SceneNode> _root;
   std::shared_ptr<ShadowLight> _light;

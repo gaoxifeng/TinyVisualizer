@@ -1,10 +1,11 @@
 #include "Drawer.h"
 #include "Camera2D.h"
 #include "Camera3D.h"
-#include "CameraThirdPerson.h"
 #include "MeshShape.h"
 #include "ShadowAndLight.h"
 #include "SceneStructure.h"
+#include "FirstPersonCameraManipulator.h"
+#include "TrackballCameraManipulator.h"
 #include <iostream>
 
 namespace DRAWER {
@@ -27,6 +28,11 @@ bool Shape::castShadow() const {
 }
 bool Shape::useLight() const {
   return _useLight;
+}
+//Plugin
+Plugin::Plugin():_drawer(NULL) {}
+void Plugin::setDrawer(Drawer* drawer) {
+  _drawer=drawer;
 }
 //Drawer
 static void errFunc(int error,const char* description) {
@@ -97,21 +103,16 @@ Drawer::Drawer(int argc,char** argv)
     getLight().lightSz()=argparseRange(argc,argv,"defaultLightSz",20,Eigen::Matrix<int,2,1>(0,101));
   }
   //add default camera
-  cameraType = CameraType::cameraThirdPerson;
-
-  if (argparseRange(argc, argv, "defaultCamera2D", 0, Eigen::Matrix<int, 2, 1>(0, 2))){
-      cameraType = CameraType::camera2D;
-      addCamera2D(argparseRange(argc, argv, "defaultCamera2DExt", 10, Eigen::Matrix<int, 2, 1>(0, 11)));
-  }
-  else if (argparseRange(argc, argv, "defaultCamera3D", 0, Eigen::Matrix<int, 2, 1>(0, 2))) {
-      cameraType = CameraType::cameraFirstPerson;
-      addCamera3D(argparseRange(argc, argv, "defaultCamera3DFovy", 90, Eigen::Matrix<int, 2, 1>(0, 271)),
-          Eigen::Matrix<GLfloat, 3, 1>::Unit(argparseRange(argc, argv, "defaultCamera3DUp", 2, Eigen::Matrix<int, 2, 1>(0, 3))));
-  }
-  else {
-      cameraType = CameraType::cameraThirdPerson;
-      addCamera3D(argparseRange(argc, argv, "defaultCamera3DFovy", 90, Eigen::Matrix<int, 2, 1>(0, 271)),
-          Eigen::Matrix<GLfloat, 3, 1>::Unit(argparseRange(argc, argv, "defaultCamera3DUp", 2, Eigen::Matrix<int, 2, 1>(0, 3))));
+  if(argparseRange(argc,argv,"defaultCamera2D",0,Eigen::Matrix<int,2,1>(0,2)))
+    addCamera2D(argparseRange(argc,argv,"defaultCamera2DExt",10,Eigen::Matrix<int,2,1>(0,11)));
+  else if(argparseRange(argc,argv,"defaultCamera3D",1,Eigen::Matrix<int,2,1>(0,2))) {
+    addCamera3D(argparseRange(argc,argv,"defaultCamera3DFovy",90,Eigen::Matrix<int,2,1>(0,271)),
+                Eigen::Matrix<GLfloat,3,1>::Unit(argparseRange(argc,argv,"defaultCamera3DUp",2,Eigen::Matrix<int,2,1>(0,3))));
+    std::string manipulatorType=argparseChoice(argc,argv,"defaultCamera3DManipulator","Trackball", {"FPS","Trackball","None"});
+    if(manipulatorType=="FPS")
+      getCamera3D().setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(getCamera3D())));
+    else if(manipulatorType=="Trackball")
+      getCamera3D().setManipulator(std::shared_ptr<CameraManipulator>(new TrackballCameraManipulator(getCamera3D())));
   }
 }
 Drawer::~Drawer() {
@@ -247,25 +248,15 @@ void Drawer::setDrawFunc(std::function<void()> draw) {
   _draw=draw;
 }
 void Drawer::addCamera2D(GLfloat xExt) {
-   if (cameraType == CameraType::camera2D)
-      _camera.reset(new Camera2D(xExt));
+  _camera.reset(new Camera2D(xExt));
 }
 void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up) {
-  if(cameraType==CameraType::cameraFirstPerson)
-    _camera.reset(new Camera3D(angle,up));
-  else if(cameraType == CameraType::cameraThirdPerson)
-      _camera.reset(new CameraThirdPerson(angle, up));
+  _camera.reset(new Camera3D(angle,up));
 }
 void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir) {
   addCamera3D(angle,up);
-  if (cameraType == CameraType::cameraFirstPerson) {
-      std::dynamic_pointer_cast<Camera3D>(_camera)->setDirection(dir);
-      std::dynamic_pointer_cast<Camera3D>(_camera)->setPosition(pos);
-  }
-  else{
-      std::dynamic_pointer_cast<CameraThirdPerson>(_camera)->setDirection(dir);
-      std::dynamic_pointer_cast<CameraThirdPerson>(_camera)->setPosition(pos);
-  }
+  std::dynamic_pointer_cast<Camera3D>(_camera)->setDirection(dir);
+  std::dynamic_pointer_cast<Camera3D>(_camera)->setPosition(pos);
 }
 Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos(double x,double y) {
   ASSERT(_camera);
@@ -289,6 +280,14 @@ Camera& Drawer::getCamera() {
   ASSERT(_camera);
   return *_camera;
 }
+Camera2D& Drawer::getCamera2D() {
+  ASSERT(_camera);
+  return dynamic_cast<Camera2D&>(*_camera);
+}
+Camera3D& Drawer::getCamera3D() {
+  ASSERT(_camera);
+  return dynamic_cast<Camera3D&>(*_camera);
+}
 void Drawer::mainLoop() {
   while (!glfwWindowShouldClose(_window)) {
     draw();
@@ -304,6 +303,7 @@ int Drawer::FPS() {
 void Drawer::addPlugin(std::shared_ptr<Plugin> pi) {
   if(std::find(_plugins.begin(),_plugins.end(),pi)==_plugins.end())
     _plugins.push_back(pi);
+  pi->setDrawer(this);
   pi->init(_window);
 }
 void Drawer::removeShape(std::shared_ptr<Shape> s) {
@@ -346,8 +346,10 @@ void Drawer::clearScene() {
   _root=NULL;
 }
 void Drawer::clear() {
-  for(std::shared_ptr<Plugin> pi:_plugins)
+  for(std::shared_ptr<Plugin> pi:_plugins) {
     pi->clear();
+    pi->setDrawer(NULL);
+  }
   _plugins.clear();
   clearScene();
 }

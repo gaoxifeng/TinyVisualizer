@@ -10,7 +10,6 @@ using namespace DRAWER;
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
   std::shared_ptr<Texture> checker=drawChecker();
-  drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
 
   int off=0;
   std::vector<Eigen::Matrix<GLfloat,4,1>> params;

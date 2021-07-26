@@ -2,11 +2,13 @@
 #define CAMERA_3D_H
 
 #include "Drawer.h"
+#include "CameraManipulator.h"
 
 namespace DRAWER {
 class Camera3D : public Camera {
  public:
   Camera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up);
+  void setManipulator(std::shared_ptr<CameraManipulator> manipulator);
   void focusOn(std::shared_ptr<Shape> s) override;
   void mouse(GLFWwindow* wnd,int button,int action,int mods) override;
   void wheel(GLFWwindow* wnd,double xoffset,double yoffset) override;
@@ -16,6 +18,9 @@ class Camera3D : public Camera {
   void draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) override;
   Eigen::Matrix<GLfloat,-1,1> getCameraRay(GLFWwindow* wnd,double x,double y) const override;
   Eigen::Matrix<GLfloat,-1,1> getViewFrustum() const override;
+  Eigen::Matrix<GLfloat,3,1> position() const;
+  Eigen::Matrix<GLfloat,3,1> direction() const;
+  Eigen::Matrix<GLfloat,3,1> up() const;
   void setPosition(const Eigen::Matrix<GLfloat,3,1>& pos);
   void setDirection(const Eigen::Matrix<GLfloat,3,1>& dir);
   void setUp(const Eigen::Matrix<GLfloat,3,1>& up);
@@ -23,11 +28,11 @@ class Camera3D : public Camera {
   void begin(GLfloat& theta,GLfloat& phi) const;
   void end(GLfloat theta,GLfloat phi);
   static GLfloat clampMin(GLfloat val);
-  bool _forward,_backward,_left,_right,_rise,_dive;
-  GLfloat _angle,_sensitive,_speed;
-  GLfloat _xLast,_yLast,_xCurr,_yCurr;
-  bool _inMotion,_speedMode,_debug;
-  Eigen::Matrix<GLfloat,3,1> _up,_t1,_t2,_pos,_dir;
+  //data
+  bool _debug;
+  GLfloat _angle;
+  Eigen::Matrix<GLfloat,3,1> _up,_pos,_dir;
+  std::shared_ptr<CameraManipulator> _manipulator;
   Eigen::Matrix<GLfloat,-1,1> _debugLine,_debugFrustum;
   std::shared_ptr<Shape> _focus;
 };

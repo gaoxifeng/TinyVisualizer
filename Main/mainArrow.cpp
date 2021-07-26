@@ -6,7 +6,6 @@ using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
-  drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
   std::shared_ptr<ArrowShape> arrow(new ArrowShape(60,0.1,0.2));
   arrow->setArrow(Eigen::Matrix<GLfloat,3,1>(-0.5,-0.5,-0.5),Eigen::Matrix<GLfloat,3,1>(0.5,0.5,0.5));
   arrow->setColorAmbient(GL_TRIANGLES,1,1,1);

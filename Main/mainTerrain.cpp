@@ -1,8 +1,10 @@
 #include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/MakeMesh.h>
 #include <TinyVisualizer/MakeTexture.h>
 #include <TinyVisualizer/TerrainShape.h>
 #include <TinyVisualizer/ShadowAndLight.h>
+#include <TinyVisualizer/FirstPersonCameraManipulator.h>
 #include <TinyVisualizer/Bullet3DShape.h>
 #include <TinyVisualizer/CapturePlugin.h>
 #include <iostream>
@@ -50,6 +52,7 @@ int main(int argc,char** argv) {
   drawer.addShape(shapeTB);
 
   drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
+  drawer.getCamera3D().setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(drawer.getCamera3D())));
   drawer.mainLoop();
   return 0;
 }

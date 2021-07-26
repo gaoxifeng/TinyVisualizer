@@ -24,8 +24,6 @@ int main(int argc,char** argv) {
     drawer.addShape(curve);
     i+=1;
   }
-
-  drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
   drawer.mainLoop();
   return 0;
 }

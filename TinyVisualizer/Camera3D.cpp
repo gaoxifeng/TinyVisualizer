@@ -4,35 +4,20 @@
 namespace DRAWER {
 //Camera3D
 Camera3D::Camera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up)
-  :_forward(false),_backward(false),_left(false),_right(false),_rise(false),_dive(false),
-   _angle(angle),_sensitive(1),_speed(1),_inMotion(false),_speedMode(true),_debug(false),_up(up) {
+  :_debug(false),_angle(angle),_up(up) {
   _pos.setConstant(std::numeric_limits<GLfloat>::infinity());
   _dir.setConstant(std::numeric_limits<GLfloat>::infinity());
-
-  int id;
-  up.cwiseAbs().minCoeff(&id);
-  _t1=Eigen::Matrix<GLfloat,3,1>::Unit(id).cross(_up).normalized();
-  _t2=_up.cross(_t1);
+}
+void Camera3D::setManipulator(std::shared_ptr<CameraManipulator> manipulator) {
+  _manipulator=manipulator;
 }
 void Camera3D::focusOn(std::shared_ptr<Shape> s) {
   _focus=s;
 }
-void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int) {
-  if(button==GLFW_MOUSE_BUTTON_1) {
-    if(action==GLFW_PRESS) {
-      _inMotion=true;
-      int w=0,h=0;
-      glfwGetWindowSize(wnd,&w,&h);
-      glfwSetCursorPos(wnd,w/2.0f,h/2.0f);
-      _xLast=_xCurr=w/2.0f;
-      _yLast=_yCurr=h/2.0f;
-    } else if(action==GLFW_RELEASE) {
-      _inMotion=false;
-    }
-  } else if(button==GLFW_MOUSE_BUTTON_3) {
-    if(action==GLFW_PRESS)
-      _speedMode=!_speedMode;
-  } else if(button==GLFW_MOUSE_BUTTON_2) {
+void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int mods) {
+  if(_manipulator)
+    _manipulator->mouse(wnd,button,action,mods);
+  if(button==GLFW_MOUSE_BUTTON_2) {
     if(action==GLFW_PRESS) {
       double x=0,y=0;
       glfwGetCursorPos(wnd,&x,&y);
@@ -40,83 +25,45 @@ void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int) {
     }
   }
 }
-void Camera3D::wheel(GLFWwindow*,double,double yoffset) {
-  if(_speedMode)
-    _speed*=std::pow(1.1,yoffset);
-  else _sensitive*=std::pow(1.1,yoffset);
+void Camera3D::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
+  if(_manipulator)
+    _manipulator->wheel(wnd,xoffset,yoffset);
 }
 void Camera3D::motion(GLFWwindow* wnd,double x,double y) {
-  if(_inMotion) {
-    _xCurr=x;
-    _yCurr=y;
-  }
+  if(_manipulator)
+    _manipulator->motion(wnd,x,y);
 }
 void Camera3D::frame(GLFWwindow* wnd,GLfloat time) {
-  if(_inMotion) {
-    GLfloat theta=0,phi=0;
-    begin(theta,phi);
-    theta-=clampMin(_xCurr-_xLast)*_sensitive*time;
-    phi-=clampMin(_yCurr-_yLast)*_sensitive*time;
-    end(theta,phi);
-    int w=0,h=0;
-    glfwGetWindowSize(wnd,&w,&h);
-    glfwSetCursorPos(wnd,w/2.0f,h/2.0f);
-    _xLast=w/2.0f;
-    _yLast=h/2.0f;
-  }
-  if(_forward)
-    _pos+=_dir*_speed*time;
-  if(_backward)
-    _pos-=_dir*_speed*time;
-  if(_left)
-    _pos+=_up.cross(_dir).normalized()*_speed*time;
-  if(_right)
-    _pos-=_up.cross(_dir).normalized()*_speed*time;
-  if(_rise)
-    _pos+=_up*_speed*time;
-  if(_dive)
-    _pos-=_up*_speed*time;
+  if(_manipulator)
+    _manipulator->frame(wnd,time);
 }
 void Camera3D::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
-  if(key==GLFW_KEY_W)
-    _forward=action==GLFW_PRESS||action==GLFW_REPEAT;
-  else if(key==GLFW_KEY_S)
-    _backward=action==GLFW_PRESS||action==GLFW_REPEAT;
-  else if(key==GLFW_KEY_A)
-    _left=action==GLFW_PRESS||action==GLFW_REPEAT;
-  else if(key==GLFW_KEY_D)
-    _right=action==GLFW_PRESS||action==GLFW_REPEAT;
-  else if(key==GLFW_KEY_SPACE)
-    _rise=action==GLFW_PRESS||action==GLFW_REPEAT;
-  else if(key==GLFW_KEY_C)
-    _dive=action==GLFW_PRESS||action==GLFW_REPEAT;
-  else if(key==GLFW_KEY_V && action==GLFW_PRESS)
+  if(_manipulator)
+    _manipulator->key(wnd,key,scan,action,mods);
+  if(key==GLFW_KEY_V && action==GLFW_PRESS)
     _debugFrustum=constructViewFrustum3D();
   else if(key==GLFW_KEY_B && action==GLFW_PRESS)
     _debug=!_debug;
 }
 void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
-  if(!std::isfinite(_pos[0])) {
-    if(!std::isfinite(bb[0]) || std::abs(bb[0])==std::numeric_limits<GLfloat>::max())
-      _pos=Eigen::Matrix<GLfloat,3,1>(-1,0,0);
-    else _pos=Eigen::Matrix<GLfloat,3,1>(bb[0],(bb[1]+bb[4])/2,(bb[2]+bb[5])/2);
-    _dir=Eigen::Matrix<GLfloat,3,1>(1,0,0);
-  }
+  if(!std::isfinite(_pos[0]) && _manipulator)
+    _manipulator->init(wnd,bb);
   if(_focus) {
     Eigen::Matrix<GLfloat,6,1> bbF=_focus->getBB();
     _dir=(bbF.segment<3>(0)+bbF.segment<3>(3))/2-_pos;
-    if(_dir.norm()>1e-5f) {
-      GLfloat theta=0,phi=0;
-      begin(theta,phi);
-      end(theta,phi);
-    }
   }
+  if(_manipulator)
+    _manipulator->preDraw(wnd,bb);
+  //model view
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   Eigen::Matrix<GLfloat,3,1> up=_dir.cross(_up).cross(_dir).normalized();
   gluLookAt(_pos[0],_pos[1],_pos[2],
             _pos[0]+_dir[0],_pos[1]+_dir[1],_pos[2]+_dir[2],
             up[0],up[1],up[2]);
+  if(_manipulator)
+    _manipulator->postDraw(wnd,bb);
+  //projection
   GLfloat zNear=0,zFar=0;
   zRange(bb,_pos,_dir,zNear,zFar);
   glMatrixMode(GL_PROJECTION);
@@ -173,25 +120,14 @@ Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindow* wnd,double x,doub
 Eigen::Matrix<GLfloat,-1,1> Camera3D::getViewFrustum() const {
   return getViewFrustum3DPlanes();
 }
-void Camera3D::begin(GLfloat& theta,GLfloat& phi) const {
-  GLfloat x=_dir.dot(_t1);
-  GLfloat y=_dir.dot(_t2);
-  GLfloat z=_dir.dot(_up);
-  theta=atan2(y,x);
-  phi=std::min<GLfloat>(M_PI/2*0.99,std::max<GLfloat>(-M_PI/2*0.99,atan2(z,std::sqrt(x*x+y*y))));
+Eigen::Matrix<GLfloat,3,1> Camera3D::position() const {
+  return _pos;
 }
-void Camera3D::end(GLfloat theta,GLfloat phi) {
-  phi=std::min<GLfloat>(M_PI/2*0.99,std::max<GLfloat>(-M_PI/2*0.99,phi));
-  GLfloat x=std::cos(theta)*std::cos(phi);
-  GLfloat y=std::sin(theta)*std::cos(phi);
-  GLfloat z=std::sin(phi);
-  _dir=_t1*x+_t2*y+_up*z;
+Eigen::Matrix<GLfloat,3,1> Camera3D::direction() const {
+  return _dir;
 }
-GLfloat Camera3D::clampMin(GLfloat val) {
-  static GLfloat minVal=3;
-  if(val>0)
-    return (val<minVal)?0:val;
-  else return (val>-minVal)?0:val;
+Eigen::Matrix<GLfloat,3,1> Camera3D::up() const {
+  return _up;
 }
 void Camera3D::setPosition(const Eigen::Matrix<GLfloat,3,1>& pos) {
   _pos=pos;
