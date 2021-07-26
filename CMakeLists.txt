@@ -1,5 +1,5 @@
-PROJECT(TinyVisualizer)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(TinyVisualizer)
 
 #COMPILE SETTINGS
 SET(CMAKE_BUILD_TYPE Release CACHE STRING "Compiler optimization level")
@@ -82,3 +82,4 @@ ADD_EXE(mainOctree)
 ADD_EXE(mainBezier)
 ADD_EXE(mainLight)
 ADD_EXE(mainArrow)
+ADD_EXE(mainCameraThirdPerson)

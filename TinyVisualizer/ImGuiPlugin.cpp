@@ -70,16 +70,16 @@ void ImGuiPlugin::drawMenu() {
   else drawCustomWindow();
 }
 void ImGuiPlugin::drawViewerWindow() {
-  float menuWidth=180.f*menuScaling();
-  ImGui::SetNextWindowPos(ImVec2(0.0f,0.0f),ImGuiCond_FirstUseEver);
-  ImGui::SetNextWindowSize(ImVec2(0.0f,0.0f),ImGuiCond_FirstUseEver);
-  ImGui::SetNextWindowSizeConstraints(ImVec2(menuWidth,-1.0f),ImVec2(menuWidth,-1.0f));
-  bool _viewer_menu_visible=true;
-  ImGui::Begin("Viewer",&_viewer_menu_visible,ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_AlwaysAutoResize);
-  ImGui::PushItemWidth(ImGui::GetWindowWidth()*0.4f);
-  drawViewerMenu();
-  ImGui::PopItemWidth();
-  ImGui::End();
+  //float menuWidth=180.f*menuScaling();
+  //ImGui::SetNextWindowPos(ImVec2(0.0f,0.0f),ImGuiCond_FirstUseEver);
+  //ImGui::SetNextWindowSize(ImVec2(0.0f,0.0f),ImGuiCond_FirstUseEver);
+  //ImGui::SetNextWindowSizeConstraints(ImVec2(menuWidth,-1.0f),ImVec2(menuWidth,-1.0f));
+  //bool _viewer_menu_visible=true;
+  //ImGui::Begin("Viewer",&_viewer_menu_visible,ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_AlwaysAutoResize);
+  //ImGui::PushItemWidth(ImGui::GetWindowWidth()*0.4f);
+  //drawViewerMenu();
+  //ImGui::PopItemWidth();
+  //ImGui::End();
 }
 void ImGuiPlugin::drawViewerMenu() {}
 float ImGuiPlugin::pixelRatio() {
@@ -94,6 +94,7 @@ float ImGuiPlugin::pixelRatio() {
 float ImGuiPlugin::hidpiScaling() {
   // Computes scaling factor for hidpi devices
   float xscale,yscale;
+  xscale = yscale = 1.0;
   GLFWwindow* window=glfwGetCurrentContext();
   glfwGetWindowContentScale(window,&xscale,&yscale);
   return 0.5*(xscale+yscale);

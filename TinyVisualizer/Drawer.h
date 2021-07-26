@@ -116,6 +116,7 @@ class Drawer {
     return *this;
   }
   //data
+  CameraType cameraType;
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<SceneNode> _root;
   std::shared_ptr<ShadowLight> _light;
