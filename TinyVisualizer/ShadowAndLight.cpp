@@ -253,10 +253,10 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
         glLoadIdentity();
         glMultMatrixf(l._MV[d].data());
         _shaderShadow->setUniformFloat("invModelViewMatrix",l._invMV[d]);
+        zRange(bb,zNear,zFar);
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
-        zRange(bb,l._position.segment<3>(0),l._target[d],zNear,zFar);
         gluPerspective(90,1,zNear,far_plane);
 
         l._shadowMap->begin(d);

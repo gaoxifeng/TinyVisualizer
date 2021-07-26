@@ -32,9 +32,9 @@ T interp2D(const T& v0,const T& v1,const T& v2,const T& v3,const TF& px,const TF
                   interp1D(v2,v3,px),py);
 }
 enum class CameraType {
-    camera2D=0,
-    cameraFirstPerson,
-    cameraThirdPerson
+  camera2D=0,
+  cameraFirstPerson,
+  cameraThirdPerson
 };
 extern Eigen::Matrix<GLfloat,6,1> resetBB();
 extern Eigen::Matrix<GLfloat,6,1> unionBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,6,1>& b);
@@ -43,8 +43,7 @@ extern Eigen::Matrix<GLfloat,6,1> scaleBB(const Eigen::Matrix<GLfloat,6,1>& a,co
 extern Eigen::Matrix<GLfloat,6,1> translateBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,3,1>& s);
 extern Eigen::Matrix<GLfloat,6,1> rotateBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,3,3>& r);
 extern Eigen::Matrix<GLfloat,6,1> transformBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,4,4>& r);
-extern void zRange(const Eigen::Matrix<GLfloat,6,1>& bb,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir,
-                   GLfloat& zNear,GLfloat& zFar,GLfloat minZNear=0.1f,GLfloat maxZFar=100.0f);
+extern void zRange(const Eigen::Matrix<GLfloat,6,1>& bb,GLfloat& zNear,GLfloat& zFar,GLfloat minZNear=0.1f,GLfloat maxZFar=100.0f);
 extern void gluLookAt(GLfloat eyex,GLfloat eyey,GLfloat eyez,
                       GLfloat centerx,GLfloat centery,GLfloat centerz,
                       GLfloat upx,GLfloat upy,GLfloat upz);

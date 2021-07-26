@@ -65,7 +65,7 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
     _manipulator->postDraw(wnd,bb);
   //projection
   GLfloat zNear=0,zFar=0;
-  zRange(bb,_pos,_dir,zNear,zFar);
+  zRange(bb,zNear,zFar);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   int w=0,h=0;

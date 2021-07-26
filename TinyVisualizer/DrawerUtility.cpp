@@ -65,19 +65,30 @@ Eigen::Matrix<GLfloat,6,1> transformBB(const Eigen::Matrix<GLfloat,6,1>& a,const
       }
   return ret;
 }
-void zRange(const Eigen::Matrix<GLfloat,6,1>& bb,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir,
-            GLfloat& zNear,GLfloat& zFar,GLfloat minZNear,GLfloat maxZFar) {
+void zRange(const Eigen::Matrix<GLfloat,6,1>& bb,GLfloat& zNear,GLfloat& zFar,GLfloat minZNear,GLfloat maxZFar) {
   if(!std::isfinite(bb[0]) || std::abs(bb[0])==std::numeric_limits<GLfloat>::max()) {
     zNear=minZNear;
     zFar=maxZFar;
     return;
   }
-
-  Eigen::Matrix<GLfloat,3,1> ctr=(bb.segment<3>(0)+bb.segment<3>(3))/2-pos;
-  Eigen::Matrix<GLfloat,3,1> rng=(bb.segment<3>(3)-bb.segment<3>(0))/2;
-
-  zNear=ctr.dot(dir)-(rng.array()*dir.array()).abs().sum();
-  zFar=ctr.dot(dir)+(rng.array()*dir.array()).abs().sum();
+  zNear=maxZFar;
+  zFar=minZNear;
+  Eigen::Matrix<GLfloat,4,4> mv;
+  glGetFloatv(GL_MODELVIEW_MATRIX,mv.data());
+  for(GLfloat x: {
+        bb[0],bb[3]
+      })
+    for(GLfloat y: {
+          bb[1],bb[4]
+        })
+      for(GLfloat z: {
+            bb[2],bb[5]
+          }) {
+        Eigen::Matrix<GLfloat,4,1> pos=mv*Eigen::Matrix<GLfloat,4,1>(x,y,z,1);
+        GLfloat posZ=pos[2]/pos[3];
+        zNear=std::min(zNear,-posZ);
+        zFar=std::max(zFar,-posZ);
+      }
   zNear=std::max<GLfloat>(minZNear,zNear);
   zFar=std::min<GLfloat>(maxZFar,zFar);
 }
