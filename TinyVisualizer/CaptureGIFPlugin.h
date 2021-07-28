@@ -23,6 +23,7 @@ class CaptureGIFPlugin : public Plugin {
   std::vector<unsigned char> _recordFrame;
   std::vector<unsigned char> _tmpFrameLine;
   GLint _width,_height;
+  bool _dither;
 };
 }
 
