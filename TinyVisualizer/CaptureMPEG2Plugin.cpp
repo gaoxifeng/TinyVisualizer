@@ -1,17 +1,17 @@
-#include "CapturePlugin.h"
+#include "CaptureMPEG2Plugin.h"
 #include <jo_mpeg.h>
 #include <iostream>
 
 namespace DRAWER {
-CapturePlugin::CapturePlugin(int hotkey,const std::string& name,int FPS)
+CaptureMPEG2Plugin::CaptureMPEG2Plugin(int hotkey,const std::string& name,int FPS)
   :_key(hotkey),_recordFPS(FPS),_recordFile(NULL),_recordFileName(name) {}
-void CapturePlugin::finalize() {
+void CaptureMPEG2Plugin::finalize() {
   stopRecording();
 }
-void CapturePlugin::frame(std::shared_ptr<SceneNode>&) {
+void CaptureMPEG2Plugin::frame(std::shared_ptr<SceneNode>&) {
   addFrame();
 }
-void CapturePlugin::key(GLFWwindow*,int key,int,int action,int) {
+void CaptureMPEG2Plugin::key(GLFWwindow*,int key,int,int action,int) {
   if(key==_key && action==GLFW_PRESS) {
     if(!_recordFile)
       startRecording();
@@ -19,7 +19,7 @@ void CapturePlugin::key(GLFWwindow*,int key,int,int action,int) {
   }
 }
 //helper
-void CapturePlugin::startRecording() {
+void CaptureMPEG2Plugin::startRecording() {
   if(_recordFile!=NULL) {
     std::cout << "Alreading started recording, cannot accept duplicate calls!" << std::endl;
     return;
@@ -34,7 +34,7 @@ void CapturePlugin::startRecording() {
     _height=viewport[3];
   }
 }
-void CapturePlugin::addFrame() {
+void CaptureMPEG2Plugin::addFrame() {
   if(!_recordFile)
     return;
   //read screen
@@ -59,7 +59,7 @@ void CapturePlugin::addFrame() {
     } else break;
   jo_write_mpeg(_recordFile,&_recordFrame[0],viewport[2],viewport[3],_recordFPS);
 }
-void CapturePlugin::stopRecording() {
+void CaptureMPEG2Plugin::stopRecording() {
   if(_recordFile) {
     fclose(_recordFile);
     std::cout << "Stopped recording to " << _recordFileName << std::endl;

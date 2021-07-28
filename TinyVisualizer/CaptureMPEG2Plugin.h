@@ -1,12 +1,12 @@
-#ifndef CAPTURE_PLUGIN_H
-#define CAPTURE_PLUGIN_H
+#ifndef CAPTURE_MPEG2_PLUGIN_H
+#define CAPTURE_MPEG2_PLUGIN_H
 
 #include "Drawer.h"
 
 namespace DRAWER {
-class CapturePlugin : public Plugin {
+class CaptureMPEG2Plugin : public Plugin {
  public:
-  CapturePlugin(int hotkey,const std::string& name,int FPS);
+  CaptureMPEG2Plugin(int hotkey,const std::string& name,int FPS);
   virtual void finalize() override;
   virtual void frame(std::shared_ptr<SceneNode>&) override;
   virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) override;
