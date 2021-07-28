@@ -11,6 +11,8 @@ void TrackballCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int
     if(action==GLFW_PRESS) {
       _inMotion=true;
       glfwGetCursorPos(wnd,&_posX,&_posY);
+      _xCurr=_posX;
+      _yCurr=_posY;
       _rot0=_rot;
     } else if(action==GLFW_RELEASE)
       _inMotion=false;
