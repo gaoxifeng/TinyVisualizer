@@ -3,12 +3,14 @@
 #include <TinyVisualizer/MakeTexture.h>
 #include <TinyVisualizer/Bullet3DShape.h>
 #include <TinyVisualizer/ShadowAndLight.h>
+#include <TinyVisualizer/CaptureGIFPlugin.h>
 #include <TinyVisualizer/BezierCurveShape.h>
 
 using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
+  drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureGIFPlugin(GLFW_KEY_1,"record.gif",drawer.FPS())));
   std::shared_ptr<Texture> checker=drawChecker();
 
   std::shared_ptr<Bullet3DShape> shapeTA(new Bullet3DShape);
@@ -28,9 +30,9 @@ int main(int argc,char** argv) {
   drawer.addShape(shapeTB);
 
   bool sim=false;
+  GLfloat theta=0;
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>) {
     Eigen::Matrix<GLfloat,4,4> T;
-    GLfloat theta=0;
     T.setIdentity();
     T(0,0)=std::cos(theta);
     T(0,1)=-std::sin(theta);
