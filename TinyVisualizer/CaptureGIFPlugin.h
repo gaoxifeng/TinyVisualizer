@@ -2,7 +2,6 @@
 #define CAPTURE_GIF_PLUGIN_H
 
 #include "Drawer.h"
-#include <gif.h>
 
 namespace DRAWER {
 class CaptureGIFPlugin : public Plugin {
@@ -18,7 +17,7 @@ class CaptureGIFPlugin : public Plugin {
  private:
   int _key;
   int _recordFPS;
-  std::shared_ptr<GifWriter> _recordFile;
+  void* _recordFile;
   std::string _recordFileName;
   std::vector<unsigned char> _recordFrame;
   std::vector<unsigned char> _tmpFrameLine;

@@ -1,5 +1,6 @@
 #include "CaptureGIFPlugin.h"
 #include <iostream>
+#include <gif.h>
 
 namespace DRAWER {
 CaptureGIFPlugin::CaptureGIFPlugin(int hotkey,const std::string& name,int FPS)
@@ -29,8 +30,8 @@ void CaptureGIFPlugin::startRecording() {
     _width=viewport[2];
     _height=viewport[3];
 
-    _recordFile.reset(new GifWriter);
-    GifBegin(_recordFile.get(),_recordFileName.c_str(),_width,_height,100.0/_recordFPS,8,_dither);
+    _recordFile=new GifWriter;
+    GifBegin((GifWriter*)_recordFile,_recordFileName.c_str(),_width,_height,100.0/_recordFPS,8,_dither);
     std::cout << "Starting recording to " << _recordFileName << std::endl;
   }
 }
@@ -57,11 +58,11 @@ void CaptureGIFPlugin::addFrame() {
       memcpy(&_recordFrame[off],&_recordFrame[off2],viewport[2]*4);
       memcpy(&_recordFrame[off2],&_tmpFrameLine[0],viewport[2]*4);
     } else break;
-  GifWriteFrame(_recordFile.get(),&_recordFrame[0],viewport[2],viewport[3],100.0/_recordFPS,8,_dither);
+  GifWriteFrame((GifWriter*)_recordFile,&_recordFrame[0],viewport[2],viewport[3],100.0/_recordFPS,8,_dither);
 }
 void CaptureGIFPlugin::stopRecording() {
   if(_recordFile) {
-    GifEnd(_recordFile.get());
+    GifEnd((GifWriter*)_recordFile);
     std::cout << "Stopped recording to " << _recordFileName << std::endl;
     _recordFile=NULL;
   }
