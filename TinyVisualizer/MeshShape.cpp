@@ -127,8 +127,13 @@ void MeshShape::draw(bool shadowPass) const {
     const_cast<MeshShape*>(this)->refitBB();
     const_cast<MeshShape*>(this)->_dirty=false;
   }
+  //mode begin
+  glPushAttrib(GL_ENABLE_BIT|GL_POINT_BIT|GL_LINE_BIT|GL_POLYGON_BIT);
   glPointSize(_pointSize);
   glLineWidth(_lineWidth);
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glPolygonOffset(1,1);
+  //shadow material
   if(!shadowPass) {
     glColor3f(_r,_g,_b);
     glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,_s);
@@ -175,6 +180,8 @@ void MeshShape::draw(bool shadowPass) const {
       glActiveTexture(GL_TEXTURE0);
     }
   }
+  //mode end
+  glPopAttrib();
 }
 Eigen::Matrix<GLfloat,6,1> MeshShape::getBB() const {
   if(_dirty) {

@@ -54,9 +54,14 @@ void TrackballCameraManipulator::preDraw(GLFWwindow*,const Eigen::Matrix<GLfloat
   _camera.setDirection(ctr-_camera.position());
 }
 void TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloat,6,1>& bb) {
-  Eigen::Matrix<GLfloat,4,4> mv;
+  Eigen::Matrix<GLfloat,3,1> ctr=(_bb.segment<3>(0)+_bb.segment<3>(3))/2;
+  Eigen::Matrix<GLfloat,4,4> mv,r;
+  r.setIdentity();
+  r.template block<3,3>(0,0)=_rot;
+  r.template block<3,1>(0,3)=ctr-_rot*ctr;
+
   glGetFloatv(GL_MODELVIEW_MATRIX,mv.data());
-  mv.template block<3,3>(0,0)*=_rot;
+  mv*=r;
   glLoadIdentity();
   glMultMatrixf(mv.data());
 }

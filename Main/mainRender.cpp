@@ -287,23 +287,6 @@ int main(int argc,char** argv) {
   shape1->setUseLight(false);
   shape1->setLineWidth(2);
 
-  //std::shared_ptr<Bullet3DShape> shapeT(new Bullet3DShape);
-  //auto shape = DRAWER::makeTriMesh(true, DV, DF);
-  //shapeT->addShape(shape);
-  //shapeT->setLocalTranslate(-(shape->getBB().segment<3>(0) + shape->getBB().segment<3>(3)) / 2);
-  //drawer.addShape(shapeT);
-  //shape->setEnabled(true);
-
-  //Eigen::Matrix<int, -1, -1> DE;
-  //buildE(DV, DF, DE);
-  //auto shape1 = DRAWER::makeWires(DV, DE);
-  //shape1->setColor(GL_LINES, 1, 0, 0);
-  //shape1->setUseLight(false);
-  //shape1->setEnabled(true);
-  //shapeT->addShape(shape1);
-  //shape1->setLineWidth(2);
-
-
   drawer.mainLoop();
   return 0;
 }
