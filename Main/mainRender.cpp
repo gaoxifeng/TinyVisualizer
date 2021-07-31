@@ -1,5 +1,6 @@
 #include <TinyVisualizer/Drawer.h>
 #include <TinyVisualizer/MakeMesh.h>
+#include <TinyVisualizer/Bullet3DShape.h>
 #include <iterator>
 #include <iostream>
 #include <fstream>
@@ -254,7 +255,7 @@ void buildE(const Eigen::Matrix<GLfloat, -1, -1>& V, const Eigen::Matrix<int, -1
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
-  std::string path = "box1.obj";
+  std::string path = "original1.obj";
   std::vector<std::vector<double>> V;
   std::vector<std::vector<int> > F;
   readOBJ(path, V, F);
@@ -267,22 +268,42 @@ int main(int argc,char** argv) {
     for (int j = 0; j < F[i].size(); j++)
       DF(i, j) = F[i][j];
 
+  Eigen::Matrix<int, -1, -1> DE;
+  buildE(DV, DF, DE);
+
   time_t time_start = clock();
+
   auto shape = DRAWER::makeTriMesh(true, DV, DF);
+  double time_elapsed = double(clock() - time_start) / CLOCKS_PER_SEC;
+  std::cout << "\nFinished in " << time_elapsed << " secs";
+
+  auto shape1 = DRAWER::makeWires(DV, DE);
   drawer.addShape(shape);
   shape->setEnabled(true);
 
-  Eigen::Matrix<int, -1, -1> DE;
-  buildE(DV, DF, DE);
-  auto shape1 = DRAWER::makeWires(DV, DE);
   shape1->setColor(GL_LINES, 1, 0, 0);
   shape1->setEnabled(true);
   drawer.addShape(shape1);
   shape1->setUseLight(false);
   shape1->setLineWidth(2);
 
-  double time_elapsed = double(clock() - time_start) / CLOCKS_PER_SEC;
-  std::cout << "\nFinished in " << time_elapsed << " secs";
+  //std::shared_ptr<Bullet3DShape> shapeT(new Bullet3DShape);
+  //auto shape = DRAWER::makeTriMesh(true, DV, DF);
+  //shapeT->addShape(shape);
+  //shapeT->setLocalTranslate(-(shape->getBB().segment<3>(0) + shape->getBB().segment<3>(3)) / 2);
+  //drawer.addShape(shapeT);
+  //shape->setEnabled(true);
+
+  //Eigen::Matrix<int, -1, -1> DE;
+  //buildE(DV, DF, DE);
+  //auto shape1 = DRAWER::makeWires(DV, DE);
+  //shape1->setColor(GL_LINES, 1, 0, 0);
+  //shape1->setUseLight(false);
+  //shape1->setEnabled(true);
+  //shapeT->addShape(shape1);
+  //shape1->setLineWidth(2);
+
+
   drawer.mainLoop();
   return 0;
 }

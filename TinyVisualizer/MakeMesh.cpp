@@ -181,8 +181,8 @@ std::shared_ptr<MeshShape> makeTriMesh(bool fill,const Eigen::Matrix<GLfloat,-1,
       shape->addIndex(F.row(i));
   }
   shape->setMode(fill?GL_TRIANGLES:GL_LINES);
-  if(fill)
-    shape->computeNormals();
+  if (fill)
+      shape->computeNormals();
   return shape;
 }
 std::shared_ptr<MeshShape> makeWires(const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& E) {
