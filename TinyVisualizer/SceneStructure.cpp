@@ -246,6 +246,23 @@ bool SceneNode::visit(std::function<bool(std::shared_ptr<Shape>)> f) const {
         return false;
   return true;
 }
+bool SceneNode::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,std::shared_ptr<Shape>& IShape,GLfloat& IAlpha) const {
+  //bounding box
+  if(!rayIntersectBB(ray,IAlpha,getBB()))
+    return false;
+  //nodes
+  bool ret=false;
+  for(std::shared_ptr<Shape> s=_shapes; s; s=s->_next)
+    if(s->rayIntersect(ray,IAlpha)) {
+      IShape=s;
+      ret=true;
+    }
+  //children
+  for(int i=0; i<8; i++)
+    if(_children[i] && _children[i]->rayIntersect(ray,IShape,IAlpha))
+      ret=true;
+  return ret;
+}
 void SceneNode::draw(std::function<void(std::shared_ptr<Shape>)> f,const Eigen::Matrix<GLfloat,-1,1>* viewFrustum) const {
   visit([&](const SceneNode& node) {
     //view frustum culling

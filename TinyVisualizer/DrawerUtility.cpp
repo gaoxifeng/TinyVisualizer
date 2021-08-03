@@ -65,6 +65,48 @@ Eigen::Matrix<GLfloat,6,1> transformBB(const Eigen::Matrix<GLfloat,6,1>& a,const
       }
   return ret;
 }
+bool rayIntersectBB(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat alpha,const Eigen::Matrix<GLfloat,6,1>& bb) {
+  return rayIntersectBB(ray.segment<3>(0),ray.segment<3>(0)+ray.segment<3>(3)*alpha,bb);
+}
+bool rayIntersectBB(const Eigen::Matrix<GLfloat,3,1>& p,const Eigen::Matrix<GLfloat,3,1>& q,const Eigen::Matrix<GLfloat,6,1>& bb) {
+  GLfloat s=0,t=1;
+  Eigen::Matrix<GLfloat,3,1> minC=bb.segment<3>(0);
+  Eigen::Matrix<GLfloat,3,1> maxC=bb.segment<3>(3);
+  for(int i=0; i<3; ++i) {
+    GLfloat D=q[i]-p[i];
+    if(p[i]<q[i]) {
+      GLfloat s0=(minC[i]-p[i])/D, t0=(maxC[i]-p[i])/D;
+      if(s0>s) s=s0;
+      if(t0<t) t=t0;
+    } else if(p[i]>q[i]) {
+      GLfloat s0=(maxC[i]-p[i])/D, t0=(minC[i]-p[i])/D;
+      if(s0>s) s=s0;
+      if(t0<t) t=t0;
+    } else {
+      if(p[i]<minC[i] || p[i]>maxC[i])
+        return false;
+    }
+    if(s>t)
+      return false;
+  }
+  return true;
+}
+bool rayIntersectTri(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha,const Eigen::Matrix<GLfloat,3,1>& a,const Eigen::Matrix<GLfloat,3,1>& b,const Eigen::Matrix<GLfloat,3,1>& c) {
+  Eigen::Matrix<GLfloat,3,1> abt;
+  Eigen::Matrix<GLfloat,3,3> mat;
+  mat.col(0)=a-c;
+  mat.col(1)=b-c;
+  mat.col(2)=-ray.segment<3>(3);
+  if(std::abs(mat.determinant())<std::numeric_limits<GLfloat>::min())
+    return false;
+
+  abt=mat.inverse()*(ray.segment<3>(0)-c);
+  bool ret=(abt.x()>=0.0f && abt.y()>=0.0f && (abt.x()+abt.y())<=1.0f) && //in triangle
+           (abt.z()>=0.0f && abt.z()<alpha);  //in segment
+  if(ret)
+    alpha=abt.z();
+  return ret;
+}
 void zRange(const Eigen::Matrix<GLfloat,6,1>& bb,GLfloat& zNear,GLfloat& zFar,GLfloat minZNear,GLfloat maxZFar) {
   if(!std::isfinite(bb[0]) || std::abs(bb[0])==std::numeric_limits<GLfloat>::max()) {
     zNear=minZNear;

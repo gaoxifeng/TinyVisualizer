@@ -26,6 +26,7 @@ class SceneNode {
   Eigen::Matrix<GLfloat,6,1> getBB() const;
   void visit(std::function<bool(const SceneNode&)> f) const;
   bool visit(std::function<bool(std::shared_ptr<Shape>)> f) const;
+  bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,std::shared_ptr<Shape>& IShape,GLfloat& IAlpha) const;
   void draw(std::function<void(std::shared_ptr<Shape>)> f,const Eigen::Matrix<GLfloat,-1,1>* viewFrustum) const;
  protected:
   static bool contain(const Eigen::Matrix<int,3,1>& loc,int sz,const Eigen::Matrix<GLfloat,6,1>& bb);

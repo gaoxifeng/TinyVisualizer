@@ -29,6 +29,10 @@ bool Shape::castShadow() const {
 bool Shape::useLight() const {
   return _useLight;
 }
+bool Shape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>&,GLfloat&) const {
+  ASSERT_MSG(false,"rayIntersect function not implemented!")
+  return false;
+}
 //Plugin
 Plugin::Plugin():_drawer(NULL) {}
 void Plugin::setDrawer(Drawer* drawer) {
@@ -259,6 +263,26 @@ void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,cons
   addCamera3D(angle,up);
   std::dynamic_pointer_cast<Camera3D>(_camera)->setDirection(dir);
   std::dynamic_pointer_cast<Camera3D>(_camera)->setPosition(pos);
+}
+bool Drawer::rayIntersect(Eigen::Matrix<GLfloat,6,1>& ray,std::shared_ptr<Shape>& IShape,GLfloat& IAlpha) const {
+  IAlpha=1;
+  if(!_root)
+    return false;
+  //find maximal distance
+  GLfloat dist=0;
+  Eigen::Matrix<GLfloat,6,1> bb=_root->getBB();
+  for(GLfloat x: {
+        bb[0],bb[3]
+      })
+    for(GLfloat y: {
+          bb[1],bb[4]
+        })
+      for(GLfloat z: {
+            bb[2],bb[5]
+          })
+        dist=std::max(dist,(Eigen::Matrix<GLfloat,3,1>(x,y,z)-ray.segment<3>(0)).norm());
+  ray.segment<3>(3)=ray.segment<3>(3).normalized()*dist;
+  return _root->rayIntersect(ray,IShape,IAlpha);
 }
 Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos(double x,double y) {
   ASSERT(_camera);

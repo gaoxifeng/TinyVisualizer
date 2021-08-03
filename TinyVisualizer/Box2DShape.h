@@ -19,6 +19,7 @@ class Box2DShape : public CompositeShape {
 #endif
   virtual void draw(bool shadowPass) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
+  virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   void setLocalTransform(GLfloat posx,GLfloat posy,GLfloat scale);
   const b2Body* getBody() const;
  private:

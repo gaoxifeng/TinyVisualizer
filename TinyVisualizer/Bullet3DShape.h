@@ -20,6 +20,7 @@ class Bullet3DShape : public CompositeShape {
 #endif
   virtual void draw(bool shadowPass) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
+  virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   void setLocalTransform(const Eigen::Matrix<GLfloat,4,4>& localTrans);
   void setLocalTranslate(const Eigen::Matrix<GLfloat,3,1>& localTrans);
   void setLocalRotate(const Eigen::Matrix<GLfloat,3,3>& localTrans);

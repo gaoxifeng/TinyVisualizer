@@ -190,6 +190,39 @@ Eigen::Matrix<GLfloat,6,1> MeshShape::getBB() const {
   }
   return _bb;
 }
+bool MeshShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const {
+#define VERT(ID) getVertex(_indices[ID])
+  bool ret=false;
+  if(_mode==GL_TRIANGLES) {
+    for(int i=0; i<(int)_indices.size(); i+=3)
+      if(rayIntersectTri(ray,alpha,VERT(i),VERT(i+1),VERT(i+2)))
+        ret=true;
+  } else if(_mode==GL_TRIANGLE_FAN) {
+    for(int i=2; i<(int)_indices.size(); i++)
+      if(rayIntersectTri(ray,alpha,VERT(0),VERT(i-1),VERT(i)))
+        ret=true;
+  } else if(_mode==GL_TRIANGLE_STRIP) {
+    for(int i=2; i<(int)_indices.size(); i++)
+      if(rayIntersectTri(ray,alpha,VERT(i),VERT(i-1),VERT(i-2)))
+        ret=true;
+  } else if(_mode==GL_QUADS) {
+    for(int i=0; i<(int)_indices.size(); i+=4) {
+      if(rayIntersectTri(ray,alpha,VERT(i),VERT(i+1),VERT(i+2)))
+        ret=true;
+      if(rayIntersectTri(ray,alpha,VERT(i),VERT(i+2),VERT(i+3)))
+        ret=true;
+    }
+  } else if(_mode==GL_QUAD_STRIP) {
+    for(int i=3; i<(int)_indices.size(); i+=2) {
+      if(rayIntersectTri(ray,alpha,VERT(i-3),VERT(i-1),VERT(i-0)))
+        ret=true;
+      if(rayIntersectTri(ray,alpha,VERT(i-3),VERT(i-0),VERT(i-2)))
+        ret=true;
+    }
+  }
+  return ret;
+#undef VERT
+}
 void MeshShape::refitBB() {
   _bb=resetBB();
   for(int i=0; i<nrVertex(); i++)

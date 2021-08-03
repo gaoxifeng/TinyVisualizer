@@ -87,7 +87,9 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
     if(_debugLine.size()==6) {
       glColor3f(0,0,0);
       glVertex3f(_debugLine[0],_debugLine[1],_debugLine[2]);
-      glVertex3f(_debugLine[3],_debugLine[4],_debugLine[5]);
+      glVertex3f(_debugLine[0]+_debugLine[3],
+                 _debugLine[1]+_debugLine[4],
+                 _debugLine[2]+_debugLine[5]);
     }
     glEnd();
     if(_debugFrustum.size()==24) {
@@ -100,22 +102,22 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   }
 }
 Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindow* wnd,double x,double y) const {
-  Eigen::Matrix<GLfloat,6,1> ret;
-  Eigen::Matrix<GLfloat,3,1> right,up;
-
-  right=_dir.cross(_up).normalized();
-  up=right.cross(_dir);
-
   int w=0,h=0;
   glfwGetWindowSize(wnd,&w,&h);
-  up*=std::tan(_angle/2);
-  right*=std::tan(_angle/2)*(GLfloat)w/(GLfloat)h;
   GLfloat ratioX=(x-w/2)/(GLfloat)(w/2);
   GLfloat ratioY=(y-h/2)/(GLfloat)(h/2);
 
-  ret.segment<3>(0)=_pos;
-  ret.segment<3>(3)=_dir+right*ratioX+up*ratioY;
-  return ret;
+  Eigen::Matrix<GLfloat,4,1> dir(ratioX,-ratioY,0,1);
+  Eigen::Matrix<GLfloat,4,4> mv,p;
+  glGetFloatv(GL_MODELVIEW_MATRIX,mv.data());
+  glGetFloatv(GL_PROJECTION_MATRIX,p.data());
+  dir=p.inverse()*dir;
+  dir.segment<3>(0)/=dir[3];  //from homogeneous space
+
+  Eigen::Matrix<GLfloat,6,1> ray;
+  ray.segment<3>(0)=-mv.block<3,3>(0,0).transpose()*mv.block<3,1>(0,3);
+  ray.segment<3>(3)= mv.block<3,3>(0,0).transpose()*dir.segment<3>(0);
+  return ray;
 }
 Eigen::Matrix<GLfloat,-1,1> Camera3D::getViewFrustum() const {
   return getViewFrustum3DPlanes();

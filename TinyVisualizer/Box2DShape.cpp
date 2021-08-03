@@ -91,6 +91,20 @@ Eigen::Matrix<GLfloat,6,1> Box2DShape::getBB() const {
 #endif
   return ret;
 }
+bool Box2DShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const {
+  Eigen::Matrix<GLfloat,6,1> rayLocal;
+  Eigen::Matrix<GLfloat,4,4> localTrans;
+  localTrans.setIdentity();
+  localTrans(0,3)=_posx;
+  localTrans(1,3)=_posy;
+  localTrans(0,0)=_scale;
+  localTrans(1,1)=_scale;
+
+  Eigen::Matrix<GLfloat,3,3> invR=localTrans.block<3,3>(0,0).inverse();
+  rayLocal.segment<3>(0)=invR*(ray.segment<3>(0)-localTrans.block<3,1>(0,3));
+  rayLocal.segment<3>(3)=invR*ray.segment<3>(3);
+  return CompositeShape::rayIntersect(rayLocal,alpha);
+}
 void Box2DShape::setLocalTransform(GLfloat posx,GLfloat posy,GLfloat scale) {
   _posx=posx;
   _posy=posy;

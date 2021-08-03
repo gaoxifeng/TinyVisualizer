@@ -50,6 +50,7 @@ class MeshShape : public Shape {
   virtual void setShininess(GLenum mode,GLfloat S) override;
   virtual void draw(bool shadowPass) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
+  virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
  protected:
   void refitBB();
   std::shared_ptr<Texture> _tex;

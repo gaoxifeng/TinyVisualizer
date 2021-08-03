@@ -35,6 +35,7 @@ class Shape {
   bool useLight() const;
   virtual void draw(bool shadowPass) const=0;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const=0;
+  virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
  protected:
   bool _enabled;
   bool _castShadow;
@@ -103,6 +104,7 @@ class Drawer {
   //addCamera3D-FirstPerson/TrackBall
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up=Eigen::Matrix<GLfloat,3,1>(0,0,1));
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir);
+  bool rayIntersect(Eigen::Matrix<GLfloat,6,1>& ray,std::shared_ptr<Shape>& IShape,GLfloat& IAlpha) const;
   Eigen::Matrix<GLfloat,2,1> getWorldPos(double x,double y);
   Eigen::Matrix<GLfloat,2,1> getWorldPos();
   std::shared_ptr<SceneNode> root();

@@ -96,6 +96,13 @@ Eigen::Matrix<GLfloat,6,1> Bullet3DShape::getBB() const {
 #endif
   return ret;
 }
+bool Bullet3DShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const {
+  Eigen::Matrix<GLfloat,6,1> rayLocal;
+  Eigen::Matrix<GLfloat,3,3> invR=_localTrans.block<3,3>(0,0).inverse();
+  rayLocal.segment<3>(0)=invR*(ray.segment<3>(0)-_localTrans.block<3,1>(0,3));
+  rayLocal.segment<3>(3)=invR*ray.segment<3>(3);
+  return CompositeShape::rayIntersect(rayLocal,alpha);
+}
 void Bullet3DShape::setLocalTransform(const Eigen::Matrix<GLfloat,4,4>& localTrans) {
   _localTrans=localTrans;
 }

@@ -17,6 +17,7 @@ class CompositeShape : public Shape {
   virtual void setDepth(GLfloat depth) override;
   virtual void draw(bool shadowPass) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
+  virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   std::shared_ptr<Shape> getChild(int id) const;
   int numChildren() const;
  protected:

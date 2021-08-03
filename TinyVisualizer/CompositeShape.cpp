@@ -49,6 +49,13 @@ Eigen::Matrix<GLfloat,6,1> CompositeShape::getBB() const {
     bb=unionBB(bb,s->getBB());
   return bb;
 }
+bool CompositeShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const {
+  bool ret=false;
+  for(int i=0; i<(int)_shapes.size(); i++)
+    if(_shapes[i]->rayIntersect(ray,alpha))
+      ret=true;
+  return ret;
+}
 std::shared_ptr<Shape> CompositeShape::getChild(int id) const {
   return _shapes[id];
 }
