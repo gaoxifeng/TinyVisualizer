@@ -4,7 +4,7 @@
 #include <TinyVisualizer/Bullet3DShape.h>
 #include <iostream>
 #include <fstream>
-
+#include <ctime>
 using namespace DRAWER;
 
 int main(int argc,char** argv) {
