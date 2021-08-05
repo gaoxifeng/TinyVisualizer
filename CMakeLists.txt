@@ -82,7 +82,7 @@ IF(NOT (PYTHON_BINDING STREQUAL "None"))
   SET(sourceSWIG "${PROJECT_SOURCE_DIR}/Swig/module.i")
   SET_SOURCE_FILES_PROPERTIES(${sourceSWIG} PROPERTIES CPLUSPLUS ON SWIG_MODULE_NAME pyTinyVisualizer)
   MESSAGE(STATUS "Found Python${PYTHON_VERSION_STRING} and swig${SWIG_VERSION}")
-  SWIG_ADD_LIBRARY(pyTinyVisualizer LANGUAGE python SOURCES ${sourceSWIG} ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${IMGUI})
+  SWIG_ADD_LIBRARY(pyTinyVisualizer LANGUAGE python SOURCES ${sourceSWIG})
   SWIG_LINK_LIBRARIES(pyTinyVisualizer ${Python_LIBRARIES} TinyVisualizer)
 ENDIF()
 
