@@ -2,13 +2,13 @@
 #include "Camera3D.h"
 
 namespace DRAWER {
-FirstPersonCameraManipulator::FirstPersonCameraManipulator(Camera3D& camera)
+FirstPersonCameraManipulator::FirstPersonCameraManipulator(std::shared_ptr<Camera3D> camera)
   :CameraManipulator(camera),_forward(false),_backward(false),_left(false),_right(false),_rise(false),_dive(false),
    _sensitive(1),_speed(1),_inMotion(false),_speedMode(true) {
   int id;
-  _camera.up().cwiseAbs().minCoeff(&id);
-  _t1=Eigen::Matrix<GLfloat,3,1>::Unit(id).cross(_camera.up()).normalized();
-  _t2=_camera.up().cross(_t1);
+  _camera->up().cwiseAbs().minCoeff(&id);
+  _t1=Eigen::Matrix<GLfloat,3,1>::Unit(id).cross(_camera->up()).normalized();
+  _t2=_camera->up().cross(_t1);
 }
 void FirstPersonCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int) {
   if(button==GLFW_MOUSE_BUTTON_1) {
@@ -52,17 +52,17 @@ void FirstPersonCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
     _yLast=h/2.0f;
   }
   if(_forward)
-    _camera.setPosition(_camera.position()+_camera.direction()*_speed*time);
+    _camera->setPosition(_camera->position()+_camera->direction()*_speed*time);
   if(_backward)
-    _camera.setPosition(_camera.position()-_camera.direction()*_speed*time);
+    _camera->setPosition(_camera->position()-_camera->direction()*_speed*time);
   if(_left)
-    _camera.setPosition(_camera.position()+_camera.up().cross(_camera.direction()).normalized()*_speed*time);
+    _camera->setPosition(_camera->position()+_camera->up().cross(_camera->direction()).normalized()*_speed*time);
   if(_right)
-    _camera.setPosition(_camera.position()-_camera.up().cross(_camera.direction()).normalized()*_speed*time);
+    _camera->setPosition(_camera->position()-_camera->up().cross(_camera->direction()).normalized()*_speed*time);
   if(_rise)
-    _camera.setPosition(_camera.position()+_camera.up()*_speed*time);
+    _camera->setPosition(_camera->position()+_camera->up()*_speed*time);
   if(_dive)
-    _camera.setPosition(_camera.position()-_camera.up()*_speed*time);
+    _camera->setPosition(_camera->position()-_camera->up()*_speed*time);
 }
 void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
   if(key==GLFW_KEY_W)
@@ -79,9 +79,9 @@ void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int acti
     _dive=action==GLFW_PRESS||action==GLFW_REPEAT;
 }
 void FirstPersonCameraManipulator::begin(GLfloat& theta,GLfloat& phi) const {
-  GLfloat x=_camera.direction().dot(_t1);
-  GLfloat y=_camera.direction().dot(_t2);
-  GLfloat z=_camera.direction().dot(_camera.up());
+  GLfloat x=_camera->direction().dot(_t1);
+  GLfloat y=_camera->direction().dot(_t2);
+  GLfloat z=_camera->direction().dot(_camera->up());
   theta=atan2(y,x);
   phi=std::min<GLfloat>(M_PI/2*0.99,std::max<GLfloat>(-M_PI/2*0.99,atan2(z,std::sqrt(x*x+y*y))));
 }
@@ -90,7 +90,7 @@ void FirstPersonCameraManipulator::end(GLfloat theta,GLfloat phi) {
   GLfloat x=std::cos(theta)*std::cos(phi);
   GLfloat y=std::sin(theta)*std::cos(phi);
   GLfloat z=std::sin(phi);
-  _camera.setDirection(_t1*x+_t2*y+_camera.up()*z);
+  _camera->setDirection(_t1*x+_t2*y+_camera->up()*z);
 }
 GLfloat FirstPersonCameraManipulator::clampMin(GLfloat val) {
   static GLfloat minVal=3;

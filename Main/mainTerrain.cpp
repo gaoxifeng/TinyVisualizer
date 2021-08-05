@@ -17,11 +17,11 @@ int main(int argc,char** argv) {
 #define USE_LIGHT
 #ifdef USE_LIGHT
   drawer.addLightSystem(2048,20);
-  drawer.getLight().lightSz()=10;
-  drawer.getLight().addLight(Eigen::Matrix<GLfloat,3,1>(2,2,2),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(0,0,0));
+  drawer.getLight()->lightSz(10);
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(2,2,2),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
   {
     Eigen::Matrix<GLfloat,-1,-1> height;
@@ -52,7 +52,7 @@ int main(int argc,char** argv) {
   drawer.addShape(shapeTB);
 
   drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
-  drawer.getCamera3D().setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(drawer.getCamera3D())));
+  drawer.getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(drawer.getCamera3D())));
   drawer.mainLoop();
   return 0;
 }

@@ -42,15 +42,15 @@ int main(int argc,char** argv) {
 #define USE_LIGHT
 #ifdef USE_LIGHT
   drawer.addLightSystem(0);
-  drawer.getLight().lightSz()=10;
-  drawer.getLight().addLight(Eigen::Matrix<GLfloat,3,1>(off/2,3, 0.2f),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(0,0,0));
-  drawer.getLight().addLight(Eigen::Matrix<GLfloat,3,1>(off/2,3,-0.2f),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(0,0,0));
+  drawer.getLight()->lightSz(10);
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(off/2,3, 0.2f),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,0));
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(off/2,3,-0.2f),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
   drawer.mainLoop();
   return 0;

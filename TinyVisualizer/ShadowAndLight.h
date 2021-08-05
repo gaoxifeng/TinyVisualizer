@@ -36,19 +36,20 @@ class ShadowLight {
   Eigen::Matrix<GLfloat,3,1> getLightSpecular(int i) const;
   void clear();
   int softShadow() const;
-  int& softShadow();
+  void softShadow(int softPass);
   bool autoAdjust() const;
-  bool& autoAdjust();
+  void autoAdjust(bool autoAdjust);
   int lightSz() const;
-  int& lightSz();
+  void lightSz(int sz);
   GLfloat bias() const;
-  GLfloat& bias();
+  void bias(GLfloat bias);
   int nrLight() const;
   bool hasShadow() const;
   void renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func);
   void begin(const Eigen::Matrix<GLfloat,6,1>& bb);
   void end();
  protected:
+  GLfloat calculateFarPlane(const Eigen::Matrix<GLfloat,6,1>& bb) const;
   void setMVLight(Light& l) const;
   GLfloat _bias;
   int _softShadow;

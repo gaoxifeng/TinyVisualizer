@@ -14,14 +14,14 @@ int main(int argc,char** argv) {
 #define USE_LIGHT
 #ifdef USE_LIGHT
   drawer.addLightSystem();
-  drawer.getLight().lightSz()=10;
+  drawer.getLight()->lightSz(10);
   for(int x=-1; x<=1; x+=2)
     for(int y=-1; y<=1; y+=2)
       for(int z=-1; z<=1; z+=2)
-        drawer.getLight().addLight(Eigen::Matrix<GLfloat,3,1>(x,y,z),
-                                   Eigen::Matrix<GLfloat,3,1>(.05,.05,.05),
-                                   Eigen::Matrix<GLfloat,3,1>(.2,.2,.2),
-                                   Eigen::Matrix<GLfloat,3,1>(0,0,0));
+        drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(x,y,z),
+                                    Eigen::Matrix<GLfloat,3,1>(.05,.05,.05),
+                                    Eigen::Matrix<GLfloat,3,1>(.2,.2,.2),
+                                    Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
   drawer.mainLoop();
   return 0;

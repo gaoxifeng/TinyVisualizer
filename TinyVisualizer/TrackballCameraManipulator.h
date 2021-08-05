@@ -6,7 +6,7 @@
 namespace DRAWER {
 class TrackballCameraManipulator : public CameraManipulator {
  public:
-  TrackballCameraManipulator(Camera3D& camera);
+  TrackballCameraManipulator(std::shared_ptr<Camera3D> camera);
   void mouse(GLFWwindow* wnd,int button,int action,int) override;
   void wheel(GLFWwindow*,double,double yoffset) override;
   void motion(GLFWwindow* wnd,double x,double y) override;

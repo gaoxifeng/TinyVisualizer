@@ -206,14 +206,19 @@
     *out = PyArray_SimpleNew(2, dims, NumPyType<typename Derived::Scalar>());
     if (!out)
       return false;
-    typename Derived::Scalar* data = static_cast<typename Derived::Scalar*>(PyArray_DATA((PyArrayObject*) *out));
+    typename Derived::Scalar* data = reinterpret_cast<typename Derived::Scalar*>(PyArray_DATA((PyArrayObject*) *out));
+    if(!data)
+      return false;
     for (int i = 0; i != dims[0]; ++i)
-      for (int j = 0; j != dims[1]; ++j)
+      for (int j = 0; j != dims[1]; ++j) {
+        printf("%d %d\n",i,j);
         data[i*dims[1]+j] = in->coeff(i,j);
+      }
     return true;
   };
 
   template<> int NumPyType<double>() {return NPY_DOUBLE;};
+  template<> int NumPyType<float>() {return NPY_FLOAT;};
   template<> int NumPyType<int>() {return NPY_INT;};
 %}
 

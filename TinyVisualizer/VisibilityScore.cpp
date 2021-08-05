@@ -85,11 +85,11 @@ std::pair<Eigen::Matrix<GLfloat,2,1>,Eigen::Matrix<GLfloat,2,1>> VisibilityScore
 bool debugOutput) {
   Eigen::Matrix<GLfloat,6,1> bb=unionBB(shapeA->getBB(),shapeB->getBB());
   std::function<void(const FBO&)> ref=[&](const FBO&) {
-    drawer.getCamera().draw(glfwGetCurrentContext(),bb);
+    drawer.getCamera()->draw(glfwGetCurrentContext(),bb);
     shapeA->draw(false);
   };
   std::function<void(const FBO&)> curr=[&](const FBO&) {
-    drawer.getCamera().draw(glfwGetCurrentContext(),bb);
+    drawer.getCamera()->draw(glfwGetCurrentContext(),bb);
     shapeB->draw(false);
   };
   Eigen::Matrix<GLfloat,2,1> maxS=Eigen::Matrix<GLfloat,2,1>::Zero();

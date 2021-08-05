@@ -213,26 +213,26 @@ void ShadowLight::clear() {
 int ShadowLight::softShadow() const {
   return _softShadow;
 }
-int& ShadowLight::softShadow() {
-  return _softShadow;
+void ShadowLight::softShadow(int softShadow) {
+  _softShadow=softShadow;
 }
 bool ShadowLight::autoAdjust() const {
   return _autoAdjust;
 }
-bool& ShadowLight::autoAdjust() {
-  return _autoAdjust;
+void ShadowLight::autoAdjust(bool autoAdjust) {
+  _autoAdjust=autoAdjust;
 }
 int ShadowLight::lightSz() const {
   return _lightSz;
 }
-int& ShadowLight::lightSz() {
-  return _lightSz;
+void ShadowLight::lightSz(int sz) {
+  _lightSz=sz;
 }
 GLfloat ShadowLight::bias() const {
   return _bias;
 }
-GLfloat& ShadowLight::bias() {
-  return _bias;
+void ShadowLight::bias(GLfloat bias) {
+  _bias=bias;
 }
 int ShadowLight::nrLight() const {
   return (int)_lights.size();
@@ -242,9 +242,9 @@ bool ShadowLight::hasShadow() const {
 }
 void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func) {
   if(_shadow>0) {
-    GLfloat zNear,zFar,far_plane=(bb.segment<3>(3)-bb.segment<3>(0)).norm();
+    GLfloat zNear,zFar,far=calculateFarPlane(bb);
     _shaderShadow->begin();
-    _shaderShadow->setUniformFloat("far_plane",far_plane);
+    _shaderShadow->setUniformFloat("far_plane",far);
     for(const Light& l:_lights) {
       _shaderShadow->setUniformFloat("lightPos",Eigen::Matrix<GLfloat,3,1>(l._position.segment<3>(0)));
       for(int d=0; d<6; d++) {
@@ -257,7 +257,7 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
-        gluPerspective(90,1,zNear,far_plane);
+        gluPerspective(90,1,zNear,far);
 
         l._shadowMap->begin(d);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -315,8 +315,7 @@ void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb) {
   _shader->setUniformFloat("invShadowMapSize",1.0/_shadow);
   _shader->setUniformInt("softShadowPass",_softShadow);
   _shader->setUniformInt("MAX_LIGHTS",_lights.size());
-  GLfloat far_plane=(bb.segment<3>(3)-bb.segment<3>(0)).norm();
-  _shader->setUniformFloat("far_plane",far_plane);
+  _shader->setUniformFloat("far_plane",calculateFarPlane(bb));
   _shader->setUniformFloat("bias",_bias);
   _shader->setUniformBool("useShadow",_shadow>0);
   _shader->setUniformBool("softShadow",_softShadow>0);
@@ -344,6 +343,24 @@ void ShadowLight::end() {
     }
     glActiveTexture(GL_TEXTURE0);
   }
+}
+//helper
+GLfloat ShadowLight::calculateFarPlane(const Eigen::Matrix<GLfloat,6,1>& bb) const {
+  GLfloat farPlane=0;
+  for(GLfloat x: {
+        bb[0],bb[3]
+      })
+    for(GLfloat y: {
+          bb[1],bb[4]
+        })
+      for(GLfloat z: {
+            bb[2],bb[5]
+          }) {
+        Eigen::Matrix<GLfloat,4,1> pos(x,y,z,1);
+        for(const Light& l:_lights)
+          farPlane=std::max(farPlane,(pos-l._position).norm());
+      }
+  return farPlane;
 }
 void ShadowLight::setMVLight(Light& l) const {
   static const GLfloat target[6][3]= {

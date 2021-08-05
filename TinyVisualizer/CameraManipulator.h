@@ -7,7 +7,7 @@ namespace DRAWER {
 class Camera3D;
 class CameraManipulator {
  public:
-  CameraManipulator(Camera3D& camera);
+  CameraManipulator(std::shared_ptr<Camera3D> camera);
   virtual void mouse(GLFWwindow* wnd,int button,int action,int mods) {}
   virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset) {}
   virtual void motion(GLFWwindow* wnd,double x,double y) {}
@@ -17,7 +17,7 @@ class CameraManipulator {
   virtual void postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {}
   virtual void init(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb);
  protected:
-  Camera3D& _camera;
+  std::shared_ptr<Camera3D> _camera;
 };
 }
 

@@ -78,7 +78,7 @@ int main(int argc,char** argv) {
       GLfloat IAlpha=1;
       std::shared_ptr<Shape> IShape;
       glfwGetCursorPos(wnd,&x,&y);
-      Eigen::Matrix<GLfloat,6,1> ray=drawer.getCamera3D().getCameraRay(wnd,x,y);
+      Eigen::Matrix<GLfloat,6,1> ray=drawer.getCameraRay(x,y);
       if(drawer.rayIntersect(ray,IShape,IAlpha)) {
         std::cout << "Intersection IAlpha=" << IAlpha << std::endl;
         shapeI->setLocalTranslate(ray.segment<3>(0)+ray.segment<3>(3)*IAlpha);

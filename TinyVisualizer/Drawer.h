@@ -105,14 +105,14 @@ class Drawer {
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up=Eigen::Matrix<GLfloat,3,1>(0,0,1));
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir);
   bool rayIntersect(Eigen::Matrix<GLfloat,6,1>& ray,std::shared_ptr<Shape>& IShape,GLfloat& IAlpha) const;
-  Eigen::Matrix<GLfloat,2,1> getWorldPos(double x,double y);
-  Eigen::Matrix<GLfloat,2,1> getWorldPos();
+  Eigen::Matrix<GLfloat,-1,1> getCameraRay(double x,double y);
+  Eigen::Matrix<GLfloat,-1,1> getCameraRay();
   std::shared_ptr<SceneNode> root();
-  ShadowLight& getLight();
+  std::shared_ptr<ShadowLight> getLight();
   void clearLight();
-  Camera& getCamera();
-  Camera2D& getCamera2D();
-  Camera3D& getCamera3D();
+  std::shared_ptr<Camera> getCamera();
+  std::shared_ptr<Camera2D> getCamera2D();
+  std::shared_ptr<Camera3D> getCamera3D();
   void mainLoop();
   int FPS();
   //getter/setter

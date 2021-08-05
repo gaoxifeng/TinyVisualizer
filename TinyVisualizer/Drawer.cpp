@@ -104,7 +104,7 @@ Drawer::Drawer(int argc,char** argv)
     addLightSystem(argparseRange(argc,argv,"defaultShadow",0,Eigen::Matrix<int,2,1>(0,2049)),
                    argparseRange(argc,argv,"defaultShadowSoftness",20,Eigen::Matrix<int,2,1>(0,21)),
                    argparseRange(argc,argv,"defaultAutoAdjust",1,Eigen::Matrix<int,2,1>(0,2)));
-    getLight().lightSz()=argparseRange(argc,argv,"defaultLightSz",20,Eigen::Matrix<int,2,1>(0,101));
+    getLight()->lightSz(argparseRange(argc,argv,"defaultLightSz",20,Eigen::Matrix<int,2,1>(0,101)));
   }
   //add default camera
   if(argparseRange(argc,argv,"defaultCamera2D",0,Eigen::Matrix<int,2,1>(0,2)))
@@ -114,9 +114,9 @@ Drawer::Drawer(int argc,char** argv)
                 Eigen::Matrix<GLfloat,3,1>::Unit(argparseRange(argc,argv,"defaultCamera3DUp",2,Eigen::Matrix<int,2,1>(0,3))));
     std::string manipulatorType=argparseChoice(argc,argv,"defaultCamera3DManipulator","Trackball", {"FPS","Trackball","None"});
     if(manipulatorType=="FPS")
-      getCamera3D().setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(getCamera3D())));
+      getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(getCamera3D())));
     else if(manipulatorType=="Trackball")
-      getCamera3D().setManipulator(std::shared_ptr<CameraManipulator>(new TrackballCameraManipulator(getCamera3D())));
+      getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new TrackballCameraManipulator(getCamera3D())));
   }
 }
 Drawer::~Drawer() {
@@ -284,35 +284,35 @@ bool Drawer::rayIntersect(Eigen::Matrix<GLfloat,6,1>& ray,std::shared_ptr<Shape>
   ray.segment<3>(3)=ray.segment<3>(3).normalized()*dist;
   return _root->rayIntersect(ray,IShape,IAlpha);
 }
-Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos(double x,double y) {
+Eigen::Matrix<GLfloat,-1,1> Drawer::getCameraRay(double x,double y) {
   ASSERT(_camera);
   return _camera->getCameraRay(_window,x,y);
 }
-Eigen::Matrix<GLfloat,2,1> Drawer::getWorldPos() {
+Eigen::Matrix<GLfloat,-1,1> Drawer::getCameraRay() {
   double x=0,y=0;
   glfwGetCursorPos(_window,&x,&y);
-  return getWorldPos(x,y);
+  return getCameraRay(x,y);
 }
 std::shared_ptr<SceneNode> Drawer::root() {
   return _root;
 }
-ShadowLight& Drawer::getLight() {
-  return *_light;
+std::shared_ptr<ShadowLight> Drawer::getLight() {
+  return _light;
 }
 void Drawer::clearLight() {
   _light=NULL;
 }
-Camera& Drawer::getCamera() {
+std::shared_ptr<Camera> Drawer::getCamera() {
   ASSERT(_camera);
-  return *_camera;
+  return _camera;
 }
-Camera2D& Drawer::getCamera2D() {
+std::shared_ptr<Camera2D> Drawer::getCamera2D() {
   ASSERT(_camera);
-  return dynamic_cast<Camera2D&>(*_camera);
+  return std::dynamic_pointer_cast<Camera2D>(_camera);
 }
-Camera3D& Drawer::getCamera3D() {
+std::shared_ptr<Camera3D> Drawer::getCamera3D() {
   ASSERT(_camera);
-  return dynamic_cast<Camera3D&>(*_camera);
+  return std::dynamic_pointer_cast<Camera3D>(_camera);
 }
 void Drawer::mainLoop() {
   while (!glfwWindowShouldClose(_window)) {
