@@ -186,26 +186,26 @@ void ShadowLight::setLightPos(int i,const Eigen::Matrix<GLfloat,3,1>& pos) {
   _lights[i]._position.segment<3>(0)=pos;
   setMVLight(_lights[i]);
 }
-Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightPos(int i) const {
+Eigen::Matrix<GLfloat,3,1> ShadowLight::getLightPos(int i) const {
   return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(_lights[i]._position.data());
 }
-Eigen::Map<Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightAmbient(int i) {
-  return Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_lights[i]._ambient.data());
+void ShadowLight::setLightAmbient(int i,const Eigen::Matrix<GLfloat,3,1>& ambient) {
+  _lights[i]._ambient.segment<3>(0)=ambient;
 }
-Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightAmbient(int i) const {
-  return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(_lights[i]._ambient.data());
+Eigen::Matrix<GLfloat,3,1> ShadowLight::getLightAmbient(int i) const {
+  return _lights[i]._ambient.segment<3>(0);
 }
-Eigen::Map<Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightDiffuse(int i) {
-  return Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_lights[i]._diffuse.data());
+void ShadowLight::setLightDiffuse(int i,const Eigen::Matrix<GLfloat,3,1>& diffuse) {
+  _lights[i]._diffuse.segment<3>(0)=diffuse;
 }
-Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightDiffuse(int i) const {
-  return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(_lights[i]._diffuse.data());
+Eigen::Matrix<GLfloat,3,1> ShadowLight::getLightDiffuse(int i) const {
+  return _lights[i]._diffuse.segment<3>(0);
 }
-Eigen::Map<Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightSpecular(int i) {
-  return Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_lights[i]._specular.data());
+void ShadowLight::setLightSpecular(int i,const Eigen::Matrix<GLfloat,3,1>& specular) {
+  _lights[i]._specular.segment<3>(0)=specular;
 }
-Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> ShadowLight::getLightSpecular(int i) const {
-  return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(_lights[i]._specular.data());
+Eigen::Matrix<GLfloat,3,1> ShadowLight::getLightSpecular(int i) const {
+  return _lights[i]._specular.segment<3>(0);
 }
 void ShadowLight::clear() {
   _lights.clear();

@@ -67,16 +67,19 @@ void MeshShape::computeNormals() {
   for(int i=0; i<(int)_normals.size(); i+=3)
     Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(&_normals[i]).normalize();
 }
-Eigen::Map<Eigen::Matrix<GLfloat,3,1>> MeshShape::getNormal(int i) {
+void MeshShape::setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal) {
   if((int)_normals.size()<i*3+3)
     _normals.resize(i*3+3,0);
-  return Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(&_normals[i*3]);
+  Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_normals.data()+i*3)=normal;
 }
-Eigen::Map<Eigen::Matrix<GLfloat,3,1>> MeshShape::getVertex(int i) {
+Eigen::Matrix<GLfloat,3,1> MeshShape::getNormal(int i) const {
+  return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(&_normals[i*3]);
+}
+void MeshShape::setVertex(int i,const Eigen::Matrix<GLfloat,3,1>& vertex) {
   _dirty=true;
-  return Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(&_vertices[i*3]);
+  Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_vertices.data()+i*3)=vertex;
 }
-Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> MeshShape::getVertex(int i) const {
+Eigen::Matrix<GLfloat,3,1> MeshShape::getVertex(int i) const {
   return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(&_vertices[i*3]);
 }
 void MeshShape::setPointSize(GLfloat pointSize) {

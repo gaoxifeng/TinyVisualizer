@@ -37,9 +37,10 @@ class MeshShape : public Shape {
   int nrVertex() const;
   void clear();
   virtual void computeNormals();
-  Eigen::Map<Eigen::Matrix<GLfloat,3,1>> getNormal(int i);
-  Eigen::Map<Eigen::Matrix<GLfloat,3,1>> getVertex(int i);
-  Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> getVertex(int i) const;
+  void setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal);
+  Eigen::Matrix<GLfloat,3,1> getNormal(int i) const;
+  void setVertex(int i,const Eigen::Matrix<GLfloat,3,1>& vertex);
+  Eigen::Matrix<GLfloat,3,1> getVertex(int i) const;
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
   virtual void setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;

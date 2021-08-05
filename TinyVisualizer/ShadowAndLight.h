@@ -27,13 +27,13 @@ class ShadowLight {
                        const Eigen::Matrix<GLfloat,3,1>& diffuse=Eigen::Matrix<GLfloat,3,1>(1,1,1),
                        const Eigen::Matrix<GLfloat,3,1>& specular=Eigen::Matrix<GLfloat,3,1>(1,1,1));
   void setLightPos(int i,const Eigen::Matrix<GLfloat,3,1>& pos);
-  Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> getLightPos(int i) const;
-  Eigen::Map<Eigen::Matrix<GLfloat,3,1>> getLightAmbient(int i);
-  Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> getLightAmbient(int i) const;
-  Eigen::Map<Eigen::Matrix<GLfloat,3,1>> getLightDiffuse(int i);
-  Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> getLightDiffuse(int i) const;
-  Eigen::Map<Eigen::Matrix<GLfloat,3,1>> getLightSpecular(int i);
-  Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> getLightSpecular(int i) const;
+  Eigen::Matrix<GLfloat,3,1> getLightPos(int i) const;
+  void setLightAmbient(int i,const Eigen::Matrix<GLfloat,3,1>& ambient);
+  Eigen::Matrix<GLfloat,3,1> getLightAmbient(int i) const;
+  void setLightDiffuse(int i,const Eigen::Matrix<GLfloat,3,1>& diffuse);
+  Eigen::Matrix<GLfloat,3,1> getLightDiffuse(int i) const;
+  void setLightSpecular(int i,const Eigen::Matrix<GLfloat,3,1>& specular);
+  Eigen::Matrix<GLfloat,3,1> getLightSpecular(int i) const;
   void clear();
   int softShadow() const;
   int& softShadow();

@@ -134,8 +134,8 @@ std::shared_ptr<MeshShape> makeSphericalBox(int RES,bool fill,GLfloat rad,const 
         //assemble
         off2=shape->nrVertex();
         for(int i=off; i<off2; i++) {
-          Eigen::Map<Eigen::Matrix<GLfloat,3,1>> n=shape->getNormal(i);
-          Eigen::Map<Eigen::Matrix<GLfloat,3,1>> v=shape->getVertex(i);
+          Eigen::Matrix<GLfloat,3,1> n;
+          Eigen::Matrix<GLfloat,3,1> v;
           n.setZero();
           if(x!=0)
             n[0]=v[0];
@@ -144,6 +144,7 @@ std::shared_ptr<MeshShape> makeSphericalBox(int RES,bool fill,GLfloat rad,const 
           if(z!=0)
             n[2]=v[2];
           n.normalize();
+          shape->setNormal(i,n);
           if(x!=0)
             v[0]=x*halfExt[0]+n[0]*rad;
           else v[0]+=x*rad;
@@ -153,6 +154,7 @@ std::shared_ptr<MeshShape> makeSphericalBox(int RES,bool fill,GLfloat rad,const 
           if(z!=0)
             v[2]=z*halfExt[2]+n[2]*rad;
           else v[2]+=z*rad;
+          shape->setVertex(i,v);
         }
         off=off2;
       }
@@ -182,7 +184,7 @@ std::shared_ptr<MeshShape> makeTriMesh(bool fill,const Eigen::Matrix<GLfloat,-1,
   }
   shape->setMode(fill?GL_TRIANGLES:GL_LINES);
   if (fill)
-      shape->computeNormals();
+    shape->computeNormals();
   return shape;
 }
 std::shared_ptr<MeshShape> makeWires(const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& E) {
