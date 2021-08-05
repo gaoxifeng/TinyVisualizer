@@ -9,7 +9,6 @@
 #include <TinyVisualizer/MakeTexture.h>
 #include <TinyVisualizer/FBO.h>
 #include <TinyVisualizer/Drawer.h>
-#include <TinyVisualizer/SceneStructure.h>
 #include <TinyVisualizer/ShadowAndLight.h>
 #include <TinyVisualizer/CameraManipulator.h>
 #include <TinyVisualizer/TrackballCameraManipulator.h>
@@ -34,7 +33,6 @@
 %include <TinyVisualizer/MakeTexture.h>
 %include <TinyVisualizer/FBO.h>
 %include <TinyVisualizer/Drawer.h>
-%include <TinyVisualizer/SceneStructure.h>
 %include <TinyVisualizer/ShadowAndLight.h>
 %include <TinyVisualizer/CameraManipulator.h>
 %include <TinyVisualizer/TrackballCameraManipulator.h>

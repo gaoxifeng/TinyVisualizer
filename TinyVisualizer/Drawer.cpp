@@ -140,7 +140,7 @@ void Drawer::timer() {
     _frame(_root);
     for(std::shared_ptr<Plugin> pi:_plugins)
       pi->frame(_root);
-    if(_light && _light->autoAdjust())
+    if(_root && _light && _light->autoAdjust())
       _light->setDefaultLight(_root->getBB());
     if(_root) {
       _root=SceneNode::update(_root);

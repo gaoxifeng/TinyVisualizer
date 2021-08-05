@@ -135,7 +135,7 @@ std::shared_ptr<MeshShape> makeSphericalBox(int RES,bool fill,GLfloat rad,const 
         off2=shape->nrVertex();
         for(int i=off; i<off2; i++) {
           Eigen::Matrix<GLfloat,3,1> n;
-          Eigen::Matrix<GLfloat,3,1> v;
+          Eigen::Matrix<GLfloat,3,1> v=shape->getVertex(i);
           n.setZero();
           if(x!=0)
             n[0]=v[0];
