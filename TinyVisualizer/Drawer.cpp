@@ -42,10 +42,10 @@ void Plugin::setDrawer(Drawer* drawer) {
 static void errFunc(int error,const char* description) {
   ASSERT_MSGV(false,"GLFW error=%d, message: %s!",error,description)
 }
-void mouseNothing(GLFWwindow*,int,int,int) {}
-void wheelNothing(GLFWwindow*,double,double) {}
-void motionNothing(GLFWwindow*,double,double) {}
-void keyNothing(GLFWwindow*,int,int,int,int) {}
+void mouseNothing(GLFWwindow*,int,int,int,bool) {}
+void wheelNothing(GLFWwindow*,double,double,bool) {}
+void motionNothing(GLFWwindow*,double,double,bool) {}
+void keyNothing(GLFWwindow*,int,int,int,int,bool) {}
 void doNothing(std::shared_ptr<SceneNode>&) {}
 void drawNothing() {}
 Drawer::Drawer(int argc,char** argv)
@@ -55,7 +55,7 @@ Drawer::Drawer(int argc,char** argv)
    _key(keyNothing),
    _frame(doNothing),
    _draw(drawNothing),
-   _lastTime(0),_invoked(false) {
+   _cb(NULL),_lastTime(0),_invoked(false) {
   if(_invoked)
     return;
   _invoked=true;
@@ -135,6 +135,8 @@ void Drawer::addLightSystem(int shadow,int softShadow,bool autoAdjust) {
 void Drawer::timer() {
   double t=glfwGetTime();
   if(t-_lastTime>1.0/_FPS) {
+    if(_cb)
+      _cb->frame(_root);
     if(_camera)
       _camera->frame(_window,1.0f/FPS());
     _frame(_root);
@@ -191,60 +193,83 @@ void Drawer::draw() {
   }
   //custom
   _draw();
+  if(_cb)
+    _cb->draw();
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->postDraw();
 }
 void Drawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
+  bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
-  if(drawer->_camera)
-    drawer->_camera->mouse(wnd,button,action,mods);
-  drawer->_mouse(wnd,button,action,mods);
+  if(drawer->_cb)
+    drawer->_cb->mouse(wnd,button,action,mods);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
-    pi->mouse(wnd,button,action,mods);
+    if(!pi->mouse(wnd,button,action,mods)) {
+      captured=true;
+      break;
+    }
+  if(drawer->_camera)
+    drawer->_camera->mouse(wnd,button,action,mods,captured);
+  drawer->_mouse(wnd,button,action,mods,captured);
 }
 void Drawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
+  bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
-  if(drawer->_camera)
-    drawer->_camera->wheel(wnd,xoffset,yoffset);
-  drawer->_wheel(wnd,xoffset,yoffset);
+  if(drawer->_cb)
+    drawer->_cb->wheel(wnd,xoffset,yoffset);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
-    pi->wheel(wnd,xoffset,yoffset);
+    if(!pi->wheel(wnd,xoffset,yoffset)) {
+      captured=true;
+      break;
+    }
+  if(drawer->_camera)
+    drawer->_camera->wheel(wnd,xoffset,yoffset,captured);
+  drawer->_wheel(wnd,xoffset,yoffset,captured);
 }
 void Drawer::motion(GLFWwindow* wnd,double x,double y) {
+  bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
-  if(drawer->_camera)
-    drawer->_camera->motion(wnd,x,y);
-  drawer->_motion(wnd,x,y);
+  if(drawer->_cb)
+    drawer->_cb->motion(wnd,x,y);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
-    pi->motion(wnd,x,y);
+    if(!pi->motion(wnd,x,y)) {
+      captured=true;
+      break;
+    }
+  if(drawer->_camera)
+    drawer->_camera->motion(wnd,x,y,captured);
+  drawer->_motion(wnd,x,y,captured);
 }
 void Drawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
+  bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
-  if(drawer->_camera)
-    drawer->_camera->key(wnd,key,scan,action,mods);
-  drawer->_key(wnd,key,scan,action,mods);
+  if(drawer->_cb)
+    drawer->_cb->key(wnd,key,scan,action,mods);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
-    pi->key(wnd,key,scan,action,mods);
+    if(!pi->key(wnd,key,scan,action,mods)) {
+      captured=true;
+      break;
+    }
+  if(drawer->_camera)
+    drawer->_camera->key(wnd,key,scan,action,mods,captured);
+  drawer->_key(wnd,key,scan,action,mods,captured);
   switch (key) {
   case GLFW_KEY_ESCAPE:
-    if(action==GLFW_PRESS) {
+    if(action==GLFW_PRESS)
       glfwSetWindowShouldClose(wnd,GLFW_TRUE);
-      for(std::shared_ptr<Plugin> pi:drawer->_plugins)
-        pi->finalize();
-    }
     break;
   }
 }
-void Drawer::setMouseFunc(std::function<void(GLFWwindow*,int,int,int)> mouse) {
+void Drawer::setMouseFunc(std::function<void(GLFWwindow*,int,int,int,bool)> mouse) {
   _mouse=mouse;
 }
-void Drawer::setWheelFunc(std::function<void(GLFWwindow*,double,double)> wheel) {
+void Drawer::setWheelFunc(std::function<void(GLFWwindow*,double,double,bool)> wheel) {
   _wheel=wheel;
 }
-void Drawer::setMotionFunc(std::function<void(GLFWwindow*,double,double)> motion) {
+void Drawer::setMotionFunc(std::function<void(GLFWwindow*,double,double,bool)> motion) {
   _motion=motion;
 }
-void Drawer::setKeyFunc(std::function<void(GLFWwindow*,int,int,int,int)> key) {
+void Drawer::setKeyFunc(std::function<void(GLFWwindow*,int,int,int,int,bool)> key) {
   _key=key;
 }
 void Drawer::setFrameFunc(std::function<void(std::shared_ptr<SceneNode>&)> frame) {
@@ -252,6 +277,9 @@ void Drawer::setFrameFunc(std::function<void(std::shared_ptr<SceneNode>&)> frame
 }
 void Drawer::setDrawFunc(std::function<void()> draw) {
   _draw=draw;
+}
+void Drawer::setPythonCallback(PythonCallback* cb) {
+  _cb=cb;
 }
 void Drawer::addCamera2D(GLfloat xExt) {
   _camera.reset(new Camera2D(xExt));
@@ -316,10 +344,10 @@ std::shared_ptr<Camera3D> Drawer::getCamera3D() {
 }
 void Drawer::mainLoop() {
   while (!glfwWindowShouldClose(_window)) {
+    glfwPollEvents();
     draw();
     timer();
     glfwSwapBuffers(_window);
-    glfwPollEvents();
   }
 }
 int Drawer::FPS() {
@@ -371,8 +399,8 @@ void Drawer::clearScene() {
 }
 void Drawer::clear() {
   for(std::shared_ptr<Plugin> pi:_plugins) {
-    pi->clear();
     pi->setDrawer(NULL);
+    pi->finalize();
   }
   _plugins.clear();
   clearScene();

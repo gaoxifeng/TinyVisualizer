@@ -1,13 +1,18 @@
+%module(directors="1") pyTinyVisualizer
 %include "std_shared_ptr.i"
 %include "std_string.i"
 %include "typemaps.i"
 %include "eigen.i"
+%apply float *INOUT { float* v };
+%apply int *INOUT { int* v };
+%apply bool *INOUT { bool* v };
 %eigen_typemaps(Eigen::Matrix<GLfloat,-1,-1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,-1,1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,2,1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,3,1>)
 %{
 #include <glad/gl.h>
+#include <imgui.h>
 #include <TinyVisualizer/DrawerUtility.h>
 #include <TinyVisualizer/Shader.h>
 #include <TinyVisualizer/Texture.h>
@@ -20,6 +25,7 @@
 #include <TinyVisualizer/FirstPersonCameraManipulator.h>
 #include <TinyVisualizer/CaptureMPEG2Plugin.h>
 #include <TinyVisualizer/CaptureGIFPlugin.h>
+#include <TinyVisualizer/ImGuiPlugin.h>
 #include <TinyVisualizer/Camera2D.h>
 #include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/CompositeShape.h>
@@ -33,6 +39,19 @@
 #include <TinyVisualizer/VisibilityScore.h>
 %}
 %typedef float GLfloat;
+%ignore ImGui::TextV;
+%ignore ImGui::TextColoredV;
+%ignore ImGui::TextDisabledV;
+%ignore ImGui::TextWrappedV;
+%ignore ImGui::LabelTextV;
+%ignore ImGui::BulletTextV;
+%ignore ImGui::TreeNodeV;
+%ignore ImGui::TreeNodeExV;
+%ignore ImGui::SetTooltipV;
+%ignore ImGui::LogTextV;
+%ignore ImGuiTextBuffer;
+%include <glad/gl.h>
+%include <imgui.h>
 %include <TinyVisualizer/DrawerUtility.h>
 %shared_ptr(DRAWER::Shader);
 %include <TinyVisualizer/Shader.h>
@@ -44,6 +63,7 @@
 %shared_ptr(DRAWER::Shape);
 %shared_ptr(DRAWER::Camera);
 %shared_ptr(DRAWER::Plugin);
+%feature("director") PythonCallback;
 %include <TinyVisualizer/Drawer.h>
 %shared_ptr(DRAWER::ShadowLight);
 %include <TinyVisualizer/ShadowAndLight.h>
@@ -57,6 +77,8 @@
 %include <TinyVisualizer/CaptureMPEG2Plugin.h>
 %shared_ptr(DRAWER::CaptureGIFPlugin);
 %include <TinyVisualizer/CaptureGIFPlugin.h>
+%shared_ptr(DRAWER::ImGuiPlugin);
+%include <TinyVisualizer/ImGuiPlugin.h>
 %shared_ptr(DRAWER::Camera2D);
 %include <TinyVisualizer/Camera2D.h>
 %shared_ptr(DRAWER::Camera3D);

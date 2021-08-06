@@ -10,34 +10,6 @@ FirstPersonCameraManipulator::FirstPersonCameraManipulator(std::shared_ptr<Camer
   _t1=Eigen::Matrix<GLfloat,3,1>::Unit(id).cross(_camera->up()).normalized();
   _t2=_camera->up().cross(_t1);
 }
-void FirstPersonCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int) {
-  if(button==GLFW_MOUSE_BUTTON_1) {
-    if(action==GLFW_PRESS) {
-      _inMotion=true;
-      int w=0,h=0;
-      glfwGetWindowSize(wnd,&w,&h);
-      glfwSetCursorPos(wnd,w/2.0f,h/2.0f);
-      _xLast=_xCurr=w/2.0f;
-      _yLast=_yCurr=h/2.0f;
-    } else if(action==GLFW_RELEASE) {
-      _inMotion=false;
-    }
-  } else if(button==GLFW_MOUSE_BUTTON_3) {
-    if(action==GLFW_PRESS)
-      _speedMode=!_speedMode;
-  }
-}
-void FirstPersonCameraManipulator::wheel(GLFWwindow*,double,double yoffset) {
-  if(_speedMode)
-    _speed*=std::pow(1.1f,yoffset);
-  else _sensitive*=std::pow(1.1f,yoffset);
-}
-void FirstPersonCameraManipulator::motion(GLFWwindow* wnd,double x,double y) {
-  if(_inMotion) {
-    _xCurr=x;
-    _yCurr=y;
-  }
-}
 void FirstPersonCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
   if(_inMotion) {
     GLfloat theta=0,phi=0;
@@ -64,8 +36,48 @@ void FirstPersonCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
   if(_dive)
     _camera->setPosition(_camera->position()-_camera->up()*_speed*time);
 }
-void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
-  if(key==GLFW_KEY_W)
+void FirstPersonCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int,bool captured) {
+  if(captured) {
+    _inMotion=false;
+    return;
+  } else if(button==GLFW_MOUSE_BUTTON_1) {
+    if(action==GLFW_PRESS) {
+      _inMotion=true;
+      int w=0,h=0;
+      glfwGetWindowSize(wnd,&w,&h);
+      glfwSetCursorPos(wnd,w/2.0f,h/2.0f);
+      _xLast=_xCurr=w/2.0f;
+      _yLast=_yCurr=h/2.0f;
+    } else if(action==GLFW_RELEASE) {
+      _inMotion=false;
+    }
+  } else if(button==GLFW_MOUSE_BUTTON_3) {
+    if(action==GLFW_PRESS)
+      _speedMode=!_speedMode;
+  }
+}
+void FirstPersonCameraManipulator::wheel(GLFWwindow*,double,double yoffset,bool captured) {
+  if(captured) {
+    _inMotion=false;
+    return;
+  } else if(_speedMode)
+    _speed*=std::pow(1.1f,yoffset);
+  else _sensitive*=std::pow(1.1f,yoffset);
+}
+void FirstPersonCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool captured) {
+  if(captured) {
+    _inMotion=false;
+    return;
+  } else if(_inMotion) {
+    _xCurr=x;
+    _yCurr=y;
+  }
+}
+void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+  if(captured) {
+    _inMotion=false;
+    return;
+  } else if(key==GLFW_KEY_W)
     _forward=action==GLFW_PRESS||action==GLFW_REPEAT;
   else if(key==GLFW_KEY_S)
     _backward=action==GLFW_PRESS||action==GLFW_REPEAT;

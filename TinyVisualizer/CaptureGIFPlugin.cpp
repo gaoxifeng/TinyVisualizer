@@ -11,12 +11,13 @@ void CaptureGIFPlugin::finalize() {
 void CaptureGIFPlugin::frame(std::shared_ptr<SceneNode>&) {
   addFrame();
 }
-void CaptureGIFPlugin::key(GLFWwindow*,int key,int,int action,int) {
+bool CaptureGIFPlugin::key(GLFWwindow*,int key,int,int action,int) {
   if(key==_key && action==GLFW_PRESS) {
     if(!_recordFile)
       startRecording();
     else stopRecording();
-  }
+    return false;
+  } else return true;
 }
 //helper
 void CaptureGIFPlugin::startRecording() {

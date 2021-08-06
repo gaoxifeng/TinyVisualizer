@@ -14,6 +14,18 @@ class ShadowLight;
 class Drawer;
 class Camera2D;
 class Camera3D;
+//swig only support class-based callback
+class PythonCallback {
+ public:
+  virtual ~PythonCallback() {}
+  virtual void mouse(GLFWwindow* wnd,int button,int action,int mods) {}
+  virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset) {}
+  virtual void motion(GLFWwindow* wnd,double x,double y) {}
+  virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) {}
+  virtual void frame(std::shared_ptr<SceneNode>& root) {}
+  virtual void draw() {}
+  virtual void setup() {}
+};
 //Shape for OpenGL drawing
 class Shape {
  public:
@@ -49,11 +61,11 @@ class Camera {
  public:
   virtual ~Camera() {}
   virtual void focusOn(std::shared_ptr<Shape>) {}
-  virtual void mouse(GLFWwindow*,int,int,int) {}
-  virtual void wheel(GLFWwindow*,double,double) {}
-  virtual void motion(GLFWwindow*,double,double) {}
   virtual void frame(GLFWwindow*,GLfloat) {}
-  virtual void key(GLFWwindow*,int,int,int,int) {}
+  virtual void mouse(GLFWwindow*,int,int,int,bool) {}
+  virtual void wheel(GLFWwindow*,double,double,bool) {}
+  virtual void motion(GLFWwindow*,double,double,bool) {}
+  virtual void key(GLFWwindow*,int,int,int,int,bool) {}
   virtual void draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {}
   virtual Eigen::Matrix<GLfloat,-1,1> getCameraRay(GLFWwindow*,double,double) const {
     return Eigen::Matrix<GLfloat,-1,1>();
@@ -66,18 +78,26 @@ class Camera {
 class Plugin {
  public:
   Plugin();
+  virtual ~Plugin() {}
   void setDrawer(Drawer* drawer);
   virtual void init(GLFWwindow* window) {}
   virtual void finalize() {}
   virtual void preDraw() {}
   virtual void postDraw() {}
   virtual void frame(std::shared_ptr<SceneNode>&) {}
-  virtual void mouse(GLFWwindow* wnd,int button,int action,int mods) {}
-  virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset) {}
-  virtual void motion(GLFWwindow* wnd,double x,double y) {}
-  virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) {}
-  virtual void clear() {}
- private:
+  virtual bool mouse(GLFWwindow* wnd,int button,int action,int mods) {
+    return true;
+  }
+  virtual bool wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
+    return true;
+  }
+  virtual bool motion(GLFWwindow* wnd,double x,double y) {
+    return true;
+  }
+  virtual bool key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
+    return true;
+  }
+ protected:
   Drawer* _drawer;
 };
 //Drawer
@@ -94,12 +114,13 @@ class Drawer {
   static void wheel(GLFWwindow* wnd,double xoffset,double yoffset);
   static void motion(GLFWwindow* wnd,double x,double y);
   static void key(GLFWwindow* wnd,int key,int scan,int action,int mods);
-  void setMouseFunc(std::function<void(GLFWwindow*,int,int,int)> mouse);
-  void setWheelFunc(std::function<void(GLFWwindow*,double,double)> wheel);
-  void setMotionFunc(std::function<void(GLFWwindow*,double,double)> motion);
-  void setKeyFunc(std::function<void(GLFWwindow*,int,int,int,int)> key);
+  void setMouseFunc(std::function<void(GLFWwindow*,int,int,int,bool)> mouse);
+  void setWheelFunc(std::function<void(GLFWwindow*,double,double,bool)> wheel);
+  void setMotionFunc(std::function<void(GLFWwindow*,double,double,bool)> motion);
+  void setKeyFunc(std::function<void(GLFWwindow*,int,int,int,int,bool)> key);
   void setFrameFunc(std::function<void(std::shared_ptr<SceneNode>&)> frame);
   void setDrawFunc(std::function<void()> draw);
+  void setPythonCallback(PythonCallback* cb);
   void addCamera2D(GLfloat xExt);
   //addCamera3D-FirstPerson/TrackBall
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up=Eigen::Matrix<GLfloat,3,1>(0,0,1));
@@ -132,12 +153,13 @@ class Drawer {
   std::shared_ptr<SceneNode> _root;
   std::shared_ptr<ShadowLight> _light;
   std::vector<std::shared_ptr<Plugin>> _plugins;
-  std::function<void(GLFWwindow*,int,int,int)> _mouse;
-  std::function<void(GLFWwindow*,double,double)> _wheel;
-  std::function<void(GLFWwindow*,double,double)> _motion;
-  std::function<void(GLFWwindow*,int,int,int,int)> _key;
+  std::function<void(GLFWwindow*,int,int,int,bool)> _mouse;
+  std::function<void(GLFWwindow*,double,double,bool)> _wheel;
+  std::function<void(GLFWwindow*,double,double,bool)> _motion;
+  std::function<void(GLFWwindow*,int,int,int,int,bool)> _key;
   std::function<void(std::shared_ptr<SceneNode>&)> _frame;
   std::function<void()> _draw;
+  PythonCallback* _cb;
   GLFWwindow* _window;
   double _lastTime;
   bool _invoked;

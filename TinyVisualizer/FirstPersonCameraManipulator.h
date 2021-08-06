@@ -7,11 +7,11 @@ namespace DRAWER {
 class FirstPersonCameraManipulator : public CameraManipulator {
  public:
   FirstPersonCameraManipulator(std::shared_ptr<Camera3D> camera);
-  void mouse(GLFWwindow* wnd,int button,int action,int) override;
-  void wheel(GLFWwindow*,double,double yoffset) override;
-  void motion(GLFWwindow* wnd,double x,double y) override;
   void frame(GLFWwindow* wnd,GLfloat time) override;
-  void key(GLFWwindow* wnd,int key,int scan,int action,int mods) override;
+  void mouse(GLFWwindow* wnd,int button,int action,int,bool captured) override;
+  void wheel(GLFWwindow*,double,double yoffset,bool captured) override;
+  void motion(GLFWwindow* wnd,double x,double y,bool captured) override;
+  void key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) override;
  protected:
   void begin(GLfloat& theta,GLfloat& phi) const;
   void end(GLfloat theta,GLfloat phi);

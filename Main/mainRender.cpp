@@ -72,8 +72,10 @@ int main(int argc,char** argv) {
   shapeI->setColor(GL_TRIANGLES,0,0,1);
   shapeI->setUseLight(false);
   drawer.addShape(shapeI);
-  drawer.setMouseFunc([&](GLFWwindow* wnd,int button,int action,int) {
-    if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
+  drawer.setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
+    if(captured)
+      return;
+    else if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
       double x=0,y=0;
       GLfloat IAlpha=1;
       std::shared_ptr<Shape> IShape;

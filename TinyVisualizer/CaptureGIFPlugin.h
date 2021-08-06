@@ -9,7 +9,7 @@ class CaptureGIFPlugin : public Plugin {
   CaptureGIFPlugin(int hotkey,const std::string& name,int FPS);
   virtual void finalize() override;
   virtual void frame(std::shared_ptr<SceneNode>&) override;
-  virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) override;
+  virtual bool key(GLFWwindow* wnd,int key,int scan,int action,int mods) override;
  protected:
   void startRecording();
   void addFrame();

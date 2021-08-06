@@ -53,8 +53,10 @@ int main(int argc,char** argv) {
     if(sim)
       theta=std::fmod(theta+M_PI*2/360.0f,M_PI*2);
   });
-  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods) {
-    if(key==GLFW_KEY_R && action==GLFW_PRESS)
+  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+    if(captured)
+      return;
+    else if(key==GLFW_KEY_R && action==GLFW_PRESS)
       sim=!sim;
   });
   drawer.mainLoop();

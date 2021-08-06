@@ -11,12 +11,13 @@ void CaptureMPEG2Plugin::finalize() {
 void CaptureMPEG2Plugin::frame(std::shared_ptr<SceneNode>&) {
   addFrame();
 }
-void CaptureMPEG2Plugin::key(GLFWwindow*,int key,int,int action,int) {
+bool CaptureMPEG2Plugin::key(GLFWwindow*,int key,int,int action,int) {
   if(key==_key && action==GLFW_PRESS) {
     if(!_recordFile)
       startRecording();
     else stopRecording();
-  }
+    return true;
+  } else return false;
 }
 //helper
 void CaptureMPEG2Plugin::startRecording() {

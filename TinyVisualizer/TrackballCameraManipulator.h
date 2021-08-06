@@ -7,10 +7,10 @@ namespace DRAWER {
 class TrackballCameraManipulator : public CameraManipulator {
  public:
   TrackballCameraManipulator(std::shared_ptr<Camera3D> camera);
-  void mouse(GLFWwindow* wnd,int button,int action,int) override;
-  void wheel(GLFWwindow*,double,double yoffset) override;
-  void motion(GLFWwindow* wnd,double x,double y) override;
   void frame(GLFWwindow* wnd,GLfloat time) override;
+  void mouse(GLFWwindow* wnd,int button,int action,int,bool captured) override;
+  void wheel(GLFWwindow*,double,double yoffset,bool captured) override;
+  void motion(GLFWwindow* wnd,double x,double y,bool captured) override;
   void preDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
   void postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
  protected:

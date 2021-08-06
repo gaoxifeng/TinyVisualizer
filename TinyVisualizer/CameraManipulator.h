@@ -8,11 +8,11 @@ class Camera3D;
 class CameraManipulator {
  public:
   CameraManipulator(std::shared_ptr<Camera3D> camera);
-  virtual void mouse(GLFWwindow* wnd,int button,int action,int mods) {}
-  virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset) {}
-  virtual void motion(GLFWwindow* wnd,double x,double y) {}
   virtual void frame(GLFWwindow* wnd,GLfloat time) {}
-  virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) {}
+  virtual void mouse(GLFWwindow* wnd,int button,int action,int mods,bool captured) {}
+  virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset,bool captured) {}
+  virtual void motion(GLFWwindow* wnd,double x,double y,bool captured) {}
+  virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {}
   virtual void preDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {}
   virtual void postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {}
   virtual void init(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb);

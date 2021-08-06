@@ -14,10 +14,16 @@ void Camera3D::setManipulator(std::shared_ptr<CameraManipulator> manipulator) {
 void Camera3D::focusOn(std::shared_ptr<Shape> s) {
   _focus=s;
 }
-void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int mods) {
+void Camera3D::frame(GLFWwindow* wnd,GLfloat time) {
   if(_manipulator)
-    _manipulator->mouse(wnd,button,action,mods);
-  if(button==GLFW_MOUSE_BUTTON_2) {
+    _manipulator->frame(wnd,time);
+}
+void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int mods,bool captured) {
+  if(_manipulator)
+    _manipulator->mouse(wnd,button,action,mods,captured);
+  if(captured)
+    return;
+  else if(button==GLFW_MOUSE_BUTTON_2) {
     if(action==GLFW_PRESS) {
       double x=0,y=0;
       glfwGetCursorPos(wnd,&x,&y);
@@ -25,22 +31,20 @@ void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int mods) {
     }
   }
 }
-void Camera3D::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
+void Camera3D::wheel(GLFWwindow* wnd,double xoffset,double yoffset,bool captured) {
   if(_manipulator)
-    _manipulator->wheel(wnd,xoffset,yoffset);
+    _manipulator->wheel(wnd,xoffset,yoffset,captured);
 }
-void Camera3D::motion(GLFWwindow* wnd,double x,double y) {
+void Camera3D::motion(GLFWwindow* wnd,double x,double y,bool captured) {
   if(_manipulator)
-    _manipulator->motion(wnd,x,y);
+    _manipulator->motion(wnd,x,y,captured);
 }
-void Camera3D::frame(GLFWwindow* wnd,GLfloat time) {
+void Camera3D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
   if(_manipulator)
-    _manipulator->frame(wnd,time);
-}
-void Camera3D::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
-  if(_manipulator)
-    _manipulator->key(wnd,key,scan,action,mods);
-  if(key==GLFW_KEY_V && action==GLFW_PRESS)
+    _manipulator->key(wnd,key,scan,action,mods,captured);
+  if(captured)
+    return;
+  else if(key==GLFW_KEY_V && action==GLFW_PRESS)
     _debugFrustum=constructViewFrustum3D();
   else if(key==GLFW_KEY_B && action==GLFW_PRESS)
     _debug=!_debug;

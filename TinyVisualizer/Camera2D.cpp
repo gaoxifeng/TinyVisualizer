@@ -9,8 +9,10 @@ Camera2D::Camera2D(GLfloat xExt)
 void Camera2D::focusOn(std::shared_ptr<Shape> s) {
   _focus=s;
 }
-void Camera2D::mouse(GLFWwindow* wnd,int button,int action,int) {
-  if(button==GLFW_MOUSE_BUTTON_1) {
+void Camera2D::mouse(GLFWwindow* wnd,int button,int action,int,bool captured) {
+  if(captured)
+    return;
+  else if(button==GLFW_MOUSE_BUTTON_1) {
     if(action==GLFW_PRESS) {
       _inMotion=true;
       glfwGetCursorPos(wnd,&_xLast,&_yLast);
@@ -21,11 +23,15 @@ void Camera2D::mouse(GLFWwindow* wnd,int button,int action,int) {
     }
   }
 }
-void Camera2D::wheel(GLFWwindow*,double,double yoffset) {
-  _scale*=std::pow(1.1,-yoffset);
+void Camera2D::wheel(GLFWwindow*,double,double yoffset,bool captured) {
+  if(captured)
+    return;
+  else _scale*=std::pow(1.1,-yoffset);
 }
-void Camera2D::motion(GLFWwindow* wnd,double x,double y) {
-  if(_inMotion) {
+void Camera2D::motion(GLFWwindow* wnd,double x,double y,bool captured) {
+  if(captured)
+    return;
+  else if(_inMotion) {
     int w=0,h=0;
     glfwGetWindowSize(wnd,&w,&h);
     GLfloat coef=_xExt*_scale/(GLfloat)w;
@@ -33,8 +39,10 @@ void Camera2D::motion(GLFWwindow* wnd,double x,double y) {
     _yCtr=_yCtrLast+(y-_yLast)*coef;
   }
 }
-void Camera2D::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
-  if(key==GLFW_KEY_H && action==GLFW_PRESS) {
+void Camera2D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+  if(captured)
+    return;
+  else if(key==GLFW_KEY_H && action==GLFW_PRESS) {
     _inMotion=false;
     _xCtr=_yCtr=0;
     _scale=1;
