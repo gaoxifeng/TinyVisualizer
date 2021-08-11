@@ -3,7 +3,9 @@
 %include "std_string.i"
 %include "typemaps.i"
 %include "eigen.i"
-%apply float *INOUT { float* v };
+%apply float *INOUT {
+  float* v
+};
 %apply int *INOUT { int* v };
 %apply bool *INOUT { bool* v };
 %eigen_typemaps(Eigen::Matrix<GLfloat,-1,-1>)
@@ -23,6 +25,7 @@
 #include <TinyVisualizer/CameraManipulator.h>
 #include <TinyVisualizer/TrackballCameraManipulator.h>
 #include <TinyVisualizer/FirstPersonCameraManipulator.h>
+#include <TinyVisualizer/CameraExportPlugin.h>
 #include <TinyVisualizer/CaptureMPEG2Plugin.h>
 #include <TinyVisualizer/CaptureGIFPlugin.h>
 #include <TinyVisualizer/ImGuiPlugin.h>
@@ -73,6 +76,8 @@
 %include <TinyVisualizer/TrackballCameraManipulator.h>
 %shared_ptr(DRAWER::FirstPersonCameraManipulator);
 %include <TinyVisualizer/FirstPersonCameraManipulator.h>
+%shared_ptr(DRAWER::CameraExportPlugin);
+%include <TinyVisualizer/CameraExportPlugin.h>
 %shared_ptr(DRAWER::CaptureMPEG2Plugin);
 %include <TinyVisualizer/CaptureMPEG2Plugin.h>
 %shared_ptr(DRAWER::CaptureGIFPlugin);

@@ -6,6 +6,7 @@
 #include <TinyVisualizer/ShadowAndLight.h>
 #include <TinyVisualizer/FirstPersonCameraManipulator.h>
 #include <TinyVisualizer/Bullet3DShape.h>
+#include <TinyVisualizer/CameraExportPlugin.h>
 #include <TinyVisualizer/CaptureGIFPlugin.h>
 #include <iostream>
 
@@ -13,6 +14,7 @@ using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
+  drawer.addPlugin(std::shared_ptr<Plugin>(new CameraExportPlugin(GLFW_KEY_2,GLFW_KEY_3,"camera.dat")));
   drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureGIFPlugin(GLFW_KEY_1,"record.gif",drawer.FPS())));
 #define USE_LIGHT
 #ifdef USE_LIGHT
