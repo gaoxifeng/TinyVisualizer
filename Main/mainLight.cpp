@@ -3,14 +3,14 @@
 #include <TinyVisualizer/MakeTexture.h>
 #include <TinyVisualizer/Bullet3DShape.h>
 #include <TinyVisualizer/ShadowAndLight.h>
-#include <TinyVisualizer/CaptureGIFPlugin.h>
+#include <TinyVisualizer/CaptureMPEG2Plugin.h>
 #include <TinyVisualizer/BezierCurveShape.h>
 
 using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
-  drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureGIFPlugin(GLFW_KEY_1,"record.gif",drawer.FPS())));
+  drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureMPEG2Plugin(GLFW_KEY_1,"record.mp2",drawer.FPS())));
   std::shared_ptr<Texture> checker=drawChecker();
 
   std::shared_ptr<Bullet3DShape> shapeTA(new Bullet3DShape);

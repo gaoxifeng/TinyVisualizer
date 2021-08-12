@@ -16,8 +16,8 @@ bool CaptureMPEG2Plugin::key(GLFWwindow*,int key,int,int action,int) {
     if(!_recordFile)
       startRecording();
     else stopRecording();
-    return true;
-  } else return false;
+    return false;
+  } else return true;
 }
 //helper
 void CaptureMPEG2Plugin::startRecording() {
