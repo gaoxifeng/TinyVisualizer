@@ -19,6 +19,7 @@ class CompositeShape : public Shape {
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   std::shared_ptr<Shape> getChild(int id) const;
+  bool contain(std::shared_ptr<Shape> s) const;
   int numChildren() const;
  protected:
   std::vector<std::shared_ptr<Shape>> _shapes;

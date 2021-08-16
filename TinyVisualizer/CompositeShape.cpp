@@ -59,6 +59,18 @@ bool CompositeShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat&
 std::shared_ptr<Shape> CompositeShape::getChild(int id) const {
   return _shapes[id];
 }
+bool CompositeShape::contain(std::shared_ptr<Shape> s) const {
+  if(s.get()==this)
+    return true;
+  for(int i=0; i<numChildren(); i++)
+    if(s==getChild(i))
+      return true;
+    else {
+      std::shared_ptr<CompositeShape> c=std::dynamic_pointer_cast<CompositeShape>(getChild(i));
+      return c && c->contain(s);
+    }
+  return false;
+}
 int CompositeShape::numChildren() const {
   return (int)_shapes.size();
 }
