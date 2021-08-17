@@ -11,6 +11,9 @@ Camera3D::Camera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up)
 void Camera3D::setManipulator(std::shared_ptr<CameraManipulator> manipulator) {
   _manipulator=manipulator;
 }
+std::shared_ptr<CameraManipulator> Camera3D::getManipulator() const {
+  return _manipulator;
+}
 void Camera3D::focusOn(std::shared_ptr<Shape> s) {
   _focus=s;
 }

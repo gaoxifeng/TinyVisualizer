@@ -90,6 +90,9 @@ void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int acti
   else if(key==GLFW_KEY_C)
     _dive=action==GLFW_PRESS||action==GLFW_REPEAT;
 }
+bool FirstPersonCameraManipulator::isSpeedMode() const {
+  return _speedMode;
+}
 void FirstPersonCameraManipulator::begin(GLfloat& theta,GLfloat& phi) const {
   GLfloat x=_camera->direction().dot(_t1);
   GLfloat y=_camera->direction().dot(_t2);

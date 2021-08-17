@@ -9,6 +9,7 @@ class Camera3D : public Camera {
  public:
   Camera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up);
   void setManipulator(std::shared_ptr<CameraManipulator> manipulator);
+  std::shared_ptr<CameraManipulator> getManipulator() const;
   void focusOn(std::shared_ptr<Shape> s) override;
   void frame(GLFWwindow* wnd,GLfloat time) override;
   void mouse(GLFWwindow* wnd,int button,int action,int mods,bool captured) override;
