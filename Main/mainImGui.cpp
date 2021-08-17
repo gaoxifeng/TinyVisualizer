@@ -4,6 +4,8 @@
 #include <TinyVisualizer/FirstPersonCameraManipulator.h>
 #include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/ImGuiPlugin.h>
+#include <TinyVisualizer/FileDialog.h>
+#include <iostream>
 #include <imgui.h>
 
 using namespace DRAWER;
@@ -29,6 +31,16 @@ int main(int argc,char** argv) {
 #endif
   float from[3]= {-.5,-.5,-.5},to[3]= {.5,.5,.5};
   drawer.addPlugin(std::shared_ptr<Plugin>(new ImGuiPlugin([&]() {
+    if(ImGui::BeginMainMenuBar()) {
+      if(ImGui::BeginMenu("file")) {
+        if(ImGui::MenuItem("open"))
+          std::cout << fileDialogOpen() << std::endl;
+        if(ImGui::MenuItem("save"))
+          std::cout << fileDialogSave() << std::endl;
+        ImGui::EndMenu();
+      }
+      ImGui::EndMainMenuBar();
+    }
     ImGui::Begin("Arrow Direction");
     ImGui::DragFloat3("from",from,.01,-1,1);
     ImGui::DragFloat3("to",to,.01,-1,1);
