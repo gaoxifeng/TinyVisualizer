@@ -84,15 +84,15 @@ int main(int argc,char** argv) {
 #define USE_LIGHT
 #ifdef USE_LIGHT
   drawer.addLightSystem(2048);
-  drawer.getLight().lightSz()=10;
-  drawer.getLight().addLight(Eigen::Matrix<GLfloat,3,1>(0,5, 2),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(0,0,-2));
-  drawer.getLight().addLight(Eigen::Matrix<GLfloat,3,1>(0,5,0),
-                             Eigen::Matrix<GLfloat,3,1>(1,1,1),
-                             Eigen::Matrix<GLfloat,3,1>(1,0,0),
-                             Eigen::Matrix<GLfloat,3,1>(0,0,0));
+  drawer.getLight()->lightSz(10);
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0,5, 2),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,-2));
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0,5,0),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(1,0,0),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
   std::shared_ptr<Texture> checker=drawGrid();
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>& root) {
@@ -109,8 +109,10 @@ int main(int argc,char** argv) {
       dynamicsWorld->removeCollisionObject(dss.at(i));
     Bullet3DShape::syncWorld(root,dynamicsWorld,checker);
   });
-  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods) {
-    if(key==GLFW_KEY_R && action==GLFW_PRESS)
+  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+    if(captured)
+      return;
+    else if(key==GLFW_KEY_R && action==GLFW_PRESS)
       sim=!sim;
   });
   drawer.mainLoop();
