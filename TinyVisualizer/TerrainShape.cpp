@@ -6,9 +6,9 @@ TerrainShape::TerrainShape(const Eigen::Matrix<GLfloat,-1,-1>& height,int upAxis
                            const Eigen::Matrix<GLfloat,2,1>& tcMult) {
 #define ID(X,Y) (X)*height.cols()+(Y)
   Eigen::Matrix<GLfloat,3,3> rotate;
-  rotate.col(0).setUnit((upAxis+1)%3);
-  rotate.col(1).setUnit((upAxis+2)%3);
-  rotate.col(2).setUnit((upAxis+3)%3);
+  rotate.col(0)=Eigen::Matrix<GLfloat,3,1>::Unit((upAxis+1)%3);
+  rotate.col(1)=Eigen::Matrix<GLfloat,3,1>::Unit((upAxis+2)%3);
+  rotate.col(2)=Eigen::Matrix<GLfloat,3,1>::Unit((upAxis+3)%3);
   ASSERT_MSG(height.size()>0,"Empty terrain!")
   for(int x=0; x<height.rows(); x++)
     for(int y=0; y<height.cols(); y++) {
