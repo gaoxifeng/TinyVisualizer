@@ -27,7 +27,8 @@ int main(int argc,char** argv) {
     b2BodyDef bd;
     ground=world->CreateBody(&bd);
     b2EdgeShape shape;
-    shape.Set(b2Vec2(-40.0f,-100.0f),b2Vec2(40.0f,-100.0f));
+    shape.m_vertex0=b2Vec2(-40.0f,-100.0f);
+    shape.m_vertex1=b2Vec2(40.0f,-100.0f);
     ground->CreateFixture(&shape,0.0f);
   }
 
