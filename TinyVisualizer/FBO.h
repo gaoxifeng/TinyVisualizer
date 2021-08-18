@@ -4,6 +4,7 @@
 #include "DrawerUtility.h"
 #include "Texture.h"
 #include <memory>
+#include <vector>
 
 namespace DRAWER {
 class FBO {
