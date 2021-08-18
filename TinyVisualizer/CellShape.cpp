@@ -1,5 +1,6 @@
 #include "CellShape.h"
 #include <unordered_map>
+#include <map>
 
 namespace DRAWER {
 struct Hash {
