@@ -39,7 +39,8 @@ int main(int argc,char** argv) {
   }
   {
     Eigen::Matrix<GLfloat,2,1> tcMult(1/8.,1/8.);
-    Eigen::Matrix<GLfloat,6,1> aabb(4,4,4,12,8,8);
+    Eigen::Matrix<GLfloat,6,1> aabb;
+    aabb << 4,4,4,12,8,8;
     std::shared_ptr<MeshShape> terrain(new TerrainShape([&](GLfloat x,GLfloat y) {
       return std::sin(x*4.)*std::sin(y*4.)/8.;
     },1,aabb,0.1f,tcMult));
