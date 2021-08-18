@@ -1,5 +1,6 @@
 #include "Shader.h"
 #include <iostream>
+#include <vector>
 
 namespace DRAWER {
 Shader& Shader::operator=(const Shader& other) {
