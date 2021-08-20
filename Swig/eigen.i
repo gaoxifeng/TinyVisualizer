@@ -210,10 +210,8 @@
     if(!data)
       return false;
     for (int i = 0; i != dims[0]; ++i)
-      for (int j = 0; j != dims[1]; ++j) {
-        printf("%d %d\n",i,j);
+      for (int j = 0; j != dims[1]; ++j)
         data[i*dims[1]+j] = in->coeff(i,j);
-      }
     return true;
   };
 
