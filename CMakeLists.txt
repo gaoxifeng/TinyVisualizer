@@ -89,7 +89,10 @@ IF(NOT (PYTHON_BINDING STREQUAL "None"))
   MESSAGE(STATUS "Found Python${PYTHON_VERSION_STRING} and swig${SWIG_VERSION}")
   SWIG_ADD_LIBRARY(pyTinyVisualizer LANGUAGE python SOURCES ${sourceSWIG})
   SWIG_LINK_LIBRARIES(pyTinyVisualizer ${Python_LIBRARIES} TinyVisualizer)
-  INSTALL(TARGETS TinyVisualizer LIBRARY DESTINATION ${Python_SITELIB}/pyTinyVisualizer)
+  INSTALL(TARGETS TinyVisualizer 
+          ARCHIVE DESTINATION ${Python_SITELIB}/pyTinyVisualizer
+          LIBRARY DESTINATION ${Python_SITELIB}/pyTinyVisualizer
+          PUBLIC_HEADER DESTINATION ${Python_SITELIB}/pyTinyVisualizer)
   INSTALL(TARGETS pyTinyVisualizer LIBRARY DESTINATION ${Python_SITELIB}/pyTinyVisualizer)
   INSTALL(FILES ${CMAKE_BINARY_DIR}/pyTinyVisualizer.py DESTINATION ${Python_SITELIB}/pyTinyVisualizer)
 ENDIF()

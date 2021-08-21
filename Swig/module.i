@@ -64,6 +64,7 @@
 %shared_ptr(DRAWER::Shape);
 %shared_ptr(DRAWER::Camera);
 %shared_ptr(DRAWER::Plugin);
+%shared_ptr(DRAWER::Drawer);
 %feature("director") PythonCallback;
 %include <TinyVisualizer/Drawer.h>
 %shared_ptr(DRAWER::ShadowLight);
