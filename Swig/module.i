@@ -52,6 +52,7 @@
 %ignore ImGui::LogTextV;
 %ignore ImGuiTextBuffer;
 %include <glad/gl.h>
+%include <GLFW/glfw3.h>
 %include <imgui.h>
 %include <TinyVisualizer/DrawerUtility.h>
 %shared_ptr(DRAWER::Shader);

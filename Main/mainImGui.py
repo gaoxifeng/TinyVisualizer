@@ -4,7 +4,7 @@ import math
 
 if __name__=='__main__':
     drawer=vis.Drawer(0,None)
-    drawer.addPlugin(vis.CaptureGIFPlugin(1,'record.gif',drawer.FPS()))
+    drawer.addPlugin(vis.CaptureGIFPlugin(vis.GLFW_KEY_1,'record.gif',drawer.FPS()))
     
     arrow=vis.ArrowShape(60,.1,.2)
     arrow.setArrow(np.array([-.5,-.5,-.5],dtype=np.single),
