@@ -202,7 +202,7 @@ void Drawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
   if(drawer->_cb)
-    drawer->_cb->mouse(wnd,button,action,mods);
+    drawer->_cb->mouse(button,action,mods);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->mouse(wnd,button,action,mods)) {
       captured=true;
@@ -216,7 +216,7 @@ void Drawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
   if(drawer->_cb)
-    drawer->_cb->wheel(wnd,xoffset,yoffset);
+    drawer->_cb->wheel(xoffset,yoffset);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->wheel(wnd,xoffset,yoffset)) {
       captured=true;
@@ -230,7 +230,7 @@ void Drawer::motion(GLFWwindow* wnd,double x,double y) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
   if(drawer->_cb)
-    drawer->_cb->motion(wnd,x,y);
+    drawer->_cb->motion(x,y);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->motion(wnd,x,y)) {
       captured=true;
@@ -244,7 +244,7 @@ void Drawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
   if(drawer->_cb)
-    drawer->_cb->key(wnd,key,scan,action,mods);
+    drawer->_cb->key(key,scan,action,mods);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->key(wnd,key,scan,action,mods)) {
       captured=true;

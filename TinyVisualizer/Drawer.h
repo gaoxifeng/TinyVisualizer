@@ -18,10 +18,10 @@ class Camera3D;
 class PythonCallback {
  public:
   virtual ~PythonCallback() {}
-  virtual void mouse(GLFWwindow* wnd,int button,int action,int mods) {}
-  virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset) {}
-  virtual void motion(GLFWwindow* wnd,double x,double y) {}
-  virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods) {}
+  virtual void mouse(int button,int action,int mods) {}
+  virtual void wheel(double xoffset,double yoffset) {}
+  virtual void motion(double x,double y) {}
+  virtual void key(int key,int scan,int action,int mods) {}
   virtual void frame(std::shared_ptr<SceneNode>& root) {}
   virtual void draw() {}
   virtual void setup() {}
