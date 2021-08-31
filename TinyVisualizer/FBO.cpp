@@ -113,6 +113,7 @@ int FBO::height() const {
 void FBO::reset(int width,int height) {
   _rbo.reset(new Texture(width,height,_formatColor));
 
+  ASSERT_MSG(glad_glGenRenderbuffers,"FBO not supported!")
   if(_formatDepth!=GL_NONE) {
     glGenRenderbuffers(1,&_dbo);
     glBindRenderbuffer(GL_RENDERBUFFER,_dbo);
@@ -120,6 +121,7 @@ void FBO::reset(int width,int height) {
     glBindRenderbuffer(GL_RENDERBUFFER,0);
   } else _dbo=-1;
 
+  ASSERT_MSG(glad_glGenFramebuffers,"FBO not supported!")
   glGenFramebuffers(1,&_fbo);
   glBindFramebuffer(GL_FRAMEBUFFER,_fbo);
   glFramebufferTexture(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,_rbo->id(),0);

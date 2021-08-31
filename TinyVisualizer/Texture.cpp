@@ -42,6 +42,7 @@ GLuint Texture::id() const {
   return _id;
 }
 void Texture::reset(int width,int height) {
+  ASSERT_MSG(glad_glGenTextures,"Texture not supported!")
   glGenTextures(1,&_id);
   begin();
   glTexImage2D(GL_TEXTURE_2D,0,_format,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,0);

@@ -59,17 +59,11 @@ Drawer::Drawer(int argc,char** argv)
   if(_invoked)
     return;
   _invoked=true;
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
-  glfwSetErrorCallback(errFunc);
   glfwDefaultWindowHints();
-#ifdef __APPLE__
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
-#endif
-  glfwWindowHint(GLFW_SAMPLES, argparseRange(argc,argv,"MSAA",4));
-  glfwWindowHint(GLFW_VISIBLE, argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
+  glfwSetErrorCallback(errFunc);
+  glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
+  glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
   std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
   _window=glfwCreateWindow(argparseRange(argc,argv,"width",512),
                            argparseRange(argc,argv,"height",512),
