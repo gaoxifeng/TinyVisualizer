@@ -61,6 +61,8 @@ Drawer::Drawer(int argc,char** argv)
   _invoked=true;
   ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
   glfwDefaultWindowHints();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,0);
   glfwSetErrorCallback(errFunc);
   glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
   glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
