@@ -19,7 +19,7 @@ class Shader {
   void setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,3,1>& f);
   void setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,4,4>& f);
  protected:
-  GLint compileShader(const std::string& src,GLenum type);
+  GLint compileShader(std::string src,GLenum type);
   void reset();
   void clear();
   std::string _vert,_geom,_frag,_compute;

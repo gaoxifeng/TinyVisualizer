@@ -61,7 +61,10 @@ void Shader::setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat
   ASSERT_MSGV(loc>=0,"Cannot find location for float: %s!",name.c_str())
   glUniformMatrix4fv(loc,1,false,f.data());
 }
-GLint Shader::compileShader(const std::string& src,GLenum type) {
+GLint Shader::compileShader(std::string src,GLenum type) {
+#if __APPLE__
+  std::replace(src.begin(),src.end(),'\n','\r');
+#endif
   ASSERT_MSG(glad_glCreateShader,"GLSL not supported!")
   GLint s=glCreateShader(type);
   const char* v=src.c_str();
