@@ -62,14 +62,10 @@ void Shader::setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat
   glUniformMatrix4fv(loc,1,false,f.data());
 }
 GLint Shader::compileShader(std::string src,GLenum type) {
-#ifdef __APPLE__
-  std::replace(src.begin(),src.end(),'\n','\r');
-#endif
   ASSERT_MSG(glad_glCreateShader,"GLSL not supported!")
   GLint s=glCreateShader(type);
   const char* v=src.c_str();
-  const int len=src.size();
-  glShaderSource(s,1,&v,&len);
+  glShaderSource(s,1,&v,0);
   glCompileShader(s);
   GLint compiled;
   glGetShaderiv(s,GL_COMPILE_STATUS,&compiled);
