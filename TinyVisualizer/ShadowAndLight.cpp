@@ -3,7 +3,7 @@
 
 namespace DRAWER {
 const std::string ShadowLightVert=
-  "#version 130\n"
+  "#version 410 compatibility\n"
   "uniform mat4 modelViewMatrix;\n"
   "uniform mat4 invModelViewMatrix;\n"
   "uniform int MAX_LIGHTS;\n"
@@ -24,7 +24,7 @@ const std::string ShadowLightVert=
   "  }\n"
   "};\n";
 const std::string ShadowLightFrag=
-  "#version 130\n"
+  "#version 410 compatibility\n"
   "//shadow\n"
   "uniform sampler2D diffuseMap;\n"
   "uniform samplerCube depthMap[16];\n"
@@ -104,7 +104,7 @@ const std::string ShadowLightFrag=
   "  gl_FragColor=finalColor;\n"
   "};\n";
 const std::string ShadowVert=
-  "#version 130\n"
+  "#version 410 compatibility\n"
   "uniform mat4 invModelViewMatrix;\n"
   "out vec3 FragPos;\n"
   "void main(void)\n"
@@ -114,7 +114,7 @@ const std::string ShadowVert=
   "  gl_Position=gl_ModelViewProjectionMatrix*gl_Vertex;\n"
   "}\n";
 const std::string ShadowFrag=
-  "#version 130\n"
+  "#version 410 compatibility\n"
   "uniform vec3 lightPos;\n"
   "uniform float far_plane;\n"
   "in vec3 FragPos;\n"

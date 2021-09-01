@@ -6,7 +6,7 @@
 
 namespace DRAWER {
 const std::string XORFrag=
-  "#version 130\n"
+  "#version 410 compatibility\n"
   "uniform sampler2D tex[2];\n"
   "out vec4 FragColor;\n"
   "void main()\n"
@@ -17,7 +17,7 @@ const std::string XORFrag=
   "  FragColor=vec4(xor,xor,xor,1);\n"
   "}\n";
 const std::string TexCopyFrag=
-  "#version 130\n"
+  "#version 410 compatibility\n"
   "uniform sampler2D tex;\n"
   "out vec4 FragColor;\n"
   "void main()\n"
