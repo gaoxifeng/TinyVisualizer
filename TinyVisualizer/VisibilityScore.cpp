@@ -6,24 +6,22 @@
 
 namespace DRAWER {
 const std::string XORFrag=
-  "#version 410 compatibility\n"
+  "#version 120\n"
   "uniform sampler2D tex[2];\n"
-  "out vec4 FragColor;\n"
   "void main()\n"
   "{\n"
   "  float aTexVal=texture2D(tex[0],gl_TexCoord[0].xy).x;\n"
   "  float bTexVal=texture2D(tex[1],gl_TexCoord[0].xy).x;\n"
   "  float xor=max(0,aTexVal-bTexVal)+max(0,bTexVal-aTexVal);\n"
-  "  FragColor=vec4(xor,xor,xor,1);\n"
+  "  gl_FragColor=vec4(xor,xor,xor,1);\n"
   "}\n";
 const std::string TexCopyFrag=
-  "#version 410 compatibility\n"
+  "#version 120\n"
   "uniform sampler2D tex;\n"
-  "out vec4 FragColor;\n"
   "void main()\n"
   "{\n"
   "  float aTexVal=texture2D(tex,gl_TexCoord[0].xy).x;\n"
-  "  FragColor=vec4(aTexVal,aTexVal,aTexVal,1);\n"
+  "  gl_FragColor=vec4(aTexVal,aTexVal,aTexVal,1);\n"
   "}\n";
 VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDepth)
   :_shaderXOR("","",XORFrag),_shaderTexCopy("","",TexCopyFrag),

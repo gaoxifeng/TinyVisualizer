@@ -61,12 +61,6 @@ Drawer::Drawer(int argc,char** argv)
   _invoked=true;
   ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
   glfwDefaultWindowHints();
-#ifdef __APPLE__
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,1);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
-  glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
-#endif
   glfwSetErrorCallback(errFunc);
   glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
   glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
