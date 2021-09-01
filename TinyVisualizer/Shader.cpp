@@ -75,6 +75,7 @@ GLint Shader::compileShader(const std::string& src,GLenum type) {
     glGetShaderiv(s,GL_INFO_LOG_LENGTH,&len);
     std::vector<char> info(len+1);
     glGetShaderInfoLog(s,len,&len,&info[0]);
+    std::cout << "Compiling shader: " << src << std::endl;
     ASSERT_MSGV(false,"Shader compile error: %s!",&info[0])
   }
   return s;
