@@ -12,7 +12,7 @@ const std::string DefaultLightVert=
   "{\n"
   "  gl_Position=modelViewProjectionMatrix*vec4(Vertex,1);\n"
   "  tc=TexCoord;\n"
-  "};\n";
+  "}\n";
 const std::string DefaultLightFrag=
   "#version 330 core\n"
   "uniform vec4 diffuse;\n"
@@ -23,9 +23,9 @@ const std::string DefaultLightFrag=
   "void main(void)\n"
   "{\n"
   "  if(useTexture)\n"
-  "    FragColor=diffuse*texture2D(diffuseMap,tc);\n"
+  "    FragColor=diffuse*texture(diffuseMap,tc);\n"
   "  else FragColor=diffuse;\n"
-  "};\n";
+  "}\n";
 std::shared_ptr<Program> defaultLightProg;
 std::shared_ptr<Program> getDefaultLightProg() {
   if(!defaultLightProg) {
@@ -42,7 +42,7 @@ const std::string DebugDrawTexCoordFrag=
   "void main(void)\n"
   "{\n"
   "  FragColor=vec4(tc,0,1);\n"
-  "};\n";
+  "}\n";
 std::shared_ptr<Program> debugDrawTexCoordProg;
 std::shared_ptr<Program> getDebugDrawTexCoordProg() {
   if(!debugDrawTexCoordProg) {
@@ -65,7 +65,7 @@ const std::string RoundPointVert=
   "  gl_Position=modelViewProjectionMatrix*vec4(Vertex,1);\n"
   "  gl_PointSize=pointSize;\n"
   "  tc=TexCoord;\n"
-  "};\n";
+  "}\n";
 const std::string RoundPointFrag=
   "#version 330 core\n"
   "uniform vec4 diffuse;\n"
@@ -79,9 +79,9 @@ const std::string RoundPointFrag=
   "  if(dot(circCoord,circCoord)>1.0)\n"
   "     discard;\n"
   "  if(useTexture)\n"
-  "    FragColor=diffuse*texture2D(diffuseMap,tc);\n"
+  "    FragColor=diffuse*texture(diffuseMap,tc);\n"
   "  else FragColor=diffuse;\n"
-  "};\n";
+  "}\n";
 std::shared_ptr<Program> roundPointProg;
 std::shared_ptr<Program> getRoundPointProg() {
   if(!roundPointProg) {

@@ -39,14 +39,14 @@ const std::string ShadowLightFrag=
   "};\n"
   "//shadow\n"
   "uniform sampler2D diffuseMap;\n"
-  "uniform samplerCube depthMap[16];\n"
+  "uniform samplerCube depthMap[8];\n"
   "uniform float far_plane,bias;\n"
   "uniform bool softShadow;\n"
   "uniform bool useShadow;\n"
   "//light\n"
   "uniform float invShadowMapSize;\n"
   "uniform int softShadowPass;\n"
-  "uniform LightMaterial lights[16];\n"
+  "uniform LightMaterial lights[8];\n"
   "uniform int MAX_LIGHTS;\n"
   "in vec3 vN,v,v0;\n"
   "in vec2 tc;\n"
@@ -67,7 +67,7 @@ const std::string ShadowLightFrag=
   "{\n"
   "  float shadow=0.;\n"
   "  float currentDepth=length(v0-l);\n"
-  "  float closestDepth=textureCube(depthMap[lid],v0-l).r*far_plane;\n"
+  "  float closestDepth=texture(depthMap[lid],v0-l).r*far_plane;\n"
   "  if(currentDepth-bias>closestDepth)\n"
   "    shadow=1.;\n"
   "  return shadow;\n"
@@ -79,7 +79,7 @@ const std::string ShadowLightFrag=
   "  vec3 dir=normalize(v0-l);\n"
   "  for(int pass=0;pass<softShadowPass;pass++)\n"
   "    for(int i=0;i<27;++i) {\n"
-  "      float closestDepth=textureCube(depthMap[lid],dir+gridSamplingDisk[i]*invShadowMapSize*pass).r*far_plane;   // undo mapping [0;1]\n"
+  "      float closestDepth=texture(depthMap[lid],dir+gridSamplingDisk[i]*invShadowMapSize*pass).r*far_plane;   // undo mapping [0;1]\n"
   "      if(currentDepth-bias>closestDepth)\n"
   "        shadow+=1.0;\n"
   "    }\n"
@@ -89,7 +89,7 @@ const std::string ShadowLightFrag=
   "void main(void)\n"
   "{\n"
   "  vec3 N=normalize(vN);\n"
-  "  vec4 colorMap=texture2D(diffuseMap,tc);\n"
+  "  vec4 colorMap=texture(diffuseMap,tc);\n"
   "  vec4 finalColor=vec4(0.0,0.0,0.0,0.0);\n"
   "  for (int i=0;i<MAX_LIGHTS;i++) {\n"
   "    vec3 L=normalize(lights[i].positionEye-v);\n"
@@ -114,7 +114,7 @@ const std::string ShadowLightFrag=
   "  }\n"
   "  //write Total Color:\n"
   "  FragColor=finalColor;\n"
-  "};\n";
+  "}\n";
 const std::string ShadowVert=
   "#version 330 core\n"
   "uniform mat4 modelViewMatrix;\n"
@@ -171,7 +171,7 @@ int ShadowLight::addLight(const Eigen::Matrix<GLfloat,3,1>& pos,
   if(_shadow>0)
     l._shadowMap.reset(new FBOShadow(_shadow,_shadow));
   _lights.push_back(l);
-  ASSERT_MSG(_lights.size()<=16,"At most 16 lights supported!")
+  ASSERT_MSG(_lights.size()<=8,"At most 8 lights supported!")
   return (int)_lights.size()-1;
 }
 void ShadowLight::setDefaultLight(Eigen::Matrix<GLfloat,6,1> bb,

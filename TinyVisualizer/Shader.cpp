@@ -69,10 +69,14 @@ GLint Shader::compileShader(std::string src,GLenum type) {
   return s;
 }
 void Shader::reset() {
-  _vertS=compileShader(_vert,GL_VERTEX_SHADER);
-  _geomS=compileShader(_geom,GL_GEOMETRY_SHADER);
-  _fragS=compileShader(_frag,GL_FRAGMENT_SHADER);
-  _computeS=compileShader(_compute,GL_COMPUTE_SHADER);
+  if(!_vert.empty())
+    _vertS=compileShader(_vert,GL_VERTEX_SHADER);
+  if(!_geom.empty())
+    _geomS=compileShader(_geom,GL_GEOMETRY_SHADER);
+  if(!_frag.empty())
+    _fragS=compileShader(_frag,GL_FRAGMENT_SHADER);
+  if(!_compute.empty())
+    _computeS=compileShader(_compute,GL_COMPUTE_SHADER);
 }
 void Shader::clear() {
   if(!_vert.empty())

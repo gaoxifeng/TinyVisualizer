@@ -14,8 +14,8 @@ const std::string XORFrag=
   "out vec4 FragColor;\n"
   "void main()\n"
   "{\n"
-  "  float aTexVal=texture2D(tex[0],tc).x;\n"
-  "  float bTexVal=texture2D(tex[1],tc).x;\n"
+  "  float aTexVal=texture(tex[0],tc).x;\n"
+  "  float bTexVal=texture(tex[1],tc).x;\n"
   "  float xor=max(0,aTexVal-bTexVal)+max(0,bTexVal-aTexVal);\n"
   "  FragColor=vec4(xor,xor,xor,1);\n"
   "}\n";
@@ -26,7 +26,7 @@ const std::string texCopyFrag=
   "out vec4 FragColor;\n"
   "void main()\n"
   "{\n"
-  "  float aTexVal=texture2D(tex,tc).x;\n"
+  "  float aTexVal=texture(tex,tc).x;\n"
   "  FragColor=vec4(aTexVal,aTexVal,aTexVal,1);\n"
   "}\n";
 VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDepth)
