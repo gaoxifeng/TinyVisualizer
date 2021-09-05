@@ -1,5 +1,6 @@
 #include "TrackballCameraManipulator.h"
 #include "Camera3D.h"
+#include "Matrix.h"
 
 namespace DRAWER {
 TrackballCameraManipulator::TrackballCameraManipulator(std::shared_ptr<Camera3D> camera)
@@ -60,9 +61,9 @@ void TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloa
   r.template block<3,3>(0,0)=_rot;
   r.template block<3,1>(0,3)=ctr-_rot*ctr;
 
-  glGetFloatv(GL_MODELVIEW_MATRIX,mv.data());
+  getFloatv(GL_MODELVIEW_MATRIX,mv);
   mv*=r;
-  glLoadIdentity();
-  glMultMatrixf(mv.data());
+  loadIdentity();
+  multMatrixf(mv);
 }
 }

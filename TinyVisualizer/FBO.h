@@ -14,7 +14,8 @@ class FBO {
   FBO& operator=(const FBO& other);
   virtual ~FBO();
   static void screenQuad(GLfloat minx=-1,GLfloat miny=-1,GLfloat maxx=1,GLfloat maxy=1,bool colorTex=false);
-  void drawScreenQuad(GLfloat minx=-1,GLfloat miny=-1,GLfloat maxx=1,GLfloat maxy=1,bool colorTex=false) const;
+  static void screenQuad(std::shared_ptr<Texture> tex,GLfloat minx=-1,GLfloat miny=-1,GLfloat maxx=1,GLfloat maxy=1,bool colorTex=false);
+  void drawScreenQuad(std::shared_ptr<Texture> tex,GLfloat minx=-1,GLfloat miny=-1,GLfloat maxx=1,GLfloat maxy=1,bool colorTex=false) const;
   void drawScreenQuad(std::function<void()> func) const;
   void begin() const;
   void end() const;

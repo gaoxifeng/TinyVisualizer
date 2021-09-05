@@ -1,5 +1,8 @@
 #include "Camera3D.h"
 #include <iostream>
+#include "Matrix.h"
+#include "DefaultLight.h"
+#include "VBO.h"
 
 namespace DRAWER {
 //Camera3D
@@ -62,47 +65,56 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   if(_manipulator)
     _manipulator->preDraw(wnd,bb);
   //model view
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  matrixMode(GL_MODELVIEW_MATRIX);
+  loadIdentity();
   Eigen::Matrix<GLfloat,3,1> up=_dir.cross(_up).cross(_dir).normalized();
-  gluLookAt(_pos[0],_pos[1],_pos[2],
-            _pos[0]+_dir[0],_pos[1]+_dir[1],_pos[2]+_dir[2],
-            up[0],up[1],up[2]);
+  lookAtf(_pos[0],_pos[1],_pos[2],
+          _pos[0]+_dir[0],_pos[1]+_dir[1],_pos[2]+_dir[2],
+          up[0],up[1],up[2]);
   if(_manipulator)
     _manipulator->postDraw(wnd,bb);
   //projection
   GLfloat zNear=0,zFar=0;
-  zRange(bb,zNear,zFar);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
+  zRangef(bb,zNear,zFar);
+  matrixMode(GL_PROJECTION_MATRIX);
+  loadIdentity();
   int w=0,h=0;
   glfwGetWindowSize(wnd,&w,&h);
-  gluPerspective(_angle,(GLfloat)w/(GLfloat)h,zNear,zFar);
+  perspectivef(_angle,(GLfloat)w/(GLfloat)h,zNear,zFar);
   if(_debug) {
+    getDefaultLightProg()->begin();
+    setupMatrixInShader();
     GLfloat scale=1;
     glLineWidth(5);
-    glBegin(GL_LINES);
-    glColor3f(1,0,0);
-    glVertex3f(-scale,0,0);
-    glVertex3f( scale,0,0);
-    glColor3f(0,1,0);
-    glVertex3f(0,-scale,0);
-    glVertex3f(0, scale,0);
-    glColor3f(0,0,1);
-    glVertex3f(0,0,-scale);
-    glVertex3f(0,0, scale);
+    setupMaterial(NULL,1,0,0);
+    drawLinef(
+      Eigen::Matrix<GLfloat,3,1>(-scale,0,0),
+      Eigen::Matrix<GLfloat,3,1>( scale,0,0)
+    );
+    setupMaterial(NULL,0,1,0);
+    drawLinef(
+      Eigen::Matrix<GLfloat,3,1>(0,-scale,0),
+      Eigen::Matrix<GLfloat,3,1>(0, scale,0)
+    );
+    setupMaterial(NULL,0,0,1);
+    drawLinef(
+      Eigen::Matrix<GLfloat,3,1>(0,0,-scale),
+      Eigen::Matrix<GLfloat,3,1>(0,0, scale)
+    );
     if(_debugLine.size()==6) {
-      glColor3f(0,0,0);
-      glVertex3f(_debugLine[0],_debugLine[1],_debugLine[2]);
-      glVertex3f(_debugLine[0]+_debugLine[3],
-                 _debugLine[1]+_debugLine[4],
-                 _debugLine[2]+_debugLine[5]);
+      setupMaterial(NULL,0,0,0);
+      drawLinef(
+        Eigen::Matrix<GLfloat,3,1>(_debugLine[0],_debugLine[1],_debugLine[2]),
+        Eigen::Matrix<GLfloat,3,1>
+        (_debugLine[0]+_debugLine[3],
+         _debugLine[1]+_debugLine[4],
+         _debugLine[2]+_debugLine[5])
+      );
     }
-    glEnd();
+    Program::currentProgram()->end();
     if(_debugFrustum.size()==24) {
-      glColor3f(1,0,0);
       glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-      drawViewFrustum3D(_debugFrustum);
+      drawViewFrustum3D(_debugFrustum,Eigen::Matrix<GLfloat,4,1>(1,0,0,1));
       glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     }
     std::cout << "zNear=" << zNear << " zFar=" << zFar << std::endl;
@@ -116,8 +128,8 @@ Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindow* wnd,double x,doub
 
   Eigen::Matrix<GLfloat,4,1> dir(ratioX,-ratioY,0,1);
   Eigen::Matrix<GLfloat,4,4> mv,p;
-  glGetFloatv(GL_MODELVIEW_MATRIX,mv.data());
-  glGetFloatv(GL_PROJECTION_MATRIX,p.data());
+  getFloatv(GL_MODELVIEW_MATRIX,mv);
+  getFloatv(GL_PROJECTION_MATRIX,p);
   dir=p.inverse()*dir;
   dir.segment<3>(0)/=dir[3];  //from homogeneous space
 

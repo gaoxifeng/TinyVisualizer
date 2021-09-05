@@ -46,17 +46,6 @@ extern Eigen::Matrix<GLfloat,6,1> transformBB(const Eigen::Matrix<GLfloat,6,1>& 
 extern bool rayIntersectBB(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat alpha,const Eigen::Matrix<GLfloat,6,1>& bb);
 extern bool rayIntersectBB(const Eigen::Matrix<GLfloat,3,1>& p,const Eigen::Matrix<GLfloat,3,1>& q,const Eigen::Matrix<GLfloat,6,1>& bb);
 extern bool rayIntersectTri(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha,const Eigen::Matrix<GLfloat,3,1>& a,const Eigen::Matrix<GLfloat,3,1>& b,const Eigen::Matrix<GLfloat,3,1>& c);
-extern void zRange(const Eigen::Matrix<GLfloat,6,1>& bb,GLfloat& zNear,GLfloat& zFar,GLfloat minZNear=0.1f,GLfloat maxZFar=100.0f);
-extern void gluLookAt(GLfloat eyex,GLfloat eyey,GLfloat eyez,
-                      GLfloat centerx,GLfloat centery,GLfloat centerz,
-                      GLfloat upx,GLfloat upy,GLfloat upz);
-extern void gluPerspective(GLfloat fovy,GLfloat aspect,GLfloat zNear,GLfloat zFar);
-extern Eigen::Matrix<GLfloat,24,1> constructViewFrustum3D();
-extern Eigen::Matrix<GLfloat,8,1> constructViewFrustum2D();
-extern Eigen::Matrix<GLfloat,24,1> getViewFrustum3DPlanes();
-extern Eigen::Matrix<GLfloat,16,1> getViewFrustum2DPlanes();
-extern void drawViewFrustum3D(const Eigen::Matrix<GLfloat,24,1>& frustum);
-extern void drawViewFrustum2D(const Eigen::Matrix<GLfloat,8,1>& frustum);
 template <typename ITER>
 std::string listToStr(ITER beg,ITER end) {
   bool empty=true;

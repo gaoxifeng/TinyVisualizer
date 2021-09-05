@@ -17,7 +17,7 @@ Eigen::Matrix<GLfloat,4,1> PTStencil(GLfloat s) {
 }
 BezierCurveShape::BezierCurveShape(GLfloat thickness,bool isHermite,int RES)
   :_isHermite(isHermite),_thickness(thickness),_RES(RES) {
-  setMode(RES==0?GL_LINE_STRIP:GL_QUADS);
+  setMode(RES==0?GL_LINE_STRIP:GL_TRIANGLES);
   if(!_buildMat) {
     Eigen::Matrix<GLfloat,4,4> sCP,sPT;
     for(int d=0; d<4; d++) {
@@ -67,13 +67,13 @@ void BezierCurveShape::computeNormals() {
       n1=n0;
   }
 }
-void BezierCurveShape::draw(bool shadowPass) const {
+void BezierCurveShape::draw(PASS_TYPE passType) const {
   if(_dirty) {
     const_cast<BezierCurveShape*>(this)->subdivide();
     const_cast<BezierCurveShape*>(this)->refitBB();
     const_cast<BezierCurveShape*>(this)->_dirty=false;
   }
-  MeshShape::draw(shadowPass);
+  MeshShape::draw(passType);
 }
 void BezierCurveShape::subdivide() {
   _vertices.clear();
@@ -137,7 +137,8 @@ void BezierCurveShape::tessellate() {
       normals.push_back(n[1]);
       normals.push_back(n[2]);
       Eigen::Matrix<GLfloat,3,1> v=(v0+n*_thickness);
-      addIndex(Eigen::Matrix<int,4,1>(off+r,off+r+_RES,off+(r+1)%_RES+_RES,off+(r+1)%_RES));
+      addIndex(Eigen::Matrix<int,3,1>(off+r,off+r+_RES,off+(r+1)%_RES+_RES));
+      addIndex(Eigen::Matrix<int,3,1>(off+r,off+(r+1)%_RES+_RES,off+(r+1)%_RES));
       vertices.push_back(v[0]);
       vertices.push_back(v[1]);
       vertices.push_back(v[2]);

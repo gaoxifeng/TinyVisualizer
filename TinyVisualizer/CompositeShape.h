@@ -15,7 +15,8 @@ class CompositeShape : public Shape {
   virtual void setShininess(GLenum mode,GLfloat S) override;
   virtual void setTexture(std::shared_ptr<Texture>) override;
   virtual void setDepth(GLfloat depth) override;
-  virtual void draw(bool shadowPass) const override;
+  virtual void setDrawer(Drawer* drawer) override;
+  virtual void draw(PASS_TYPE passType) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   std::shared_ptr<Shape> getChild(int id) const;

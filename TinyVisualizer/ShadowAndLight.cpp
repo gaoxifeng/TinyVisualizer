@@ -1,44 +1,56 @@
 #include "ShadowAndLight.h"
+#include "DefaultLight.h"
+#include "Matrix.h"
+#include "VBO.h"
 #include <iostream>
 
 namespace DRAWER {
 const std::string ShadowLightVert=
-  "#version 120\n"
+  "#version 330 core\n"
+  "uniform mat3 normalMatrix;\n"
   "uniform mat4 modelViewMatrix;\n"
-  "uniform mat4 invModelViewMatrix;\n"
+  "uniform mat4 modelViewProjectionMatrix;\n"
+  "uniform mat4 invModelViewMatrixShadow;\n"
   "uniform int MAX_LIGHTS;\n"
-  "varying vec3 lightPosEye[16];\n"
-  "varying vec3 vN,v,v0;\n"
-  "varying vec2 tc;\n"
+  "layout(location=0) in vec3 Vertex;\n"
+  "layout(location=1) in vec3 Normal;\n"
+  "layout(location=2) in vec2 TexCoord;\n"
+  "out vec3 vN,v,v0;\n"
+  "out vec2 tc;\n"
   "void main(void)\n"
   "{\n"
-  "  gl_Position=gl_ModelViewProjectionMatrix*gl_Vertex;\n"
-  "  vN=normalize(gl_NormalMatrix*gl_Normal);\n"
-  "  vec4 vMV=gl_ModelViewMatrix*gl_Vertex;\n"
+  "  gl_Position=modelViewProjectionMatrix*vec4(Vertex,1);\n"
+  "  vN=normalize(normalMatrix*Normal);\n"
+  "  vec4 vMV=modelViewMatrix*vec4(Vertex,1);\n"
   "  v=vec3(vMV);\n"
-  "  v0=vec3(invModelViewMatrix*vMV);\n"
-  "  tc=gl_MultiTexCoord0.st;\n"
-  "  for (int i=0;i<MAX_LIGHTS;i++) {\n"
-  "    vec4 LH=modelViewMatrix*gl_LightSource[i].position;\n"
-  "    lightPosEye[i]=LH.xyz/LH.w;\n"
-  "  }\n"
+  "  v0=vec3(invModelViewMatrixShadow*vMV);\n"
+  "  tc=TexCoord;\n"
   "};\n";
 const std::string ShadowLightFrag=
-  "#version 120\n"
+  "#version 330 core\n"
+  "#extension GL_NV_shadow_samplers_cube : enable\n"
+  "struct LightMaterial {\n"
+  "  vec3 positionEye;\n"
+  "  vec4 position;\n"
+  "  vec4 ambient;\n"
+  "  vec4 diffuse;\n"
+  "  vec4 specular;\n"
+  "  float shininess;\n"
+  "};\n"
   "//shadow\n"
   "uniform sampler2D diffuseMap;\n"
   "uniform samplerCube depthMap[16];\n"
-  "uniform mat4 modelViewMatrix;\n"
   "uniform float far_plane,bias;\n"
   "uniform bool softShadow;\n"
   "uniform bool useShadow;\n"
   "//light\n"
   "uniform float invShadowMapSize;\n"
   "uniform int softShadowPass;\n"
+  "uniform LightMaterial lights[16];\n"
   "uniform int MAX_LIGHTS;\n"
-  "varying vec3 lightPosEye[16];\n"
-  "varying vec3 vN,v,v0;\n"
-  "varying vec2 tc;\n"
+  "in vec3 vN,v,v0;\n"
+  "in vec2 tc;\n"
+  "out vec4 FragColor;\n"
   "vec3 gridSamplingDisk[27]=vec3[]\n"
   "(\n"
   "  vec3(1, 1, 1), vec3( 0, 1, 1), vec3(-1, 1, 1),\n"
@@ -80,44 +92,49 @@ const std::string ShadowLightFrag=
   "  vec4 colorMap=texture2D(diffuseMap,tc);\n"
   "  vec4 finalColor=vec4(0.0,0.0,0.0,0.0);\n"
   "  for (int i=0;i<MAX_LIGHTS;i++) {\n"
-  "    vec3 L=normalize(lightPosEye[i]-v);\n"
+  "    vec3 L=normalize(lights[i].positionEye-v);\n"
   "    vec3 E=normalize(-v); // we are in Eye Coordinates, so EyePos is (0,0,0)\n"
   "    vec3 R=normalize(-reflect(L,N));\n"
   "    //calculate Ambient Term:\n"
-  "    vec4 Iamb=gl_FrontLightProduct[i].ambient*colorMap;\n"
+  "    vec4 Iamb=lights[i].ambient*colorMap;\n"
   "    //calculate Diffuse Term:\n"
-  "    vec4 Idiff=gl_FrontLightProduct[i].diffuse*colorMap*max(dot(N,L),0.0);\n"
+  "    vec4 Idiff=lights[i].diffuse*colorMap*max(dot(N,L),0.0);\n"
   "    Idiff=clamp(Idiff,0.0,1.0);\n"
   "    //calculate Specular Term:\n"
-  "    vec4 Ispec=gl_FrontLightProduct[i].specular*colorMap*pow(max(dot(R,E),0.0),gl_FrontMaterial.shininess);\n"
+  "    vec4 Ispec=lights[i].specular*colorMap*pow(max(dot(R,E),0.0),lights[i].shininess);\n"
   "    Ispec=clamp(Ispec,0.0,1.0);\n"
   "    //shadow\n"
   "    if(useShadow) {\n"
   "      float s;\n"
   "      if(softShadow)\n"
-  "        s=calcSoftShadow(gl_LightSource[i].position.xyz,i);\n"
-  "      else s=calcShadow(gl_LightSource[i].position.xyz,i);\n"
+  "        s=calcSoftShadow(lights[i].position.xyz,i);\n"
+  "      else s=calcShadow(lights[i].position.xyz,i);\n"
   "      finalColor+=Iamb+(1-s)*(Idiff+Ispec);\n"
   "    } else finalColor+=Iamb+Idiff+Ispec;\n"
   "  }\n"
   "  //write Total Color:\n"
-  "  gl_FragColor=finalColor;\n"
+  "  FragColor=finalColor;\n"
   "};\n";
 const std::string ShadowVert=
-  "#version 120\n"
-  "uniform mat4 invModelViewMatrix;\n"
-  "varying vec3 FragPos;\n"
+  "#version 330 core\n"
+  "uniform mat4 modelViewMatrix;\n"
+  "uniform mat4 modelViewProjectionMatrix;\n"
+  "uniform mat4 invModelViewMatrixShadow;\n"
+  "layout(location=0) in vec3 Vertex;\n"
+  "layout(location=1) in vec3 Normal;\n"
+  "layout(location=2) in vec2 TexCoord;\n"
+  "out vec3 FragPos;\n"
   "void main(void)\n"
   "{\n"
-  "  vec4 vMV=gl_ModelViewMatrix*gl_Vertex;\n"
-  "  FragPos=vec3(invModelViewMatrix*vMV);\n"
-  "  gl_Position=gl_ModelViewProjectionMatrix*gl_Vertex;\n"
+  "  vec4 vMV=modelViewMatrix*vec4(Vertex,1);\n"
+  "  FragPos=vec3(invModelViewMatrixShadow*vMV);\n"
+  "  gl_Position=modelViewProjectionMatrix*vec4(Vertex,1);\n"
   "}\n";
 const std::string ShadowFrag=
-  "#version 120\n"
+  "#version 330 core\n"
   "uniform vec3 lightPos;\n"
   "uniform float far_plane;\n"
-  "varying vec3 FragPos;\n"
+  "in vec3 FragPos;\n"
   "void main() {\n"
   "  float lightDistance=length(FragPos-lightPos);\n"
   "  //map to [0;1] range by dividing by far_plane\n"
@@ -127,9 +144,14 @@ const std::string ShadowFrag=
   "}\n";
 ShadowLight::ShadowLight(int shadow,int softShadow,bool autoAdjust)
   :_bias(0.1f),_softShadow(softShadow),_autoAdjust(autoAdjust),_shadow(shadow),_lightSz(0) {
-  if(!_shader) {
-    _shader.reset(new Shader(ShadowLightVert,"",ShadowLightFrag));
-    _shaderShadow.reset(new Shader(ShadowVert,"",ShadowFrag));
+  if(!_shadowLightProg) {
+    Shader::registerShader("ShadowLight",ShadowLightVert,"",ShadowLightFrag);
+    Program::registerProgram("ShadowLight","ShadowLight","","ShadowLight");
+    _shadowLightProg=Program::findProgram("ShadowLight");
+
+    Shader::registerShader("Shadow",ShadowVert,"",ShadowFrag);
+    Program::registerProgram("Shadow","Shadow","","Shadow");
+    _shadowProg=Program::findProgram("Shadow");
   }
 }
 int ShadowLight::addLight(const Eigen::Matrix<GLfloat,3,1>& pos,
@@ -243,21 +265,21 @@ bool ShadowLight::hasShadow() const {
 void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func) {
   if(_shadow>0) {
     GLfloat zNear,zFar,far=calculateFarPlane(bb);
-    _shaderShadow->begin();
-    _shaderShadow->setUniformFloat("far_plane",far);
+    _shadowProg->begin();
+    _shadowProg->setUniformFloat("far_plane",far);
     for(const Light& l:_lights) {
-      _shaderShadow->setUniformFloat("lightPos",Eigen::Matrix<GLfloat,3,1>(l._position.segment<3>(0)));
+      _shadowProg->setUniformFloat("lightPos",Eigen::Matrix<GLfloat,3,1>(l._position.segment<3>(0)));
       for(int d=0; d<6; d++) {
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-        glMultMatrixf(l._MV[d].data());
-        _shaderShadow->setUniformFloat("invModelViewMatrix",l._invMV[d]);
-        zRange(bb,zNear,zFar);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        gluPerspective(90,1,zNear,far);
+        matrixMode(GL_MODELVIEW_MATRIX);
+        pushMatrix();
+        loadIdentity();
+        multMatrixf(l._MV[d]);
+        _shadowProg->setUniformFloat("invModelViewMatrixShadow",l._invMV[d]);
+        zRangef(bb,zNear,zFar);
+        matrixMode(GL_PROJECTION_MATRIX);
+        pushMatrix();
+        loadIdentity();
+        perspectivef(90,1,zNear,far);
 
         l._shadowMap->begin(d);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -265,75 +287,74 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
           func(l._viewFrustum[d]);
         l._shadowMap->end();
 
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
+        matrixMode(GL_MODELVIEW_MATRIX);
+        popMatrix();
+        matrixMode(GL_PROJECTION_MATRIX);
+        popMatrix();
         //l._shadowMap->saveImage(d,"depth"+std::to_string(d)+".png");
       }
     }
-    _shaderShadow->end();
+    Program::currentProgram()->end();
   }
 }
 void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb) {
   if(_lightSz>0) {
-    glColor3f(0,0,0);
-    glPointSize(_lightSz);
-    glBegin(GL_POINTS);
+    getRoundPointProg()->begin();
+    setRoundPointSize(_lightSz);
+    setupMaterial(NULL,0,0,0);
+    setupMatrixInShader();
     for(const Light& l:_lights)
-      glVertex3f(l._position[0],l._position[1],l._position[2]);
-    glEnd();
+      drawPointf(Eigen::Matrix<GLfloat,3,1>(l._position[0],l._position[1],l._position[2]));
+    Program::currentProgram()->end();
   }
 
-  int id=0;
-  glEnable(GL_LIGHTING);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  for(const Light& l:_lights) {
-    glEnable(GL_LIGHT0+id);
-    glLightfv(GL_LIGHT0+id,GL_POSITION,&(l._position[0]));
-    glLightfv(GL_LIGHT0+id,GL_AMBIENT,&(l._ambient[0]));
-    glLightfv(GL_LIGHT0+id,GL_DIFFUSE,&(l._diffuse[0]));
-    glLightfv(GL_LIGHT0+id,GL_SPECULAR,&(l._specular[0]));
-    id++;
-  }
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-
-  _shader->begin();
-  Eigen::Matrix<GLfloat,4,4> MV,invMV;
-  glGetFloatv(GL_MODELVIEW_MATRIX,MV.data());
-  invMV=MV.inverse();
-  _shader->setUniformFloat("modelViewMatrix",MV);
-  _shader->setUniformFloat("invModelViewMatrix",invMV);
-  _shader->setUniformFloat("invShadowMapSize",1.0/_shadow);
-  _shader->setUniformInt("softShadowPass",_softShadow);
-  _shader->setUniformInt("MAX_LIGHTS",_lights.size());
-  _shader->setUniformFloat("far_plane",calculateFarPlane(bb));
-  _shader->setUniformFloat("bias",_bias);
-  _shader->setUniformBool("useShadow",_shadow>0);
-  _shader->setUniformBool("softShadow",_softShadow>0);
-  _shader->setTexUnit("diffuseMap",0);
+  _shadowLightProg->begin();
+  getFloatv(GL_MODELVIEW_MATRIX,_MVShadow);
+  _invMVShadow=_MVShadow.inverse();
+  _shadowLightProg->setUniformFloat("invModelViewMatrixShadow",_invMVShadow);
+  _shadowLightProg->setUniformFloat("invShadowMapSize",1.0/_shadow);
+  _shadowLightProg->setUniformInt("softShadowPass",_softShadow);
+  _shadowLightProg->setUniformInt("MAX_LIGHTS",_lights.size());
+  _shadowLightProg->setUniformFloat("far_plane",calculateFarPlane(bb));
+  _shadowLightProg->setUniformFloat("bias",_bias);
+  _shadowLightProg->setUniformBool("useShadow",_shadow>0);
+  _shadowLightProg->setUniformBool("softShadow",_softShadow>0);
+  _shadowLightProg->setTexUnit("diffuseMap",0);
   if(_shadow>0) {
-    id=0;
+    int id=0;
     for(const Light& l:_lights) {
       glActiveTexture(GL_TEXTURE1+id);
       l._shadowMap->beginShadow();
-      _shader->setTexUnit("depthMap["+std::to_string(id)+"]",id+1);
+      _shadowLightProg->setTexUnit("depthMap["+std::to_string(id)+"]",id+1);
       id++;
     }
     glActiveTexture(GL_TEXTURE1+id);
   }
 }
+void ShadowLight::setupLightMaterial(const Material& mat) {
+  int id=0;
+  //"struct LightMaterial {\n"
+  //"  vec3 positionEye;\n"
+  //"  vec4 position;\n"
+  //"  vec4 ambient;\n"
+  //"  vec4 diffuse;\n"
+  //"  vec4 specular;\n"
+  //"  float shininess;\n"
+  //"};\n"
+  for(const Light& l:_lights) {
+    Eigen::Matrix<GLfloat,4,1> positionEyeH=_MVShadow*l._position;
+    Eigen::Matrix<GLfloat,3,1> positionEye=positionEyeH.segment<3>(0)/positionEyeH[3];
+    _shadowLightProg->setUniformFloat("lights["+std::to_string(id)+"].positionEye",positionEye);
+    _shadowLightProg->setUniformFloat("lights["+std::to_string(id)+"].position",l._position);
+    _shadowLightProg->setUniformFloat("lights["+std::to_string(id)+"].ambient",Eigen::Matrix<GLfloat,4,1>((l._ambient.array()*mat._ambient.array()).matrix()));
+    _shadowLightProg->setUniformFloat("lights["+std::to_string(id)+"].diffuse",Eigen::Matrix<GLfloat,4,1>((l._diffuse.array()*mat._diffuse.array()).matrix()));
+    _shadowLightProg->setUniformFloat("lights["+std::to_string(id)+"].specular",Eigen::Matrix<GLfloat,4,1>((l._specular.array()*mat._specular.array()).matrix()));
+    _shadowLightProg->setUniformFloat("lights["+std::to_string(id)+"].shininess",mat._shininess);
+    id++;
+  }
+}
 void ShadowLight::end() {
-  _shader->end();
-  glDisable(GL_LIGHTING);
+  Program::currentProgram()->end();
   if(_shadow>0) {
     int id=0;
     for(const Light& l:_lights) {
@@ -374,32 +395,32 @@ void ShadowLight::setMVLight(Light& l) const {
     {0.,-1.,0.},{0.,-1.,0.}
   };
   for(int d=0; d<6; d++) {
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    gluLookAt(l._position[0],
-              l._position[1],
-              l._position[2],
-              l._position[0]+target[d][0],
-              l._position[1]+target[d][1],
-              l._position[2]+target[d][2],
-              up[d][0],up[d][1],up[d][2]);
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    gluPerspective(90,1,1,10);  //add too dummy values
+    matrixMode(GL_MODELVIEW_MATRIX);
+    pushMatrix();
+    loadIdentity();
+    lookAtf(l._position[0],
+            l._position[1],
+            l._position[2],
+            l._position[0]+target[d][0],
+            l._position[1]+target[d][1],
+            l._position[2]+target[d][2],
+            up[d][0],up[d][1],up[d][2]);
+    matrixMode(GL_PROJECTION_MATRIX);
+    pushMatrix();
+    loadIdentity();
+    perspectivef(90,1,1,10);  //add too dummy values
 
     l._target[d]=Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(target[d]);
-    glGetFloatv(GL_MODELVIEW_MATRIX,l._MV[d].data());
+    getFloatv(GL_MODELVIEW_MATRIX,l._MV[d]);
     l._invMV[d]=l._MV[d].inverse();
     l._viewFrustum[d]=getViewFrustum3DPlanes().segment<16>(0);  //we do not use zNear,zFar to do culling
 
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
+    matrixMode(GL_MODELVIEW_MATRIX);
+    popMatrix();
+    matrixMode(GL_PROJECTION_MATRIX);
+    popMatrix();
   }
 }
-std::shared_ptr<Shader> ShadowLight::_shader;
-std::shared_ptr<Shader> ShadowLight::_shaderShadow;
+std::shared_ptr<Program> ShadowLight::_shadowLightProg;
+std::shared_ptr<Program> ShadowLight::_shadowProg;
 }

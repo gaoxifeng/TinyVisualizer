@@ -29,6 +29,19 @@ int main(int argc,char** argv) {
   shapeTB->addShape(box);
   drawer.addShape(shapeTB);
 
+  //points are not affected by lighting
+  std::shared_ptr<MeshShape> points(new MeshShape);
+  for(int x=0,off=0; x<5; x++)
+    for(int y=0; y<5; y++)
+      for(int z=0; z<5; z++) {
+        points->addVertex(Eigen::Matrix<GLfloat,3,1>(x,y,z)*0.1f);
+        points->addIndexSingle(off++);
+      }
+  points->setMode(GL_POINTS);
+  points->setColor(GL_POINTS,.6,.3,.3);
+  points->setPointSize(5);
+  drawer.addShape(points);
+
   bool sim=false;
   GLfloat theta=0;
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>) {

@@ -1,7 +1,9 @@
 #ifndef MESH_SHAPE_H
 #define MESH_SHAPE_H
 
+#include "VBO.h"
 #include "Drawer.h"
+#include "ShadowAndLight.h"
 
 namespace DRAWER {
 class Texture;
@@ -25,16 +27,19 @@ class MeshShape : public Shape {
         _texcoords.push_back((*tc)[j+1]);
       }
     }
+    _VBO=NULL;
     _dirty=true;
   }
   template <typename VEC>
   void addIndex(const VEC& I) {
     for(int i=0; i<I.size(); i++)
       _indices.push_back(I[i]);
+    _VBO=NULL;
   }
   void addIndexSingle(int i);
   void setMode(GLenum mode);
   int nrVertex() const;
+  int nrIndex() const;
   void clear();
   virtual void computeNormals();
   void setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal);
@@ -48,21 +53,20 @@ class MeshShape : public Shape {
   virtual void setColorSpecular(GLenum mode,GLfloat RS,GLfloat GS,GLfloat BS) override;
   virtual void setTexture(std::shared_ptr<Texture> tex) override;
   virtual void setDepth(GLfloat depth) override;
+  virtual void setDrawer(Drawer* drawer) override;
   virtual void setShininess(GLenum mode,GLfloat S) override;
-  virtual void draw(bool shadowPass) const override;
+  virtual void draw(PASS_TYPE passType) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
  protected:
   void refitBB();
-  std::shared_ptr<Texture> _tex;
+  void initMaterial();
+  std::shared_ptr<VBO> _VBO;
   static std::shared_ptr<Texture> _texWhite;
   std::vector<GLfloat> _vertices,_normals,_texcoords;
   Eigen::Matrix<GLfloat,6,1> _bb;
   std::vector<GLuint> _indices;
-  GLfloat _pointSize,_lineWidth;
-  GLfloat _rs,_gs,_bs,_s;
-  GLfloat _ra,_ga,_ba;
-  GLfloat _r,_g,_b;
+  ShadowLight::Material _mat;
   GLenum _mode;
   bool _dirty;
 };

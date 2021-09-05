@@ -11,8 +11,7 @@ int main(int argc,char** argv) {
     glActiveTexture(GL_TEXTURE0);
     grid->begin();
     glActiveTexture(GL_TEXTURE1);
-    glColor3f(1,1,1);
-    FBO::screenQuad();
+    FBO::screenQuad(grid);
     grid->end();
     glActiveTexture(GL_TEXTURE0);
   });

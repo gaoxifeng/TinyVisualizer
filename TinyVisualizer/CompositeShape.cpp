@@ -37,11 +37,17 @@ void CompositeShape::setDepth(GLfloat depth) {
   for(int i=0; i<(int)_shapes.size(); i++)
     _shapes[i]->setDepth(depth);
 }
-void CompositeShape::draw(bool shadowPass) const {
-  if(!enabled() || (!_castShadow && shadowPass))
+void CompositeShape::setDrawer(Drawer* drawer) {
+  for(int i=0; i<(int)_shapes.size(); i++)
+    _shapes[i]->setDrawer(drawer);
+}
+void CompositeShape::draw(PASS_TYPE passType) const {
+  if(!enabled())
+    return;
+  if(!_castShadow && (passType&SHADOW_PASS)!=0)
     return;
   for(int i=0; i<(int)_shapes.size(); i++)
-    _shapes[i]->draw(shadowPass);
+    _shapes[i]->draw(passType);
 }
 Eigen::Matrix<GLfloat,6,1> CompositeShape::getBB() const {
   Eigen::Matrix<GLfloat,6,1> bb=resetBB();

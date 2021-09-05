@@ -29,6 +29,12 @@ class PythonCallback {
 //Shape for OpenGL drawing
 class Shape {
  public:
+  enum PASS_TYPE {
+    MESH_PASS   =1<<0,
+    LINE_PASS   =1<<1,
+    POINT_PASS  =1<<2,
+    SHADOW_PASS =1<<3,
+  };
   Shape();
   virtual ~Shape() {}
   virtual void setPointSize(GLfloat) {}
@@ -39,13 +45,14 @@ class Shape {
   virtual void setShininess(GLenum,GLfloat) {}
   virtual void setTexture(std::shared_ptr<Texture>) {}
   virtual void setDepth(GLfloat) {}
+  virtual void setDrawer(Drawer*) {}
   virtual void setEnabled(bool enabled);
   virtual void setCastShadow(bool castShadow);
   virtual void setUseLight(bool useLight);
   bool enabled() const;
   bool castShadow() const;
   bool useLight() const;
-  virtual void draw(bool shadowPass) const=0;
+  virtual void draw(PASS_TYPE passType) const=0;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const=0;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
  protected:

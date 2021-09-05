@@ -17,12 +17,10 @@ Texture::~Texture() {
   clear();
 }
 void Texture::begin() const {
-  glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D,_id);
 }
 void Texture::end() const {
   glBindTexture(GL_TEXTURE_2D,0);
-  glDisable(GL_TEXTURE_2D);
 }
 int Texture::width() const {
   GLint ret;

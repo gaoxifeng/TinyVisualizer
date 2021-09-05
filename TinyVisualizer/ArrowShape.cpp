@@ -1,4 +1,5 @@
 #include "ArrowShape.h"
+#include "Matrix.h"
 
 namespace DRAWER {
 ArrowShape::ArrowShape(GLfloat angle,GLfloat thickness,GLfloat thicknessOuter,int RES) {
@@ -76,12 +77,12 @@ void ArrowShape::setArrow(const Eigen::Matrix<GLfloat,3,1>& from,
   _bb[5]=_vertices.back();
   _bb=transformBB(_bb,_T);
 }
-void ArrowShape::draw(bool shadowPass) const {
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glMultMatrixf(_T.data());
-  MeshShape::draw(shadowPass);
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+void ArrowShape::draw(PASS_TYPE passType) const {
+  matrixMode(GL_MODELVIEW_MATRIX);
+  pushMatrix();
+  multMatrixf(_T);
+  MeshShape::draw(passType);
+  matrixMode(GL_MODELVIEW_MATRIX);
+  popMatrix();
 }
 }

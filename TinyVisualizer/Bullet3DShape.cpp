@@ -1,5 +1,6 @@
 #include "Bullet3DShape.h"
 #include "MakeMesh.h"
+#include "Matrix.h"
 #include "SceneStructure.h"
 #ifdef BULLET_SUPPORT
 #include <btBulletDynamicsCommon.h>
@@ -48,25 +49,25 @@ void Bullet3DShape::syncWorld(std::shared_ptr<SceneNode>& root,const btDiscreteD
       root=SceneNode::remove(root,s);
 }
 #endif
-void Bullet3DShape::draw(bool shadowPass) const {
+void Bullet3DShape::draw(PASS_TYPE passType) const {
   if(!_enabled)
     return;
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
+  matrixMode(GL_MODELVIEW_MATRIX);
+  pushMatrix();
   //global
 #ifdef BULLET_SUPPORT
   if(_body) {
     btScalar m[16];
     const btTransform& t=_body->getWorldTransform();
     t.getOpenGLMatrix(m);
-    glMultMatrixf(m);
+    multMatrixf(m);
   }
 #endif
   //local
-  glMultMatrixf(_localTrans.data());
-  CompositeShape::draw(shadowPass);
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+  multMatrixf(_localTrans);
+  CompositeShape::draw(passType);
+  matrixMode(GL_MODELVIEW_MATRIX);
+  popMatrix();
 }
 Eigen::Matrix<GLfloat,6,1> Bullet3DShape::getBB() const {
   Eigen::Matrix<GLfloat,6,1> ret=resetBB(),retL=resetBB();

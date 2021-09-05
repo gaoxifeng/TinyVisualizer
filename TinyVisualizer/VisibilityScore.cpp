@@ -2,31 +2,47 @@
 #include "SceneStructure.h"
 #include "MakeMesh.h"
 #include "Camera3D.h"
+#include "Matrix.h"
+#include "DefaultLight.h"
 #include <iostream>
 
 namespace DRAWER {
 const std::string XORFrag=
-  "#version 120\n"
+  "#version 330 core\n"
   "uniform sampler2D tex[2];\n"
+  "in vec2 tc;\n"
+  "out vec4 FragColor;\n"
   "void main()\n"
   "{\n"
-  "  float aTexVal=texture2D(tex[0],gl_TexCoord[0].xy).x;\n"
-  "  float bTexVal=texture2D(tex[1],gl_TexCoord[0].xy).x;\n"
+  "  float aTexVal=texture2D(tex[0],tc).x;\n"
+  "  float bTexVal=texture2D(tex[1],tc).x;\n"
   "  float xor=max(0,aTexVal-bTexVal)+max(0,bTexVal-aTexVal);\n"
-  "  gl_FragColor=vec4(xor,xor,xor,1);\n"
+  "  FragColor=vec4(xor,xor,xor,1);\n"
   "}\n";
-const std::string TexCopyFrag=
-  "#version 120\n"
+const std::string texCopyFrag=
+  "#version 330 core\n"
   "uniform sampler2D tex;\n"
+  "in vec2 tc;\n"
+  "out vec4 FragColor;\n"
   "void main()\n"
   "{\n"
-  "  float aTexVal=texture2D(tex,gl_TexCoord[0].xy).x;\n"
-  "  gl_FragColor=vec4(aTexVal,aTexVal,aTexVal,1);\n"
+  "  float aTexVal=texture2D(tex,tc).x;\n"
+  "  FragColor=vec4(aTexVal,aTexVal,aTexVal,1);\n"
   "}\n";
 VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDepth)
-  :_shaderXOR("","",XORFrag),_shaderTexCopy("","",TexCopyFrag),
-   _fboPP(0,levelMax,formatColor,formatDepth),
-   _fboRef(1<<levelMax,1<<levelMax,formatColor,formatDepth) {}
+  :_fboPP(0,levelMax,formatColor,formatDepth),
+   _fboRef(1<<levelMax,1<<levelMax,formatColor,formatDepth) {
+  if(!_XORProg) {
+    getDefaultLightProg();
+    Shader::registerShader("XOR","","",XORFrag);
+    Program::registerProgram("XOR","DefaultLight","","XOR");
+    _XORProg=Program::findProgram("XOR");
+
+    Shader::registerShader("TexCopy","","",texCopyFrag);
+    Program::registerProgram("TexCopy","DefaultLight","","TexCopy");
+    _texCopyProg=Program::findProgram("TexCopy");
+  }
+}
 Eigen::Matrix<GLfloat,2,1> VisibilityScore::compute
 (std::function<void(const FBO&)>* ref,
  std::function<void(const FBO&)>* curr,
@@ -58,7 +74,10 @@ Eigen::Matrix<GLfloat,2,1> VisibilityScore::compute
   const FBO& XOR=_fboPP.getFBO(_fboPP.nrFBO()-2);
   beginXOR();
   XOR.begin();
-  XOR.drawScreenQuad();
+  XOR.drawScreenQuad([&]() {
+    setupMatrixInShader();
+    XOR.screenQuad();
+  });
   XOR.end();
   endXOR();
   if(debugOutput)
@@ -84,12 +103,19 @@ bool debugOutput) {
   Eigen::Matrix<GLfloat,6,1> bb=unionBB(shapeA->getBB(),shapeB->getBB());
   std::function<void(const FBO&)> ref=[&](const FBO&) {
     drawer.getCamera()->draw(glfwGetCurrentContext(),bb);
-    shapeA->draw(false);
+    shapeA->setDrawer(&drawer);
+    getDefaultLightProg()->begin();
+    shapeA->draw(Shape::MESH_PASS);
+    Program::currentProgram()->end();
   };
   std::function<void(const FBO&)> curr=[&](const FBO&) {
     drawer.getCamera()->draw(glfwGetCurrentContext(),bb);
-    shapeB->draw(false);
+    shapeB->setDrawer(&drawer);
+    getDefaultLightProg()->begin();
+    shapeB->draw(Shape::MESH_PASS);
+    Program::currentProgram()->end();
   };
+  drawer.clearLight();  //force the use of default light
   Eigen::Matrix<GLfloat,2,1> maxS=Eigen::Matrix<GLfloat,2,1>::Zero();
   Eigen::Matrix<GLfloat,2,1> avgS=Eigen::Matrix<GLfloat,2,1>::Zero();
   for(int i=0; i<(int)eyes.size(); i++) {
@@ -105,12 +131,10 @@ bool debugOutput) {
 }
 void VisibilityScore::debugVisibility() {
   std::function<void(const FBO&)> ref=[](const FBO& A) {
-    glColor3f(1,1,1);
-    A.drawScreenQuad(-0.75,-0.75,0.5,0.5);
+    A.drawScreenQuad(NULL,-0.75,-0.75,0.5,0.5);
   };
   std::function<void(const FBO&)> curr=[](const FBO& B) {
-    glColor3f(1,1,1);
-    B.drawScreenQuad(-0.5,-0.5,0.75,0.75);
+    B.drawScreenQuad(NULL,-0.5,-0.5,0.75,0.75);
   };
   compute(&ref,&curr,true);
 }
@@ -125,19 +149,19 @@ void VisibilityScore::debugVisibility(Drawer& drawer) {
 void VisibilityScore::beginXOR() {
   const FBO& A=_fboRef;
   const FBO& B=_fboPP.getFBO(_fboPP.nrFBO()-1);
-  _shaderXOR.begin();
+  _XORProg->begin();
   glActiveTexture(GL_TEXTURE0);
   A.getRBO().begin();
-  _shaderXOR.setTexUnit("tex[0]",0);
+  _XORProg->setTexUnit("tex[0]",0);
   glActiveTexture(GL_TEXTURE1);
   B.getRBO().begin();
-  _shaderXOR.setTexUnit("tex[1]",1);
+  _XORProg->setTexUnit("tex[1]",1);
   glActiveTexture(GL_TEXTURE2);
 }
 void VisibilityScore::endXOR() {
   const FBO& A=_fboRef;
   const FBO& B=_fboPP.getFBO(_fboPP.nrFBO()-1);
-  _shaderXOR.end();
+  Program::currentProgram()->end();
   A.getRBO().end();
   B.getRBO().end();
   glActiveTexture(GL_TEXTURE0);
@@ -145,16 +169,21 @@ void VisibilityScore::endXOR() {
 void VisibilityScore::texCopy(int i) {
   const FBO& from=_fboPP.getFBO(i+1);
   const FBO& to=_fboPP.getFBO(i);
-  _shaderTexCopy.begin();
+  _texCopyProg->begin();
   glActiveTexture(GL_TEXTURE0);
   from.getRBO().begin();
-  _shaderTexCopy.setTexUnit("tex",0);
+  _texCopyProg->setTexUnit("tex",0);
   glActiveTexture(GL_TEXTURE1);
   to.begin();
-  to.drawScreenQuad();
+  to.drawScreenQuad([&]() {
+    setupMatrixInShader();
+    to.screenQuad();
+  });
   to.end();
   from.getRBO().end();
-  _shaderTexCopy.end();
+  Program::currentProgram()->end();
   glActiveTexture(GL_TEXTURE0);
 }
+std::shared_ptr<Program> VisibilityScore::_XORProg;
+std::shared_ptr<Program> VisibilityScore::_texCopyProg;
 }

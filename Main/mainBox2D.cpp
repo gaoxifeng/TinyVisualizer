@@ -26,9 +26,13 @@ int main(int argc,char** argv) {
   {
     b2BodyDef bd;
     ground=world->CreateBody(&bd);
-    b2EdgeShape shape;
-    shape.m_vertex0=b2Vec2(-40.0f,-100.0f);
-    shape.m_vertex1=b2Vec2(40.0f,-100.0f);
+    b2Vec2 vertices[4];
+    vertices[0]=b2Vec2(-40.0f,-100.0f);
+    vertices[1]=b2Vec2( 40.0f,-100.0f);
+    vertices[2]=b2Vec2( 40.0f, -99.0f);
+    vertices[3]=b2Vec2(-40.0f, -99.0f);
+    b2PolygonShape shape;
+    shape.Set(vertices,4);
     ground->CreateFixture(&shape,0.0f);
   }
 

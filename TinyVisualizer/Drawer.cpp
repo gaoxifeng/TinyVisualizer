@@ -2,6 +2,7 @@
 #include "Camera2D.h"
 #include "Camera3D.h"
 #include "MeshShape.h"
+#include "DefaultLight.h"
 #include "ShadowAndLight.h"
 #include "SceneStructure.h"
 #include "FirstPersonCameraManipulator.h"
@@ -62,6 +63,10 @@ Drawer::Drawer(int argc,char** argv)
   ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
   glfwDefaultWindowHints();
   glfwSetErrorCallback(errFunc);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
   glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
   std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
@@ -75,7 +80,7 @@ Drawer::Drawer(int argc,char** argv)
   glfwSwapInterval(1);
   glClearDepth(1.0f);
   glEnable(GL_MULTISAMPLE);
-  glEnable(GL_POINT_SMOOTH);
+  glEnable(GL_LINE_SMOOTH);
   glClearColor(argparseRange(argc,argv,"backgroundR",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
                argparseRange(argc,argv,"backgroundG",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
                argparseRange(argc,argv,"backgroundB",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,1);
@@ -151,10 +156,8 @@ void Drawer::draw() {
   glViewport(0,0,width,height);
 
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
-  glShadeModel(GL_SMOOTH);
 
   //calculate BB
   Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();
@@ -166,7 +169,8 @@ void Drawer::draw() {
     _light->renderShadow(bb,[&](const Eigen::Matrix<GLfloat,-1,1>& viewFrustum) {
     if(_root)
       _root->draw([&](std::shared_ptr<Shape> s) {
-      s->draw(true);
+      s->setDrawer(this);
+      s->draw(MeshShape::SHADOW_PASS);
     },&viewFrustum);
   });
   //plugin predraw
@@ -177,13 +181,29 @@ void Drawer::draw() {
     Eigen::Matrix<GLfloat,-1,1> viewFrustum;
     if(_camera)
       viewFrustum=_camera->getViewFrustum();
+    //mesh
     _root->draw([&](std::shared_ptr<Shape> s) {
       if(_light && s->useLight())
         _light->begin(bb);
-      s->draw(false);
-      if(_light && s->useLight())
-        _light->end();
+      else getDefaultLightProg()->begin();
+      s->setDrawer(this);
+      s->draw(Shape::MESH_PASS);
+      Program::currentProgram()->end();
     },_camera?&viewFrustum:NULL);
+    //point
+    getRoundPointProg()->begin();
+    _root->draw([&](std::shared_ptr<Shape> s) {
+      s->setDrawer(this);
+      s->draw(Shape::POINT_PASS);
+    },_camera?&viewFrustum:NULL);
+    Program::currentProgram()->end();
+    //line
+    getThickLineProg()->begin();
+    _root->draw([&](std::shared_ptr<Shape> s) {
+      s->setDrawer(this);
+      s->draw(Shape::LINE_PASS);
+    },_camera?&viewFrustum:NULL);
+    Program::currentProgram()->end();
   }
   //custom
   _draw();

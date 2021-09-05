@@ -1,6 +1,8 @@
 #include "MeshShape.h"
 #include "Texture.h"
+#include "Matrix.h"
 #include "MakeTexture.h"
+#include "DefaultLight.h"
 
 namespace DRAWER {
 //MeshShape
@@ -8,20 +10,10 @@ namespace DRAWER {
 #define DEFAULT_G 143/255.
 #define DEFAULT_B 29/255.
 #define DEFAULT_S 10.
-MeshShape::MeshShape()
-  :_bb(resetBB()),_pointSize(1),_lineWidth(1),
-   _rs(DEFAULT_R),_gs(DEFAULT_G),_bs(DEFAULT_B),_s(DEFAULT_S),
-   _ra(0),_ga(0),_ba(0),
-   _r(DEFAULT_R),_g(DEFAULT_G),_b(DEFAULT_B),_dirty(true) {
-  if(!_texWhite)
-    _texWhite=getWhiteTexture();
-  _tex=_texWhite;
+MeshShape::MeshShape():_bb(resetBB()),_dirty(true) {
+  initMaterial();
 }
-MeshShape::MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLuint>& indices,GLenum mode)
-  :_bb(resetBB()),_pointSize(1),_lineWidth(1),
-   _rs(DEFAULT_R),_gs(DEFAULT_G),_bs(DEFAULT_B),_s(DEFAULT_S),
-   _ra(0),_ga(0),_ba(0),
-   _r(DEFAULT_R),_g(DEFAULT_G),_b(DEFAULT_B),_dirty(true) {
+MeshShape::MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLuint>& indices,GLenum mode):_bb(resetBB()),_dirty(true) {
   _vertices=vertices;
   _indices=indices;
   _bb=resetBB();
@@ -30,12 +22,11 @@ MeshShape::MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLui
     _bb=unionBB(_bb,v);
   }
   setMode(mode);
-  if(!_texWhite)
-    _texWhite=getWhiteTexture();
-  _tex=_texWhite;
+  initMaterial();
 }
 void MeshShape::addIndexSingle(int i) {
   _indices.push_back(i);
+  _VBO=NULL;
 }
 void MeshShape::setMode(GLenum mode) {
   _mode=mode;
@@ -43,11 +34,15 @@ void MeshShape::setMode(GLenum mode) {
 int MeshShape::nrVertex() const {
   return (int)_vertices.size()/3;
 }
+int MeshShape::nrIndex() const {
+  return (int)_indices.size();
+}
 void MeshShape::clear() {
   _vertices.clear();
   _normals.clear();
   _texcoords.clear();
   _indices.clear();
+  _VBO=NULL;
 }
 void MeshShape::computeNormals() {
   ASSERT_MSGV(_mode==GL_TRIANGLES,"Compute normals is only available when mode(%d)=GL_TRIANGLES!",_mode)
@@ -66,11 +61,17 @@ void MeshShape::computeNormals() {
   }
   for(int i=0; i<(int)_normals.size(); i+=3)
     Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(&_normals[i]).normalize();
+  if(_VBO)
+    _VBO->setVertexNormal(_normals);
+  else _VBO=NULL;
 }
 void MeshShape::setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal) {
   if((int)_normals.size()<i*3+3)
     _normals.resize(i*3+3,0);
   Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_normals.data()+i*3)=normal;
+  if(_VBO)
+    _VBO->setVertexNormal(i,normal);
+  else _VBO=NULL;
 }
 Eigen::Matrix<GLfloat,3,1> MeshShape::getNormal(int i) const {
   return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(&_normals[i*3]);
@@ -78,113 +79,100 @@ Eigen::Matrix<GLfloat,3,1> MeshShape::getNormal(int i) const {
 void MeshShape::setVertex(int i,const Eigen::Matrix<GLfloat,3,1>& vertex) {
   _dirty=true;
   Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_vertices.data()+i*3)=vertex;
+  if(_VBO)
+    _VBO->setVertexPosition(i,vertex);
+  else _VBO=NULL;
 }
 Eigen::Matrix<GLfloat,3,1> MeshShape::getVertex(int i) const {
   return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(&_vertices[i*3]);
 }
 void MeshShape::setPointSize(GLfloat pointSize) {
-  _pointSize=pointSize;
+  _mat._pointSize=pointSize;
 }
 void MeshShape::setLineWidth(GLfloat lineWidth) {
-  _lineWidth=lineWidth;
+  _mat._lineWidth=lineWidth;
 }
 void MeshShape::setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) {
   if(_mode!=mode)
     return;
-  _r=R;
-  _g=G;
-  _b=B;
+  _mat._diffuse=Eigen::Matrix<GLfloat,4,1>(R,G,B,1);
 }
 void MeshShape::setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,GLfloat BA) {
   if(_mode!=mode)
     return;
-  _ra=RA;
-  _ga=GA;
-  _ba=BA;
+  _mat._ambient=Eigen::Matrix<GLfloat,4,1>(RA,GA,BA,1);
 }
 void MeshShape::setColorSpecular(GLenum mode,GLfloat RS,GLfloat GS,GLfloat BS) {
   if(_mode!=mode)
     return;
-  _rs=RS;
-  _gs=GS;
-  _bs=BS;
+  _mat._specular=Eigen::Matrix<GLfloat,4,1>(RS,GS,BS,1);
 }
 void MeshShape::setShininess(GLenum mode,GLfloat S) {
   if(_mode!=mode)
     return;
-  _s=S;
+  _mat._shininess=S;
 }
 void MeshShape::setTexture(std::shared_ptr<Texture> tex) {
   if(tex)
-    _tex=tex;
-  else _tex=getWhiteTexture();
+    _mat._tex=tex;
+  else _mat._tex=getWhiteTexture();
 }
 void MeshShape::setDepth(GLfloat depth) {
   for(int i=0; i<(int)_vertices.size(); i+=3)
     _vertices[i+2]=depth;
 }
-void MeshShape::draw(bool shadowPass) const {
-  if(_vertices.empty() || !enabled() || (!_castShadow && shadowPass))
+void MeshShape::setDrawer(Drawer* drawer) {
+  _mat._drawer=drawer;
+}
+void MeshShape::draw(PASS_TYPE passType) const {
+  if(passType&MESH_PASS) {
+    if(_mode!=GL_TRIANGLES&&_mode!=GL_TRIANGLE_FAN&&_mode!=GL_TRIANGLE_STRIP)
+      return;
+  }
+  if(passType&LINE_PASS) {
+    if(_mode!=GL_LINES&&_mode!=GL_LINE_LOOP&&_mode!=GL_LINE_STRIP)
+      return;
+  }
+  if(passType&POINT_PASS) {
+    if(_mode!=GL_POINTS)
+      return;
+  }
+  if(!_castShadow && (passType&SHADOW_PASS)!=0)
+    return;
+  if(_vertices.empty() || !enabled())
     return;
   if(_dirty) {
     const_cast<MeshShape*>(this)->refitBB();
     const_cast<MeshShape*>(this)->_dirty=false;
   }
+  if(!_VBO) {
+    const_cast<MeshShape*>(this)->_VBO.reset(new VBO(nrVertex(),nrIndex()));
+    _VBO->setVertexPosition(_vertices);
+    if(!_normals.empty())
+      _VBO->setVertexNormal(_normals);
+    if(!_texcoords.empty())
+      _VBO->setVertexTexCoord(_texcoords);
+    _VBO->setIndex(_indices);
+  }
   //mode begin
-  glPushAttrib(GL_ENABLE_BIT|GL_POINT_BIT|GL_LINE_BIT|GL_POLYGON_BIT);
-  glPointSize(_pointSize);
-  glLineWidth(_lineWidth);
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPolygonOffset(1,1);
-  //shadow material
-  if(!shadowPass) {
-    glColor3f(_r,_g,_b);
-    glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,_s);
-    GLfloat diffuse[4]= {_r,_g,_b,1};
-    glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
-    GLfloat ambient[4]= {_ra,_ga,_ba,1};
-    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
-    GLfloat specular[4]= {_rs,_gs,_bs,1};
-    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);
+  //turn on material
+  if((passType&SHADOW_PASS)==0)
+    setupMaterial(_mat);
+  setupMatrixInShader();
+  //turn on texture
+  if(_mat._tex) {
+    glActiveTexture(GL_TEXTURE0);
+    _mat._tex->begin();
+    glActiveTexture(GL_TEXTURE1);
   }
-  //vertex
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3,GL_FLOAT,0,&_vertices[0]);
-  //normal
-  if(_normals.size()>0 && !shadowPass) {
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(GL_FLOAT,0,&_normals[0]);
+  _VBO->draw(_mode);
+  //turn off texture
+  if(_mat._tex) {
+    _mat._tex->end();
+    glActiveTexture(GL_TEXTURE0);
   }
-  //texture
-  if(_texcoords.empty())
-    const_cast<std::vector<GLfloat>&>(_texcoords).assign(_vertices.size()*2/3,0.5f);
-  if(_texcoords.size()>0 && !shadowPass) {
-    ASSERT_MSG(_texcoords.size()==_vertices.size()*2/3,"Incorrect texture coordinate vector size!")
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2, GL_FLOAT,0,&_texcoords[0]);
-    if(_tex) {
-      glActiveTexture(GL_TEXTURE0);
-      _tex->begin();
-      glActiveTexture(GL_TEXTURE1);
-    }
-  }
-  //draw
-  glDrawElements(_mode,(GLsizei)_indices.size(),GL_UNSIGNED_INT,&_indices[0]);
-  //vertex
-  glDisableClientState(GL_VERTEX_ARRAY);
-  //normal
-  if(_normals.size()>0 && !shadowPass)
-    glDisableClientState(GL_NORMAL_ARRAY);
-  //texture
-  if(_texcoords.size()>0 && !shadowPass) {
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    if(_tex) {
-      _tex->end();
-      glActiveTexture(GL_TEXTURE0);
-    }
-  }
-  //mode end
-  glPopAttrib();
 }
 Eigen::Matrix<GLfloat,6,1> MeshShape::getBB() const {
   if(_dirty) {
@@ -208,20 +196,6 @@ bool MeshShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alph
     for(int i=2; i<(int)_indices.size(); i++)
       if(rayIntersectTri(ray,alpha,VERT(i),VERT(i-1),VERT(i-2)))
         ret=true;
-  } else if(_mode==GL_QUADS) {
-    for(int i=0; i<(int)_indices.size(); i+=4) {
-      if(rayIntersectTri(ray,alpha,VERT(i),VERT(i+1),VERT(i+2)))
-        ret=true;
-      if(rayIntersectTri(ray,alpha,VERT(i),VERT(i+2),VERT(i+3)))
-        ret=true;
-    }
-  } else if(_mode==GL_QUAD_STRIP) {
-    for(int i=3; i<(int)_indices.size(); i+=2) {
-      if(rayIntersectTri(ray,alpha,VERT(i-3),VERT(i-1),VERT(i-0)))
-        ret=true;
-      if(rayIntersectTri(ray,alpha,VERT(i-3),VERT(i-0),VERT(i-2)))
-        ret=true;
-    }
   }
   return ret;
 #undef VERT
@@ -230,6 +204,17 @@ void MeshShape::refitBB() {
   _bb=resetBB();
   for(int i=0; i<nrVertex(); i++)
     _bb=unionBB(_bb,(Eigen::Matrix<GLfloat,3,1>)getVertex(i));
+}
+void MeshShape::initMaterial() {
+  if(!_texWhite)
+    _texWhite=getWhiteTexture();
+  _mat._ambient=Eigen::Matrix<GLfloat,4,1>(0,0,0,1);
+  _mat._diffuse=_mat._specular=Eigen::Matrix<GLfloat,4,1>(DEFAULT_R,DEFAULT_G,DEFAULT_B,1);
+  _mat._shininess=DEFAULT_S;
+  _mat._pointSize=1;
+  _mat._lineWidth=0;
+  _mat._tex=_texWhite;
+  _mat._drawer=NULL;
 }
 std::shared_ptr<Texture> MeshShape::_texWhite;
 }

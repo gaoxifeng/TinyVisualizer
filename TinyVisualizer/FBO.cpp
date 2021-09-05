@@ -1,4 +1,8 @@
 #include "FBO.h"
+#include "VBO.h"
+#include "Matrix.h"
+#include "Shader.h"
+#include "DefaultLight.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
@@ -21,51 +25,47 @@ FBO::~FBO() {
   clear();
 }
 void FBO::screenQuad(GLfloat minx,GLfloat miny,GLfloat maxx,GLfloat maxy,bool colorTex) {
-  glBegin(GL_QUADS);
-  if(colorTex)
-    glColor3f(0,0,0);
-  else glColor3f(1,1,1);
-  glTexCoord2f(0,0);
-  glVertex2f(minx,miny);
-
-  if(colorTex)
-    glColor3f(1,0,0);
-  else glColor3f(1,1,1);
-  glTexCoord2f(1,0);
-  glVertex2f(maxx,miny);
-
-  if(colorTex)
-    glColor3f(1,1,0);
-  else glColor3f(1,1,1);
-  glTexCoord2f(1,1);
-  glVertex2f(maxx,maxy);
-
-  if(colorTex)
-    glColor3f(0,1,0);
-  else glColor3f(1,1,1);
-  glTexCoord2f(0,1);
-  glVertex2f(minx,maxy);
-  glEnd();
+  drawQuadf(
+    Eigen::Matrix<GLfloat,2,1>(0,0),
+    Eigen::Matrix<GLfloat,2,1>(minx,miny),
+    Eigen::Matrix<GLfloat,2,1>(1,0),
+    Eigen::Matrix<GLfloat,2,1>(maxx,miny),
+    Eigen::Matrix<GLfloat,2,1>(1,1),
+    Eigen::Matrix<GLfloat,2,1>(maxx,maxy),
+    Eigen::Matrix<GLfloat,2,1>(0,1),
+    Eigen::Matrix<GLfloat,2,1>(minx,maxy)
+  );
 }
-void FBO::drawScreenQuad(GLfloat minx,GLfloat miny,GLfloat maxx,GLfloat maxy,bool colorTex) const {
+void FBO::screenQuad(std::shared_ptr<Texture> tex,GLfloat minx,GLfloat miny,GLfloat maxx,GLfloat maxy,bool colorTex) {
+  if(colorTex) {
+    getDebugDrawTexCoordProg()->begin();
+  } else {
+    getDefaultLightProg()->begin();
+    setupMaterial(tex);
+  }
+  setupMatrixInShader();
+  screenQuad(minx,miny,maxx,maxy,colorTex);
+  Program::currentProgram()->end();
+}
+void FBO::drawScreenQuad(std::shared_ptr<Texture> tex,GLfloat minx,GLfloat miny,GLfloat maxx,GLfloat maxy,bool colorTex) const {
   drawScreenQuad([&]() {
-    screenQuad(minx,miny,maxx,maxy,colorTex);
+    screenQuad(tex,minx,miny,maxx,maxy,colorTex);
   });
 }
 void FBO::drawScreenQuad(std::function<void()> func) const {
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
+  matrixMode(GL_MODELVIEW_MATRIX);
+  pushMatrix();
+  loadIdentity();
+  matrixMode(GL_PROJECTION_MATRIX);
+  pushMatrix();
+  loadIdentity();
 
   func();
 
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
+  matrixMode(GL_MODELVIEW_MATRIX);
+  popMatrix();
+  matrixMode(GL_PROJECTION_MATRIX);
+  popMatrix();
 }
 void FBO::begin() const {
   glBindFramebuffer(GL_FRAMEBUFFER,_fbo);
@@ -166,12 +166,10 @@ void FBOShadow::end() const {
   glBindFramebuffer(GL_FRAMEBUFFER,0);
 }
 void FBOShadow::beginShadow() const {
-  glEnable(GL_TEXTURE_CUBE_MAP);
   glBindTexture(GL_TEXTURE_CUBE_MAP,_dbo);
 }
 void FBOShadow::endShadow() const {
   glBindTexture(GL_TEXTURE_CUBE_MAP,0);
-  glDisable(GL_TEXTURE_CUBE_MAP);
 }
 std::vector<std::uint8_t> FBOShadow::read(int d) const {
   begin(d);
@@ -250,7 +248,7 @@ void FBOPingPong::end() {
     _fbos[i+1].getRBO().begin();
     glActiveTexture(GL_TEXTURE1);
     _fbos[i].begin();
-    _fbos[i].drawScreenQuad();
+    _fbos[i].drawScreenQuad(_fbos[i+1].getRBORef());
     _fbos[i].end();
     _fbos[i+1].getRBO().end();
     glActiveTexture(GL_TEXTURE0);

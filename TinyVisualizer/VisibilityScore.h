@@ -26,7 +26,7 @@ class VisibilityScore {
   void beginXOR();
   void endXOR();
   void texCopy(int i);
-  Shader _shaderXOR,_shaderTexCopy;
+  static std::shared_ptr<Program> _XORProg,_texCopyProg;
   FBOPingPong _fboPP;
   FBO _fboRef;
 };

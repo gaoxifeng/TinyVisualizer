@@ -1,5 +1,8 @@
 #include "Camera2D.h"
 #include "Texture.h"
+#include "Matrix.h"
+#include "DefaultLight.h"
+#include "VBO.h"
 
 namespace DRAWER {
 //Camera2D
@@ -58,64 +61,71 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
     _xCtr=(bbF[0]+bbF[3])/2;
     _yCtr=(bbF[1]+bbF[4])/2;
   }
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  matrixMode(GL_MODELVIEW_MATRIX);
+  loadIdentity();
   int w=0,h=0;
   glfwGetWindowSize(wnd,&w,&h);
   _yExt=_xExt*(GLfloat)h/(GLfloat)w;
-  glOrtho(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,
-          _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,MAX_DEPTH);
+  orthof(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,
+         _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,MAX_DEPTH);
 
   if(_tex) {
+    getDefaultLightProg()->begin();
+    setupMaterial(_tex);
+    setupMatrixInShader();
     glActiveTexture(GL_TEXTURE0);
     _tex->begin();
     glActiveTexture(GL_TEXTURE1);
-
-    glBegin(GL_QUADS);
-    glColor3f(1,1,1);
-    glTexCoord2f((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]);
-    glVertex3f(_xCtr-_xExt*_scale,_yCtr-_yExt*_scale,-(MAX_DEPTH-1));
-
-    glColor3f(1,1,1);
-    glTexCoord2f((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]);
-    glVertex3f(_xCtr+_xExt*_scale,_yCtr-_yExt*_scale,-(MAX_DEPTH-1));
-
-    glColor3f(1,1,1);
-    glTexCoord2f((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]);
-    glVertex3f(_xCtr+_xExt*_scale,_yCtr+_yExt*_scale,-(MAX_DEPTH-1));
-
-    glColor3f(1,1,1);
-    glTexCoord2f((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]);
-    glVertex3f(_xCtr-_xExt*_scale,_yCtr+_yExt*_scale,-(MAX_DEPTH-1));
-    glEnd();
-
+    drawQuadf(
+      Eigen::Matrix<GLfloat,2,1>((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]),
+      Eigen::Matrix<GLfloat,3,1>(_xCtr-_xExt*_scale,_yCtr-_yExt*_scale,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,2,1>((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]),
+      Eigen::Matrix<GLfloat,3,1>(_xCtr+_xExt*_scale,_yCtr-_yExt*_scale,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,2,1>((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]),
+      Eigen::Matrix<GLfloat,3,1>(_xCtr+_xExt*_scale,_yCtr+_yExt*_scale,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,2,1>((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]),
+      Eigen::Matrix<GLfloat,3,1>(_xCtr-_xExt*_scale,_yCtr+_yExt*_scale,-(MAX_DEPTH-1))
+    );
     _tex->end();
     glActiveTexture(GL_TEXTURE0);
+    Program::currentProgram()->end();
   }
 
   if(_debug) {
+    getDefaultLightProg()->begin();
+    setupMatrixInShader();
     GLfloat delta=0.3f;
     glLineWidth(5);
-    glBegin(GL_LINES);
-    glColor3f(1,0,0);
-    glVertex2f(-_scale,0);
-    glVertex2f( _scale,0);
-    glVertex2f( _scale-_scale*delta,-_scale*delta);
-    glVertex2f( _scale,0);
-    glVertex2f( _scale-_scale*delta, _scale*delta);
-    glVertex2f( _scale,0);
-    glColor3f(0,0,1);
-    glVertex2f(0,-_scale);
-    glVertex2f(0, _scale);
-    glVertex2f(-_scale*delta, _scale-_scale*delta);
-    glVertex2f(0,_scale);
-    glVertex2f( _scale*delta, _scale-_scale*delta);
-    glVertex2f(0,_scale);
-    glEnd();
+    setupMaterial(NULL,1,0,0);
+    drawLinef(
+      Eigen::Matrix<GLfloat,2,1>(-_scale,0),
+      Eigen::Matrix<GLfloat,2,1>( _scale,0)
+    );
+    drawLinef(
+      Eigen::Matrix<GLfloat,2,1>( _scale-_scale*delta,-_scale*delta),
+      Eigen::Matrix<GLfloat,2,1>( _scale,0)
+    );
+    drawLinef(
+      Eigen::Matrix<GLfloat,2,1>( _scale-_scale*delta, _scale*delta),
+      Eigen::Matrix<GLfloat,2,1>( _scale,0)
+    );
+    setupMaterial(NULL,0,0,1);
+    drawLinef(
+      Eigen::Matrix<GLfloat,2,1>(0,-_scale),
+      Eigen::Matrix<GLfloat,2,1>(0, _scale)
+    );
+    drawLinef(
+      Eigen::Matrix<GLfloat,2,1>(-_scale*delta, _scale-_scale*delta),
+      Eigen::Matrix<GLfloat,2,1>(0,_scale)
+    );
+    drawLinef(
+      Eigen::Matrix<GLfloat,2,1>( _scale*delta, _scale-_scale*delta),
+      Eigen::Matrix<GLfloat,2,1>(0,_scale)
+    );
+    Program::currentProgram()->end();
     if(_debugFrustum.size()==8) {
-      glColor3f(1,0,0);
       glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-      drawViewFrustum2D(_debugFrustum);
+      drawViewFrustum2D(_debugFrustum,Eigen::Matrix<GLfloat,4,1>(1,0,0,1));
       glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     }
   }

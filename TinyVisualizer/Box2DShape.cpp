@@ -1,5 +1,6 @@
 #include "Box2DShape.h"
 #include "MakeMesh.h"
+#include "Matrix.h"
 #include "SceneStructure.h"
 #ifdef BOX2D_SUPPORT
 #include <Box2D/Box2D.h>
@@ -47,24 +48,24 @@ void Box2DShape::syncWorld(std::shared_ptr<SceneNode>& root,const b2World* world
       root=SceneNode::remove(root,s);
 }
 #endif
-void Box2DShape::draw(bool shadowPass) const {
+void Box2DShape::draw(PASS_TYPE passType) const {
   if(!_enabled)
     return;
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
+  matrixMode(GL_MODELVIEW_MATRIX);
+  pushMatrix();
   //global
 #ifdef BOX2D_SUPPORT
   if(_body) {
-    glTranslatef(_body->GetPosition().x,_body->GetPosition().y,0);
-    glRotatef(_body->GetAngle()*180/M_PI,0,0,1);
+    translatef(_body->GetPosition().x,_body->GetPosition().y,0);
+    rotatef(_body->GetAngle()*180/M_PI,0,0,1);
   }
 #endif
   //local
-  glTranslatef(_posx,_posy,0);
-  glScalef(_scale,_scale,_scale);
-  CompositeShape::draw(shadowPass);
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+  translatef(_posx,_posy,0);
+  scalef(_scale,_scale,_scale);
+  CompositeShape::draw(passType);
+  matrixMode(GL_MODELVIEW_MATRIX);
+  popMatrix();
 }
 Eigen::Matrix<GLfloat,6,1> Box2DShape::getBB() const {
   Eigen::Matrix<GLfloat,6,1> ret=resetBB(),retL=resetBB();

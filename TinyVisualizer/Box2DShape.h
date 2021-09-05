@@ -15,9 +15,9 @@ class Box2DShape : public CompositeShape {
   static void syncWorld(std::shared_ptr<SceneNode>& root,const b2World* world,
                         const Eigen::Matrix<GLfloat,3,1>& c=Eigen::Matrix<GLfloat,3,1>(.8,.8,.8),
                         const Eigen::Matrix<GLfloat,3,1>& cB=Eigen::Matrix<GLfloat,3,1>(.7,.7,.7),
-                        GLfloat lineWidth=2);
+                        GLfloat lineWidth=0.002f);
 #endif
-  virtual void draw(bool shadowPass) const override;
+  virtual void draw(PASS_TYPE passType) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   void setLocalTransform(GLfloat posx,GLfloat posy,GLfloat scale);

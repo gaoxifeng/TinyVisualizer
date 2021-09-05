@@ -1,12 +1,22 @@
 #ifndef SHADOW_AND_LIGHT_H
 #define SHADOW_AND_LIGHT_H
 
+#include "Drawer.h"
 #include "Shader.h"
 #include "FBO.h"
 
 namespace DRAWER {
 class ShadowLight {
  public:
+  struct Material {
+    Eigen::Matrix<GLfloat,4,1> _ambient;
+    Eigen::Matrix<GLfloat,4,1> _diffuse;
+    Eigen::Matrix<GLfloat,4,1> _specular;
+    std::shared_ptr<Texture> _tex;
+    GLfloat _pointSize,_lineWidth;
+    GLfloat _shininess;
+    Drawer* _drawer;
+  };
   struct Light {
     Eigen::Matrix<GLfloat,4,1> _position;
     Eigen::Matrix<GLfloat,4,1> _ambient;
@@ -47,6 +57,7 @@ class ShadowLight {
   bool hasShadow() const;
   void renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func);
   void begin(const Eigen::Matrix<GLfloat,6,1>& bb);
+  void setupLightMaterial(const Material& mat);
   void end();
  protected:
   GLfloat calculateFarPlane(const Eigen::Matrix<GLfloat,6,1>& bb) const;
@@ -56,8 +67,8 @@ class ShadowLight {
   bool _autoAdjust;
   int _shadow,_lightSz;
   std::vector<Light> _lights;
-  static std::shared_ptr<Shader> _shader;
-  static std::shared_ptr<Shader> _shaderShadow;
+  Eigen::Matrix<GLfloat,4,4> _MVShadow,_invMVShadow;
+  static std::shared_ptr<Program> _shadowLightProg,_shadowProg;
 };
 }
 
