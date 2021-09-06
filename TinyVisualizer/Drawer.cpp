@@ -21,6 +21,9 @@ void Shape::setCastShadow(bool castShadow) {
 void Shape::setUseLight(bool useLight) {
   _useLight=useLight;
 }
+bool Shape::needRecomputeNormal() const {
+  return false;
+}
 bool Shape::enabled() const {
   return _enabled;
 }
@@ -56,7 +59,7 @@ Drawer::Drawer(int argc,char** argv)
    _key(keyNothing),
    _frame(doNothing),
    _draw(drawNothing),
-   _cb(NULL),_lastTime(0),_invoked(false) {
+   _cb(NULL),_lastTime(0),_invoked(false),_debugBB(false) {
   if(_invoked)
     return;
   _invoked=true;
@@ -184,7 +187,7 @@ void Drawer::draw() {
     //mesh
     _root->draw([&](std::shared_ptr<Shape> s) {
       if(_light && s->useLight())
-        _light->begin(bb);
+        _light->begin(bb,s->needRecomputeNormal());
       else getDefaultLightProg()->begin();
       s->setDrawer(this);
       s->draw(Shape::MESH_PASS);
@@ -204,6 +207,12 @@ void Drawer::draw() {
       s->draw(Shape::LINE_PASS);
     },_camera?&viewFrustum:NULL);
     Program::currentProgram()->end();
+    //debug draw bounding box
+    if(_debugBB)
+      _root->visit([&](std::shared_ptr<Shape> sRef)->bool{
+      drawBB(sRef->getBB(),Eigen::Matrix<GLfloat,4,1>(0,0,0,1));
+      return true;
+    });
   }
   //custom
   _draw();
@@ -271,6 +280,9 @@ void Drawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
   case GLFW_KEY_ESCAPE:
     if(action==GLFW_PRESS)
       glfwSetWindowShouldClose(wnd,GLFW_TRUE);
+  case GLFW_KEY_N:
+    if(action==GLFW_PRESS)
+      drawer->_debugBB=!drawer->_debugBB;
     break;
   }
 }

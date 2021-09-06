@@ -125,18 +125,15 @@ void MeshShape::setDrawer(Drawer* drawer) {
   _mat._drawer=drawer;
 }
 void MeshShape::draw(PASS_TYPE passType) const {
-  if(passType&MESH_PASS) {
+  if(passType&MESH_PASS)
     if(_mode!=GL_TRIANGLES&&_mode!=GL_TRIANGLE_FAN&&_mode!=GL_TRIANGLE_STRIP)
       return;
-  }
-  if(passType&LINE_PASS) {
+  if(passType&LINE_PASS)
     if(_mode!=GL_LINES&&_mode!=GL_LINE_LOOP&&_mode!=GL_LINE_STRIP)
       return;
-  }
-  if(passType&POINT_PASS) {
+  if(passType&POINT_PASS)
     if(_mode!=GL_POINTS)
       return;
-  }
   if(!_castShadow && (passType&SHADOW_PASS)!=0)
     return;
   if(_vertices.empty() || !enabled())
@@ -145,18 +142,10 @@ void MeshShape::draw(PASS_TYPE passType) const {
     const_cast<MeshShape*>(this)->refitBB();
     const_cast<MeshShape*>(this)->_dirty=false;
   }
-  if(!_VBO) {
-    const_cast<MeshShape*>(this)->_VBO.reset(new VBO(nrVertex(),nrIndex()));
-    _VBO->setVertexPosition(_vertices);
-    if(!_normals.empty())
-      _VBO->setVertexNormal(_normals);
-    if(!_texcoords.empty())
-      _VBO->setVertexTexCoord(_texcoords);
-    _VBO->setIndex(_indices);
-  }
   //mode begin
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPolygonOffset(1,1);
+  const_cast<MeshShape*>(this)->initVBO();
   //turn on material
   if((passType&SHADOW_PASS)==0)
     setupMaterial(_mat);
@@ -199,6 +188,17 @@ bool MeshShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alph
   }
   return ret;
 #undef VERT
+}
+void MeshShape::initVBO() {
+  if(!_VBO) {
+    const_cast<MeshShape*>(this)->_VBO.reset(new VBO(nrVertex(),nrIndex()));
+    _VBO->setVertexPosition(_vertices);
+    if(!_normals.empty())
+      _VBO->setVertexNormal(_normals);
+    if(!_texcoords.empty())
+      _VBO->setVertexTexCoord(_texcoords);
+    _VBO->setIndex(_indices);
+  }
 }
 void MeshShape::refitBB() {
   _bb=resetBB();

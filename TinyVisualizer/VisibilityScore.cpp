@@ -7,28 +7,8 @@
 #include <iostream>
 
 namespace DRAWER {
-const std::string XORFrag=
-  "#version 330 core\n"
-  "uniform sampler2D tex[2];\n"
-  "in vec2 tc;\n"
-  "out vec4 FragColor;\n"
-  "void main()\n"
-  "{\n"
-  "  float aTexVal=texture(tex[0],tc).x;\n"
-  "  float bTexVal=texture(tex[1],tc).x;\n"
-  "  float xor=max(0,aTexVal-bTexVal)+max(0,bTexVal-aTexVal);\n"
-  "  FragColor=vec4(xor,xor,xor,1);\n"
-  "}\n";
-const std::string texCopyFrag=
-  "#version 330 core\n"
-  "uniform sampler2D tex;\n"
-  "in vec2 tc;\n"
-  "out vec4 FragColor;\n"
-  "void main()\n"
-  "{\n"
-  "  float aTexVal=texture(tex,tc).x;\n"
-  "  FragColor=vec4(aTexVal,aTexVal,aTexVal,1);\n"
-  "}\n";
+#include "Shader/XORFrag.h"
+#include "Shader/TexCopyFrag.h"
 VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDepth)
   :_fboPP(0,levelMax,formatColor,formatDepth),
    _fboRef(1<<levelMax,1<<levelMax,formatColor,formatDepth) {
@@ -38,7 +18,7 @@ VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDe
     Program::registerProgram("XOR","DefaultLight","","XOR");
     _XORProg=Program::findProgram("XOR");
 
-    Shader::registerShader("TexCopy","","",texCopyFrag);
+    Shader::registerShader("TexCopy","","",TexCopyFrag);
     Program::registerProgram("TexCopy","DefaultLight","","TexCopy");
     _texCopyProg=Program::findProgram("TexCopy");
   }

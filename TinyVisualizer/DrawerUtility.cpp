@@ -1,4 +1,7 @@
 #include "DrawerUtility.h"
+#include "DefaultLight.h"
+#include "Matrix.h"
+#include "VBO.h"
 
 namespace DRAWER {
 Eigen::Matrix<GLfloat,6,1> resetBB() {
@@ -6,6 +9,20 @@ Eigen::Matrix<GLfloat,6,1> resetBB() {
   ret.segment<3>(0).setConstant(std::numeric_limits<GLfloat>::max());
   ret.segment<3>(3).setConstant(-std::numeric_limits<GLfloat>::max());
   return ret;
+}
+void drawBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,4,1>& color) {
+#define VERT(X,Y,Z) Eigen::Matrix<GLfloat,3,1>(X==0?a[0]:a[3],Y==0?a[1]:a[4],Z==0?a[2]:a[5])
+  getDefaultLightProg()->begin();
+  setupMaterial(NULL,color);
+  setupMatrixInShader();
+  for(int x=0; x<2; x++)
+    for(int y=0; y<2; y++) {
+      drawLinef(VERT(x,y,0),VERT(x,y,1));
+      drawLinef(VERT(x,0,y),VERT(x,1,y));
+      drawLinef(VERT(0,x,y),VERT(1,x,y));
+    }
+  Program::currentProgram()->end();
+#undef VERT
 }
 Eigen::Matrix<GLfloat,6,1> unionBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,6,1>& b) {
   Eigen::Matrix<GLfloat,6,1> ret;

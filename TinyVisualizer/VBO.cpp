@@ -2,21 +2,23 @@
 #include <iostream>
 
 namespace DRAWER {
-#define VERTEX_ATTRIBUTE_SIZE (3+3+2)
-#define OFFSET_POSITION 0
-#define OFFSET_NORMAL 3
-#define OFFSET_TEXCOORD 6
-VBO::VBO(int nV,int nI) {
-  reset(nV,nI);
+VBO::VBO(int nV,int nI,bool hasV,bool hasN,bool hasT,bool hasI) {
+  reset(nV,nI,hasV,hasN,hasT,hasI);
 }
 VBO::VBO(const VBO& other) {
   operator=(other);
 }
 VBO& VBO::operator=(const VBO& other) {
   clear();
-  reset(other._nV,other._nI);
-  if(_nV>0)
-    glCopyBufferSubData(_VBO,other._VBO,0,0,sizeof(GLfloat)*_nV*(3+3+2));
+  reset(other._nV,other._nI,other._hasV,other._hasN,other._hasT,other._hasI);
+  if(_nV>0 && _hasV)
+    glCopyBufferSubData(_VBOV,other._VBOV,0,0,sizeof(GLfloat)*_nV*3);
+  if(_nV>0 && _hasN)
+    glCopyBufferSubData(_VBON,other._VBON,0,0,sizeof(GLfloat)*_nV*3);
+  if(_nV>0 && _hasT)
+    glCopyBufferSubData(_VBOT,other._VBOT,0,0,sizeof(GLfloat)*_nV*2);
+  if(_nV>0 && _hasI)
+    glCopyBufferSubData(_VBOI,other._VBOI,0,0,sizeof(GLuint)*_nV);
   if(_nI>0)
     glCopyBufferSubData(_IBO,other._IBO,0,0,sizeof(GLuint)*_nI);
   return *this;
@@ -26,53 +28,81 @@ VBO::~VBO() {
 }
 void VBO::setVertexPosition(const std::vector<GLfloat>& p) {
   ASSERT_MSG((int)p.size()==_nV*3,"Incorrect buffer data size!")
-  glBindBuffer(GL_ARRAY_BUFFER,_VBO);
+  ASSERT_MSG(_hasV,"No position data available!")
+  if(_nV==0)
+    return;
+  glBindBuffer(GL_ARRAY_BUFFER,_VBOV);
   GLfloat* dat=(GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_WRITE);
-  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>> dataVec(dat,_nV*VERTEX_ATTRIBUTE_SIZE);
-  for(int i=0; i<_nV; i++)
-    dataVec.segment<3>(i*VERTEX_ATTRIBUTE_SIZE+OFFSET_POSITION)=Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(p.data()+i*3);
+  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>>(dat,_nV*3)=Eigen::Map<const Eigen::Matrix<GLfloat,-1,1>>(p.data(),_nV*3);
   ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 void VBO::setVertexNormal(const std::vector<GLfloat>& n) {
   ASSERT_MSG((int)n.size()==_nV*3,"Incorrect buffer data size!")
-  glBindBuffer(GL_ARRAY_BUFFER,_VBO);
+  ASSERT_MSG(_hasN,"No normal data available!")
+  if(_nV==0)
+    return;
+  glBindBuffer(GL_ARRAY_BUFFER,_VBON);
   GLfloat* dat=(GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_WRITE);
-  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>> dataVec(dat,_nV*VERTEX_ATTRIBUTE_SIZE);
-  for(int i=0; i<_nV; i++)
-    dataVec.segment<3>(i*VERTEX_ATTRIBUTE_SIZE+OFFSET_NORMAL)=Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(n.data()+i*3);
+  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>>(dat,_nV*3)=Eigen::Map<const Eigen::Matrix<GLfloat,-1,1>>(n.data(),_nV*3);
   ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 void VBO::setVertexTexCoord(const std::vector<GLfloat>& tc) {
   ASSERT_MSG((int)tc.size()==_nV*2,"Incorrect buffer data size!")
-  glBindBuffer(GL_ARRAY_BUFFER,_VBO);
+  ASSERT_MSG(_hasT,"No texture coordinate data available!")
+  if(_nV==0)
+    return;
+  glBindBuffer(GL_ARRAY_BUFFER,_VBOT);
   GLfloat* dat=(GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_WRITE);
-  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>> dataVec(dat,_nV*VERTEX_ATTRIBUTE_SIZE);
-  for(int i=0; i<_nV; i++)
-    dataVec.segment<2>(i*VERTEX_ATTRIBUTE_SIZE+OFFSET_TEXCOORD)=Eigen::Map<const Eigen::Matrix<GLfloat,2,1>>(tc.data()+i*2);
+  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>>(dat,_nV*2)=Eigen::Map<const Eigen::Matrix<GLfloat,-1,1>>(tc.data(),_nV*2);
   ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+void VBO::setVertexId(const std::vector<GLuint>& id) {
+  ASSERT_MSG((int)id.size()==_nV,"Incorrect buffer data size!")
+  ASSERT_MSG(_hasI,"No index data available!")
+  if(_nV==0)
+    return;
+  glBindBuffer(GL_ARRAY_BUFFER,_VBOI);
+  GLuint* dat=(GLuint*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_WRITE);
+  Eigen::Map<Eigen::Matrix<GLuint,-1,1>>(dat,_nV)=Eigen::Map<const Eigen::Matrix<GLuint,-1,1>>(id.data(),_nV);
+  ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 void VBO::setVertexPosition(int i,const Eigen::Matrix<GLfloat,3,1>& p) {
-  glBindBuffer(GL_ARRAY_BUFFER,_VBO);
+  ASSERT_MSG(_hasV,"No position data available!")
+  if(_nV==0)
+    return;
+  glBindBuffer(GL_ARRAY_BUFFER,_VBOV);
   GLfloat* dat=(GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_WRITE);
-  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>> dataVec(dat,_nV*VERTEX_ATTRIBUTE_SIZE);
-  dataVec.segment<3>(i*VERTEX_ATTRIBUTE_SIZE+OFFSET_POSITION)=p;
+  Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(dat+i*3)=p;
   ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 void VBO::setVertexNormal(int i,const Eigen::Matrix<GLfloat,3,1>& n) {
-  glBindBuffer(GL_ARRAY_BUFFER,_VBO);
+  ASSERT_MSG(_hasN,"No normal data available!")
+  if(_nV==0)
+    return;
+  glBindBuffer(GL_ARRAY_BUFFER,_VBON);
   GLfloat* dat=(GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_WRITE);
-  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>> dataVec(dat,_nV*VERTEX_ATTRIBUTE_SIZE);
-  dataVec.segment<3>(i*VERTEX_ATTRIBUTE_SIZE+OFFSET_NORMAL)=n;
+  Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(dat+i*3)=n;
   ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 void VBO::setVertexTexCoord(int i,const Eigen::Matrix<GLfloat,2,1>& tc) {
-  glBindBuffer(GL_ARRAY_BUFFER,_VBO);
+  ASSERT_MSG(_hasT,"No texture coordinate data available!")
+  if(_nV==0)
+    return;
+  glBindBuffer(GL_ARRAY_BUFFER,_VBOT);
   GLfloat* dat=(GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_WRITE);
-  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>> dataVec(dat,_nV*VERTEX_ATTRIBUTE_SIZE);
-  dataVec.segment<2>(i*VERTEX_ATTRIBUTE_SIZE+OFFSET_TEXCOORD)=tc;
+  Eigen::Map<Eigen::Matrix<GLfloat,2,1>>(dat+i*2)=tc;
   ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 void VBO::setIndex(const std::vector<GLuint>& iss) {
+  if(_nI==0)
+    return;
   ASSERT_MSG((int)iss.size()==_nI,"Incorrect buffer data size!")
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,_IBO);
   GLuint* dat=(GLuint*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER,GL_READ_WRITE);
@@ -81,58 +111,157 @@ void VBO::setIndex(const std::vector<GLuint>& iss) {
 }
 void VBO::draw(GLenum mode) {
   glBindVertexArray(_VAO);
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glEnableVertexAttribArray(2);
-
-  glBindBuffer(GL_ARRAY_BUFFER,_VBO);
-  glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(GLfloat)*VERTEX_ATTRIBUTE_SIZE,(void*)(sizeof(GLfloat)*OFFSET_POSITION));
-  glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(GLfloat)*VERTEX_ATTRIBUTE_SIZE,(void*)(sizeof(GLfloat)*OFFSET_NORMAL));
-  glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,sizeof(GLfloat)*VERTEX_ATTRIBUTE_SIZE,(void*)(sizeof(GLfloat)*OFFSET_TEXCOORD));
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,_IBO);
-  glDrawElements(mode,_nI,GL_UNSIGNED_INT,0);
-
+  if(_hasV) {
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER,_VBOV);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,NULL);
+  }
+  if(_hasN) {
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER,_VBON);
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,NULL);
+  }
+  if(_hasT) {
+    glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER,_VBOT);
+    glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,0,NULL);
+  }
+  if(_hasI) {
+    glEnableVertexAttribArray(3);
+    glBindBuffer(GL_ARRAY_BUFFER,_VBOI);
+    glVertexAttribIPointer(3,1,GL_UNSIGNED_INT,0,NULL);
+  }
+  if(_nI>0) {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,_IBO);
+    glDrawElements(mode,_nI,GL_UNSIGNED_INT,0);
+  } else {
+    glDrawArrays(mode,0,_nV);
+  }
   glDisableVertexAttribArray(0);
   glDisableVertexAttribArray(1);
   glDisableVertexAttribArray(2);
+  glDisableVertexAttribArray(3);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+  glBindBuffer(GL_ARRAY_BUFFER,0);
   glBindVertexArray(0);
 }
-Eigen::Matrix<GLfloat,-1,1> VBO::VBOData() const {
-  glBindBuffer(GL_ARRAY_BUFFER,_VBO);
+Eigen::Matrix<GLfloat,-1,1> VBO::VBOVData() const {
+  ASSERT_MSG(_hasV,"No texture coordinate data available!")
+  if(_nV==0)
+    return Eigen::Matrix<GLfloat,-1,1>();
+  glBindBuffer(GL_ARRAY_BUFFER,_VBOV);
   const GLfloat* dat=(const GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_ONLY);
-  Eigen::Matrix<GLfloat,-1,1> ret=Eigen::Map<const Eigen::Matrix<GLfloat,-1,1>>(dat,_nV*VERTEX_ATTRIBUTE_SIZE);
+  Eigen::Matrix<GLfloat,-1,1> ret=Eigen::Map<const Eigen::Matrix<GLfloat,-1,1>>(dat,_nV*3);
   ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
+  return ret;
+}
+Eigen::Matrix<GLfloat,-1,1> VBO::VBONData() const {
+  ASSERT_MSG(_hasN,"No texture coordinate data available!")
+  if(_nV==0)
+    return Eigen::Matrix<GLfloat,-1,1>();
+  glBindBuffer(GL_ARRAY_BUFFER,_VBON);
+  const GLfloat* dat=(const GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_ONLY);
+  Eigen::Matrix<GLfloat,-1,1> ret=Eigen::Map<const Eigen::Matrix<GLfloat,-1,1>>(dat,_nV*3);
+  ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
+  return ret;
+}
+Eigen::Matrix<GLfloat,-1,1> VBO::VBOTData() const {
+  ASSERT_MSG(_hasT,"No texture coordinate data available!")
+  if(_nV==0)
+    return Eigen::Matrix<GLfloat,-1,1>();
+  glBindBuffer(GL_ARRAY_BUFFER,_VBOT);
+  const GLfloat* dat=(const GLfloat*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_ONLY);
+  Eigen::Matrix<GLfloat,-1,1> ret=Eigen::Map<const Eigen::Matrix<GLfloat,-1,1>>(dat,_nV*2);
+  ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
+  return ret;
+}
+Eigen::Matrix<GLuint,-1,1> VBO::VBOIData() const {
+  ASSERT_MSG(_hasI,"No index data available!")
+  if(_nV==0)
+    return Eigen::Matrix<GLuint,-1,1>();
+  glBindBuffer(GL_ARRAY_BUFFER,_VBOI);
+  const GLuint* dat=(const GLuint*)glMapBuffer(GL_ARRAY_BUFFER,GL_READ_ONLY);
+  Eigen::Matrix<GLuint,-1,1> ret=Eigen::Map<const Eigen::Matrix<GLuint,-1,1>>(dat,_nV);
+  ASSERT_MSG(glUnmapBuffer(GL_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ARRAY_BUFFER,0);
   return ret;
 }
 Eigen::Matrix<GLuint,-1,1> VBO::IBOData() const {
+  if(_nI==0)
+    return Eigen::Matrix<GLuint,-1,1>();
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,_IBO);
   const GLuint* dat=(const GLuint*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER,GL_READ_ONLY);
   Eigen::Matrix<GLuint,-1,1> ret=Eigen::Map<const Eigen::Matrix<GLuint,-1,1>>(dat,_nI);
   ASSERT_MSG(glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER),"Buffer mapping failed!")
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
   return ret;
 }
-void VBO::reset(int nV,int nI) {
+GLuint VBO::VBOV() const {
+  return _VBOV;
+}
+GLuint VBO::VBON() const {
+  return _VBON;
+}
+GLuint VBO::VBOT() const {
+  return _VBOT;
+}
+GLuint VBO::VBOI() const {
+  return _VBOI;
+}
+void VBO::reset(int nV,int nI,bool hasV,bool hasN,bool hasT,bool hasI) {
   glGenVertexArrays(1,&_VAO);
   glBindVertexArray(_VAO);
   _nV=nV;
-  if(_nV>0) {
-    glGenBuffers(1,&_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER,_VBO);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(GLfloat)*nV*VERTEX_ATTRIBUTE_SIZE,NULL,GL_STATIC_DRAW); //position/normal/texcoord
+  _hasV=hasV;
+  if(_nV>0 && _hasV) {
+    glGenBuffers(1,&_VBOV);
+    glBindBuffer(GL_ARRAY_BUFFER,_VBOV);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(GLfloat)*nV*3,NULL,GL_STATIC_DRAW); //position
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+  }
+  _hasN=hasN;
+  if(_nV>0 && _hasN) {
+    glGenBuffers(1,&_VBON);
+    glBindBuffer(GL_ARRAY_BUFFER,_VBON);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(GLfloat)*nV*3,NULL,GL_STATIC_DRAW); //normal
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+  }
+  _hasT=hasT;
+  if(_nV>0 && _hasT) {
+    glGenBuffers(1,&_VBOT);
+    glBindBuffer(GL_ARRAY_BUFFER,_VBOT);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(GLfloat)*nV*2,NULL,GL_STATIC_DRAW); //texcoord
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+  }
+  _hasI=hasI;
+  if(_nV>0 && _hasI) {
+    glGenBuffers(1,&_VBOI);
+    glBindBuffer(GL_ARRAY_BUFFER,_VBOI);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(GLuint)*nV,NULL,GL_STATIC_DRAW); //index
+    glBindBuffer(GL_ARRAY_BUFFER,0);
   }
   _nI=nI;
   if(_nI>0) {
     glGenBuffers(1,&_IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,_IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(GLuint)*nI,NULL,GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
   }
   glBindVertexArray(0);
 }
 void VBO::clear() {
   glDeleteVertexArrays(1,&_VAO);
-  if(_nV>0)
-    glDeleteBuffers(1,&_VBO);
+  if(_nV>0 && _hasV)
+    glDeleteBuffers(1,&_VBOV);
+  if(_nV>0 && _hasN)
+    glDeleteBuffers(1,&_VBON);
+  if(_nV>0 && _hasT)
+    glDeleteBuffers(1,&_VBOT);
+  if(_nV>0 && _hasI)
+    glDeleteBuffers(1,&_VBOI);
   if(_nI>0)
     glDeleteBuffers(1,&_IBO);
 }

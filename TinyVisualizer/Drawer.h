@@ -49,6 +49,7 @@ class Shape {
   virtual void setEnabled(bool enabled);
   virtual void setCastShadow(bool castShadow);
   virtual void setUseLight(bool useLight);
+  virtual bool needRecomputeNormal() const;
   bool enabled() const;
   bool castShadow() const;
   bool useLight() const;
@@ -170,6 +171,7 @@ class Drawer {
   GLFWwindow* _window;
   double _lastTime;
   bool _invoked;
+  bool _debugBB;
   int _FPS;
 };
 }

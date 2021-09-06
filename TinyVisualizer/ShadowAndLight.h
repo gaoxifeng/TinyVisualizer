@@ -56,7 +56,7 @@ class ShadowLight {
   int nrLight() const;
   bool hasShadow() const;
   void renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func);
-  void begin(const Eigen::Matrix<GLfloat,6,1>& bb);
+  void begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNormal);
   void setupLightMaterial(const Material& mat);
   void end();
  protected:
@@ -68,7 +68,6 @@ class ShadowLight {
   int _shadow,_lightSz;
   std::vector<Light> _lights;
   Eigen::Matrix<GLfloat,4,4> _MVShadow,_invMVShadow;
-  static std::shared_ptr<Program> _shadowLightProg,_shadowProg;
 };
 }
 

@@ -99,7 +99,11 @@ std::shared_ptr<Program> Program::findProgram(const std::string& name) {
 }
 void Program::registerProgram(const std::string& name,const std::string& vert,const std::string& geom,const std::string& frag,const std::string& compute) {
   ASSERT_MSGV(_programs.find(name)==_programs.end(),"Progrm(%s) already exists!",name.c_str())
-  _programs[name]=std::shared_ptr<Program>(new Program(name,vert,geom,frag,compute));
+  _programs[name]=std::shared_ptr<Program>(new Program(name,[&](GLuint) {},vert,geom,frag,compute));
+}
+void Program::registerProgram(const std::string& name,std::function<void(GLuint)> callback,const std::string& vert,const std::string& geom,const std::string& frag,const std::string& compute) {
+  ASSERT_MSGV(_programs.find(name)==_programs.end(),"Progrm(%s) already exists!",name.c_str())
+  _programs[name]=std::shared_ptr<Program>(new Program(name,callback,vert,geom,frag,compute));
 }
 Program::~Program() {
   clear();
@@ -136,6 +140,14 @@ void Program::setUniformInt(const std::string& name,int i,bool mustHave) {
     return;
   ASSERT_MSGV(loc>=0,"Cannot find location for integer: %s!",name.c_str())
   glUniform1i(loc,i);
+}
+void Program::setUniformUint(const std::string& name,GLuint i,bool mustHave) {
+  ASSERT_MSGV(_begin,"%s must be called after binding!",__FUNCTION__)
+  int loc=glGetUniformLocation(_prog,name.c_str());
+  if(!mustHave && loc<0)
+    return;
+  ASSERT_MSGV(loc>=0,"Cannot find location for integer: %s!",name.c_str())
+  glUniform1ui(loc,i);
 }
 void Program::setUniformBool(const std::string& name,bool b,bool mustHave) {
   ASSERT_MSGV(_begin,"%s must be called after binding!",__FUNCTION__)
@@ -185,7 +197,7 @@ void Program::setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloa
   ASSERT_MSGV(loc>=0,"Cannot find location for float: %s!",name.c_str())
   glUniformMatrix4fv(loc,1,false,f.data());
 }
-Program::Program(const std::string& name,const std::string& vert,const std::string& geom,const std::string& frag,const std::string& compute) {
+Program::Program(const std::string& name,std::function<void(GLuint)> callback,const std::string& vert,const std::string& geom,const std::string& frag,const std::string& compute) {
   if(!vert.empty())
     _vertS=Shader::findShader(vert);
   if(!geom.empty())
@@ -196,7 +208,7 @@ Program::Program(const std::string& name,const std::string& vert,const std::stri
     _computeS=Shader::findShader(compute);
   _name=name;
   _begin=false;
-  reset();
+  reset(callback);
 }
 Program::Program(const Program&) {
   ASSERT(false)
@@ -205,7 +217,7 @@ Program& Program::operator=(const Program&) {
   ASSERT(false)
   return *this;
 }
-void Program::reset() {
+void Program::reset(std::function<void(GLuint)> callback) {
   _prog=glCreateProgram();
   if(_vertS && _vertS->hasVert())
     glAttachShader(_prog,_vertS->vertId());
@@ -215,6 +227,7 @@ void Program::reset() {
     glAttachShader(_prog,_fragS->fragId());
   if(_computeS && _computeS->hasCompute())
     glAttachShader(_prog,_computeS->computeId());
+  callback(_prog);
   glLinkProgram(_prog);
   GLint linked;
   glGetProgramiv(_prog,GL_LINK_STATUS,&linked);

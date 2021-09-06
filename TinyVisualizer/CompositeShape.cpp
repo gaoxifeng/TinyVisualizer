@@ -41,6 +41,12 @@ void CompositeShape::setDrawer(Drawer* drawer) {
   for(int i=0; i<(int)_shapes.size(); i++)
     _shapes[i]->setDrawer(drawer);
 }
+bool CompositeShape::needRecomputeNormal() const {
+  for(int i=0; i<(int)_shapes.size(); i++)
+    if(_shapes[i]->needRecomputeNormal())
+      return true;
+  return false;
+}
 void CompositeShape::draw(PASS_TYPE passType) const {
   if(!enabled())
     return;

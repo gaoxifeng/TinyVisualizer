@@ -8,6 +8,7 @@
 namespace DRAWER {
 class Texture;
 class MeshShape : public Shape {
+  friend class LowDimensionalMeshShape;
  public:
   MeshShape();
   MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLuint>& indices,GLenum mode);
@@ -59,6 +60,7 @@ class MeshShape : public Shape {
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
  protected:
+  void initVBO();
   void refitBB();
   void initMaterial();
   std::shared_ptr<VBO> _VBO;
