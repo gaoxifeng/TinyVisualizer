@@ -85,7 +85,6 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
     getDefaultLightProg()->begin();
     setupMatrixInShader();
     GLfloat scale=1;
-    glLineWidth(5);
     setupMaterial(NULL,1,0,0);
     drawLinef(
       Eigen::Matrix<GLfloat,3,1>(-scale,0,0),

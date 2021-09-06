@@ -95,7 +95,6 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
     getDefaultLightProg()->begin();
     setupMatrixInShader();
     GLfloat delta=0.3f;
-    glLineWidth(5);
     setupMaterial(NULL,1,0,0);
     drawLinef(
       Eigen::Matrix<GLfloat,2,1>(-_scale,0),
