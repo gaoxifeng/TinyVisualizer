@@ -83,6 +83,14 @@ void MeshShape::setVertex(int i,const Eigen::Matrix<GLfloat,3,1>& vertex) {
     _VBO->setVertexPosition(i,vertex);
   else _VBO=NULL;
 }
+void MeshShape::setVertices(const std::vector<GLfloat>& vertices) {
+  _dirty=true;
+  ASSERT_MSG(vertices.size()==_vertices.size(),"Vertices array size mismatch!")
+  _vertices=vertices;
+  if(_VBO)
+    _VBO->setVertexPosition(vertices);
+  else _VBO=NULL;
+}
 Eigen::Matrix<GLfloat,3,1> MeshShape::getVertex(int i) const {
   return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(&_vertices[i*3]);
 }

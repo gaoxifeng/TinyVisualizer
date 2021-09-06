@@ -46,6 +46,7 @@ class MeshShape : public Shape {
   void setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal);
   Eigen::Matrix<GLfloat,3,1> getNormal(int i) const;
   void setVertex(int i,const Eigen::Matrix<GLfloat,3,1>& vertex);
+  void setVertices(const std::vector<GLfloat>& vertices);  //batched update of vertices
   Eigen::Matrix<GLfloat,3,1> getVertex(int i) const;
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
