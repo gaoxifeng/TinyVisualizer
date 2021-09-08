@@ -415,6 +415,7 @@ void Drawer::addShape(std::shared_ptr<Shape> s) {
   if(alreadyAdded)
     return;
   _root=SceneNode::update(_root,s);
+  timer();
 }
 void Drawer::focusOn(std::shared_ptr<Shape> s) {
   if(_camera)
