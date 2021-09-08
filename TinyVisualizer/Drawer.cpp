@@ -188,7 +188,7 @@ void Drawer::draw() {
     _root->draw([&](std::shared_ptr<Shape> s) {
       if(_light && s->useLight())
         _light->begin(bb,s->needRecomputeNormal());
-      else getDefaultLightProg()->begin();
+      else getDefaultProg()->begin();
       s->setDrawer(this);
       s->draw(Shape::MESH_PASS);
       Program::currentProgram()->end();

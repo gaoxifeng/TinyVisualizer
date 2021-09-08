@@ -70,7 +70,7 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
          _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,MAX_DEPTH);
 
   if(_tex) {
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     setupMaterial(_tex);
     setupMatrixInShader();
     glActiveTexture(GL_TEXTURE0);
@@ -92,7 +92,7 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
   }
 
   if(_debug) {
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     setupMatrixInShader();
     GLfloat delta=0.3f;
     setupMaterial(NULL,1,0,0);

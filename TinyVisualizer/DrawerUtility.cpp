@@ -12,7 +12,7 @@ Eigen::Matrix<GLfloat,6,1> resetBB() {
 }
 void drawBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,4,1>& color) {
 #define VERT(X,Y,Z) Eigen::Matrix<GLfloat,3,1>(X==0?a[0]:a[3],Y==0?a[1]:a[4],Z==0?a[2]:a[5])
-  getDefaultLightProg()->begin();
+  getDefaultProg()->begin();
   setupMaterial(NULL,color);
   setupMatrixInShader();
   for(int x=0; x<2; x++)

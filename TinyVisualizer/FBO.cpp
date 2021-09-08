@@ -40,7 +40,7 @@ void FBO::screenQuad(std::shared_ptr<Texture> tex,GLfloat minx,GLfloat miny,GLfl
   if(colorTex) {
     getDebugDrawTexCoordProg()->begin();
   } else {
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     setupMaterial(tex);
   }
   setupMatrixInShader();

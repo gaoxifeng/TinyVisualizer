@@ -4,7 +4,7 @@
 #include "ShadowAndLight.h"
 
 namespace DRAWER {
-extern std::shared_ptr<Program> getDefaultLightProg();
+extern std::shared_ptr<Program> getDefaultProg();
 extern std::shared_ptr<Program> getDebugDrawTexCoordProg();
 extern std::shared_ptr<Program> getRoundPointProg();
 extern void setRoundPointSize(GLfloat size);

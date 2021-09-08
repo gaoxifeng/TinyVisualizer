@@ -82,7 +82,7 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   glfwGetWindowSize(wnd,&w,&h);
   perspectivef(_angle,(GLfloat)w/(GLfloat)h,zNear,zFar);
   if(_debug) {
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     setupMatrixInShader();
     GLfloat scale=1;
     setupMaterial(NULL,1,0,0);

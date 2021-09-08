@@ -18,7 +18,7 @@ std::shared_ptr<Texture> drawChecker
  Eigen::Matrix<GLfloat,3,1> c1,
  int levelMin,int levelMax,GLenum formatColor) {
   return drawTexture([&]() {
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     setupMatrixInShader();
     for(int x=0; x<density; x++)
       for(int y=0; y<density; y++) {
@@ -43,7 +43,7 @@ std::shared_ptr<Texture> drawGrid
  Eigen::Matrix<GLfloat,3,1> c1,
  int levelMin,int levelMax,GLenum formatColor) {
   return drawTexture([&]() {
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     setupMatrixInShader();
     //background
     setupMaterial(NULL,c0[0],c0[1],c0[2]);
@@ -78,7 +78,7 @@ std::shared_ptr<Texture> drawGrid
 }
 std::shared_ptr<Texture> getWhiteTexture() {
   static std::shared_ptr<Texture> tex=drawTexture([&]() {
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     setupMatrixInShader();
     setupMaterial(NULL);
     drawQuadf(

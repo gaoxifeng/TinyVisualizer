@@ -337,7 +337,7 @@ Eigen::Matrix<GLfloat,16,1> getViewFrustum2DPlanes() {
 void drawViewFrustum3D(const Eigen::Matrix<GLfloat,24,1>& frustum,const Eigen::Matrix<GLfloat,4,1>& color) {
 #define VERT(V) Eigen::Matrix<GLfloat,3,1>(frustum.segment<3>(V*3))
 #define QUAD(A,B,C,D) drawQuadf(VERT(A),VERT(B),VERT(C),VERT(D));
-  getDefaultLightProg()->begin();
+  getDefaultProg()->begin();
   setupMaterial(NULL,color);
   setupMatrixInShader();
   QUAD(0,2,3,1)
@@ -353,7 +353,7 @@ void drawViewFrustum3D(const Eigen::Matrix<GLfloat,24,1>& frustum,const Eigen::M
 void drawViewFrustum2D(const Eigen::Matrix<GLfloat,8,1>& frustum,const Eigen::Matrix<GLfloat,4,1>& color) {
 #define VERT(V) Eigen::Matrix<GLfloat,2,1>(frustum.segment<2>(V*2))
 #define QUAD(A,B,C,D) drawQuadf(VERT(A),VERT(B),VERT(C),VERT(D));
-  getDefaultLightProg()->begin();
+  getDefaultProg()->begin();
   setupMaterial(NULL,color);
   setupMatrixInShader();
   QUAD(0,2,3,1)

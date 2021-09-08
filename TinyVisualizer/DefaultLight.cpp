@@ -1,16 +1,16 @@
 #include "DefaultLight.h"
 
 namespace DRAWER {
-#include "Shader/DefaultLightVert.h"
-#include "Shader/DefaultLightFrag.h"
-std::shared_ptr<Program> defaultLightProg;
-std::shared_ptr<Program> getDefaultLightProg() {
-  if(!defaultLightProg) {
-    Shader::registerShader("DefaultLight",DefaultLightVert,"",DefaultLightFrag);
-    Program::registerProgram("DefaultLight","DefaultLight","","DefaultLight");
-    defaultLightProg=Program::findProgram("DefaultLight");
+#include "Shader/DefaultVert.h"
+#include "Shader/DefaultFrag.h"
+std::shared_ptr<Program> defaultProg;
+std::shared_ptr<Program> getDefaultProg() {
+  if(!defaultProg) {
+    Shader::registerShader("Default",DefaultVert,"",DefaultFrag);
+    Program::registerProgram("Default","Default","","Default");
+    defaultProg=Program::findProgram("Default");
   }
-  return defaultLightProg;
+  return defaultProg;
 }
 #include "Shader/DebugDrawTexCoordFrag.h"
 std::shared_ptr<Program> debugDrawTexCoordProg;
@@ -69,7 +69,7 @@ void setupMaterial(std::shared_ptr<Texture> tex,GLfloat r,GLfloat g,GLfloat b) {
   setupMaterial(tex,Eigen::Matrix<GLfloat,4,1>(r,g,b,1));
 }
 void setupMaterial(const ShadowLight::Material& mat) {
-  if((Program::currentProgram()->getName()=="ShadowLight" || Program::currentProgram()->getName()=="ShadowLightNormal") && mat._drawer)
+  if(Program::currentProgram()->getName().find("Light")!=std::string::npos && mat._drawer)
     mat._drawer->getLight()->setupLightMaterial(mat);
   else setupMaterial(mat._tex,mat._diffuse);
   if(Program::currentProgram()->getName()=="RoundPoint")

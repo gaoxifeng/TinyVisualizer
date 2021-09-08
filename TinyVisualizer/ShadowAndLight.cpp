@@ -11,18 +11,27 @@ namespace DRAWER {
 #include "Shader/ShadowLightFrag.h"
 #include "Shader/ShadowVert.h"
 #include "Shader/ShadowFrag.h"
+std::shared_ptr<Program> lightProg;
+std::shared_ptr<Program> lightNormalProg;
 std::shared_ptr<Program> shadowLightProg;
 std::shared_ptr<Program> shadowLightNormalProg;
 std::shared_ptr<Program> shadowProg;
 ShadowLight::ShadowLight(int shadow,int softShadow,bool autoAdjust)
   :_bias(0.1f),_softShadow(softShadow),_autoAdjust(autoAdjust),_shadow(shadow),_lightSz(0) {
   if(!shadowLightProg) {
-    Shader::registerShader("ShadowLight",ShadowLightVert,"",ShadowLightFrag);
-    Program::registerProgram("ShadowLight","ShadowLight","","ShadowLight");
+    Shader::registerShader("Light",ShadowLightVert,"",LightFrag);
+    Program::registerProgram("Light","Light","","Light");
+    lightProg=Program::findProgram("Light");
+
+    Shader::registerShader("LightNormal",ShadowLightVertNoNormal,NormalGeom);
+    Program::registerProgram("LightNormal","LightNormal","LightNormal","Light");
+    lightNormalProg=Program::findProgram("LightNormal");
+
+    Shader::registerShader("ShadowLight","","",ShadowLightFrag);
+    Program::registerProgram("ShadowLight","Light","","ShadowLight");
     shadowLightProg=Program::findProgram("ShadowLight");
 
-    Shader::registerShader("ShadowLightNormal",ShadowLightVertNoNormal,NormalGeom);
-    Program::registerProgram("ShadowLightNormal","ShadowLightNormal","ShadowLightNormal","ShadowLight");
+    Program::registerProgram("ShadowLightNormal","LightNormal","LightNormal","ShadowLight");
     shadowLightNormalProg=Program::findProgram("ShadowLightNormal");
 
     Shader::registerShader("Shadow",ShadowVert,"",ShadowFrag);
@@ -47,7 +56,7 @@ int ShadowLight::addLight(const Eigen::Matrix<GLfloat,3,1>& pos,
   if(_shadow>0)
     l._shadowMap.reset(new FBOShadow(_shadow,_shadow));
   _lights.push_back(l);
-  ASSERT_MSG(_lights.size()<=8,"At most 8 lights supported!")
+  ASSERT_MSGV(_lights.size()<=MAX_LIGHT,"At most %d lights supported!",MAX_LIGHT)
   return (int)_lights.size()-1;
 }
 void ShadowLight::setDefaultLight(Eigen::Matrix<GLfloat,6,1> bb,
@@ -184,33 +193,34 @@ void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNorma
     Program::currentProgram()->end();
   }
 
-  std::shared_ptr<Program> prog=recomputeNormal?shadowLightNormalProg:shadowLightProg;
+  std::shared_ptr<Program> prog;
+  if(_shadow)
+    prog=recomputeNormal?shadowLightNormalProg:shadowLightProg;
+  else prog=recomputeNormal?lightNormalProg:lightProg;
 
   prog->begin();
+  prog->setUniformInt("MAX_LIGHTS",_lights.size());
+  prog->setTexUnit("diffuseMap",0,false);
   getFloatv(GL_MODELVIEW_MATRIX,_MVShadow);
   _invMVShadow=_MVShadow.inverse();
-  prog->setUniformFloat("invModelViewMatrixShadow",_invMVShadow);
-  prog->setUniformFloat("invShadowMapSize",1.0/_shadow);
-  prog->setUniformInt("softShadowPass",_softShadow);
-  prog->setUniformInt("MAX_LIGHTS",_lights.size());
-  prog->setUniformFloat("far_plane",calculateFarPlane(bb));
-  prog->setUniformFloat("bias",_bias);
-  prog->setUniformBool("useShadow",_shadow>0);
-  prog->setUniformBool("softShadow",_softShadow>0);
-  prog->setTexUnit("diffuseMap",0);
   if(_shadow>0) {
-    int id=0;
-    for(const Light& l:_lights) {
+    prog->setUniformFloat("invModelViewMatrixShadow",_invMVShadow);
+    prog->setUniformFloat("invShadowMapSize",1.0/_shadow);
+    prog->setUniformInt("softShadowPass",_softShadow);
+    prog->setUniformFloat("far_plane",calculateFarPlane(bb));
+    prog->setUniformFloat("bias",_bias);
+    prog->setUniformBool("softShadow",_softShadow>0);
+    ASSERT_MSG(!_lights.empty(),"No light exists!")
+    for(int id=0; id<MAX_LIGHT; id++) {
+      const Light& l=_lights[std::min(id,(int)_lights.size()-1)];
       glActiveTexture(GL_TEXTURE1+id);
       l._shadowMap->beginShadow();
-      prog->setTexUnit("depthMap["+std::to_string(id)+"]",id+1);
-      id++;
+      prog->setTexUnit("lights["+std::to_string(id)+"].depthMap",id+1);
     }
-    glActiveTexture(GL_TEXTURE1+id);
+    glActiveTexture(GL_TEXTURE1+MAX_LIGHT);
   }
 }
 void ShadowLight::setupLightMaterial(const Material& mat) {
-  int id=0;
   //"struct LightMaterial {\n"
   //"  vec3 positionEye;\n"
   //"  vec4 position;\n"
@@ -220,26 +230,26 @@ void ShadowLight::setupLightMaterial(const Material& mat) {
   //"  float shininess;\n"
   //"};\n"
   std::shared_ptr<Program> prog=Program::currentProgram();
-  for(const Light& l:_lights) {
+  ASSERT_MSG(!_lights.empty(),"No light exists!")
+  for(int id=0; id<MAX_LIGHT; id++) {
+    const Light& l=_lights[std::min(id,(int)_lights.size()-1)];
     Eigen::Matrix<GLfloat,4,1> positionEyeH=_MVShadow*l._position;
     Eigen::Matrix<GLfloat,3,1> positionEye=positionEyeH.segment<3>(0)/positionEyeH[3];
     prog->setUniformFloat("lights["+std::to_string(id)+"].positionEye",positionEye);
-    prog->setUniformFloat("lights["+std::to_string(id)+"].position",l._position);
+    prog->setUniformFloat("lights["+std::to_string(id)+"].position",l._position,false);
     prog->setUniformFloat("lights["+std::to_string(id)+"].ambient",Eigen::Matrix<GLfloat,4,1>((l._ambient.array()*mat._ambient.array()).matrix()));
     prog->setUniformFloat("lights["+std::to_string(id)+"].diffuse",Eigen::Matrix<GLfloat,4,1>((l._diffuse.array()*mat._diffuse.array()).matrix()));
     prog->setUniformFloat("lights["+std::to_string(id)+"].specular",Eigen::Matrix<GLfloat,4,1>((l._specular.array()*mat._specular.array()).matrix()));
     prog->setUniformFloat("lights["+std::to_string(id)+"].shininess",mat._shininess);
-    id++;
   }
 }
 void ShadowLight::end() {
   Program::currentProgram()->end();
   if(_shadow>0) {
-    int id=0;
-    for(const Light& l:_lights) {
+    for(int id=0; id<MAX_LIGHT; id++) {
+      const Light& l=_lights[std::min(id,(int)_lights.size()-1)];
       glActiveTexture(GL_TEXTURE1+id);
       l._shadowMap->endShadow();
-      id++;
     }
     glActiveTexture(GL_TEXTURE0);
   }

@@ -13,7 +13,7 @@ VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDe
   :_fboPP(0,levelMax,formatColor,formatDepth),
    _fboRef(1<<levelMax,1<<levelMax,formatColor,formatDepth) {
   if(!_XORProg) {
-    getDefaultLightProg();
+    getDefaultProg();
     Shader::registerShader("XOR","","",XORFrag);
     Program::registerProgram("XOR","DefaultLight","","XOR");
     _XORProg=Program::findProgram("XOR");
@@ -84,14 +84,14 @@ bool debugOutput) {
   std::function<void(const FBO&)> ref=[&](const FBO&) {
     drawer.getCamera()->draw(glfwGetCurrentContext(),bb);
     shapeA->setDrawer(&drawer);
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     shapeA->draw(Shape::MESH_PASS);
     Program::currentProgram()->end();
   };
   std::function<void(const FBO&)> curr=[&](const FBO&) {
     drawer.getCamera()->draw(glfwGetCurrentContext(),bb);
     shapeB->setDrawer(&drawer);
-    getDefaultLightProg()->begin();
+    getDefaultProg()->begin();
     shapeB->draw(Shape::MESH_PASS);
     Program::currentProgram()->end();
   };
