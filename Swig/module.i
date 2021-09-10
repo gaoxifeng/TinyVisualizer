@@ -31,6 +31,7 @@
 #include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/CompositeShape.h>
 #include <TinyVisualizer/MeshShape.h>
+#include <TinyVisualizer/LowDimensionalMeshShape.h>
 #include <TinyVisualizer/MakeMesh.h>
 #include <TinyVisualizer/CellShape.h>
 #include <TinyVisualizer/ArrowShape.h>
@@ -92,6 +93,8 @@
 %include <TinyVisualizer/CompositeShape.h>
 %shared_ptr(DRAWER::MeshShape);
 %include <TinyVisualizer/MeshShape.h>
+%shared_ptr(DRAWER::LowDimensionalMeshShape);
+%include <TinyVisualizer/LowDimensionalMeshShape.h>
 %include <TinyVisualizer/MakeMesh.h>
 %shared_ptr(DRAWER::CellShape);
 %include <TinyVisualizer/CellShape.h>
