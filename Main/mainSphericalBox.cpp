@@ -35,6 +35,7 @@ int main(int argc,char** argv) {
     shapeTB->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>(off,0,0));
     shapeTB->addShape(sphereB);
     shapeTB->setColor(GL_LINES,.7,.7,.7);
+    shapeTB->setLineWidth(5);
     drawer.addShape(shapeTB);
     off++;
   }

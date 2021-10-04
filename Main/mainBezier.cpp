@@ -19,7 +19,7 @@ int main(int argc,char** argv) {
     curve->addControlPoint(Eigen::Matrix<GLfloat,3,1>( 1,-1,6+i));
     curve->addControlPoint(Eigen::Matrix<GLfloat,3,1>( 1, 1,7+i));
     curve->addControlPoint(Eigen::Matrix<GLfloat,3,1>(-1, 1,8+i));
-    curve->setLineWidth(0.002f);
+    curve->setLineWidth(2);
     curve->setColor(GL_QUADS,.7,.7,.7);
     curve->setColor(GL_LINE_STRIP,.7,.7,.7);
     drawer.addShape(curve);

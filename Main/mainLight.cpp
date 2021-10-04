@@ -42,6 +42,21 @@ int main(int argc,char** argv) {
   points->setPointSize(5);
   drawer.addShape(points);
 
+  //light
+  drawer.addLightSystem(2048,20);
+  drawer.getLight()->lightSz(10);
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0,0,0),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,0));
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0, .2,0),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,1),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,0));
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0,-.2,0),
+                              Eigen::Matrix<GLfloat,3,1>(1,1,1),
+                              Eigen::Matrix<GLfloat,3,1>(1,0,0),
+                              Eigen::Matrix<GLfloat,3,1>(0,0,0));
   bool sim=false;
   GLfloat theta=0;
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>) {

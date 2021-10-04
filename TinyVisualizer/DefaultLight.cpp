@@ -17,7 +17,7 @@ std::shared_ptr<Program> debugDrawTexCoordProg;
 std::shared_ptr<Program> getDebugDrawTexCoordProg() {
   if(!debugDrawTexCoordProg) {
     Shader::registerShader("DebugDrawTexCoord","","",DebugDrawTexCoordFrag);
-    Program::registerProgram("DebugDrawTexCoord","DefaultLight","","DebugDrawTexCoord");
+    Program::registerProgram("DebugDrawTexCoord","Default","","DebugDrawTexCoord");
     debugDrawTexCoordProg=Program::findProgram("DebugDrawTexCoord");
   }
   return debugDrawTexCoordProg;

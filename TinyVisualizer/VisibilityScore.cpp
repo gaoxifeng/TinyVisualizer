@@ -15,11 +15,11 @@ VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDe
   if(!_XORProg) {
     getDefaultProg();
     Shader::registerShader("XOR","","",XORFrag);
-    Program::registerProgram("XOR","DefaultLight","","XOR");
+    Program::registerProgram("XOR","Default","","XOR");
     _XORProg=Program::findProgram("XOR");
 
     Shader::registerShader("TexCopy","","",TexCopyFrag);
-    Program::registerProgram("TexCopy","DefaultLight","","TexCopy");
+    Program::registerProgram("TexCopy","Default","","TexCopy");
     _texCopyProg=Program::findProgram("TexCopy");
   }
 }

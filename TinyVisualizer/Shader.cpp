@@ -5,7 +5,7 @@
 namespace DRAWER {
 //shader
 std::shared_ptr<Shader> Shader::findShader(const std::string& name) {
-  ASSERT_MSGV(_shaders.find(name)!=_shaders.end(),"Shader(%s) already exists!",name.c_str())
+  ASSERT_MSGV(_shaders.find(name)!=_shaders.end(),"Shader(%s) does not exists!",name.c_str())
   return _shaders[name];
 }
 void Shader::registerShader(const std::string& name,const std::string& vert,const std::string& geom,const std::string& frag,const std::string& compute) {
