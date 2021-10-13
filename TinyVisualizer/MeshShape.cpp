@@ -66,18 +66,26 @@ void MeshShape::computeNormals() {
   else _VBO=NULL;
 }
 void MeshShape::setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal) {
-  if((int)_normals.size()<i*3+3)
+  _dirty=true;
+  if((int)_normals.size()<i*3+3) {
     _normals.resize(i*3+3,0);
+    _VBO=NULL;
+  }
   Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_normals.data()+i*3)=normal;
   if(_VBO)
     _VBO->setVertexNormal(i,normal);
   else _VBO=NULL;
 }
 Eigen::Matrix<GLfloat,3,1> MeshShape::getNormal(int i) const {
+  ASSERT_MSGV((int)_normals.size()>=i*3+3,"Normal index %d does not exist!",i)
   return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(&_normals[i*3]);
 }
 void MeshShape::setVertex(int i,const Eigen::Matrix<GLfloat,3,1>& vertex) {
   _dirty=true;
+  if((int)_vertices.size()<i*3+3) {
+    _vertices.resize(i*3+3,0);
+    _VBO=NULL;
+  }
   Eigen::Map<Eigen::Matrix<GLfloat,3,1>>(_vertices.data()+i*3)=vertex;
   if(_VBO)
     _VBO->setVertexPosition(i,vertex);
@@ -92,7 +100,23 @@ void MeshShape::setVertices(const std::vector<GLfloat>& vertices) {
   else _VBO=NULL;
 }
 Eigen::Matrix<GLfloat,3,1> MeshShape::getVertex(int i) const {
+  ASSERT_MSGV((int)_vertices.size()>=i*3+3,"Vertex index %d does not exist!",i)
   return Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(&_vertices[i*3]);
+}
+void MeshShape::setTexcoord(int i,const Eigen::Matrix<GLfloat,2,1>& texcoord) {
+  _dirty=true;
+  if((int)_texcoords.size()<i*2+2) {
+    _texcoords.resize(i*2+2,0);
+    _VBO=NULL;
+  }
+  Eigen::Map<Eigen::Matrix<GLfloat,2,1>>(_texcoords.data()+i*2)=texcoord;
+  if(_VBO)
+    _VBO->setVertexTexCoord(i,texcoord);
+  else _VBO=NULL;
+}
+Eigen::Matrix<GLfloat,2,1> MeshShape::getTexcoord(int i) const {
+  ASSERT_MSGV((int)_texcoords.size()>=i*2+2,"Texcoord index %d does not exist!",i)
+  return Eigen::Map<const Eigen::Matrix<GLfloat,2,1>>(&_texcoords[i*2]);
 }
 void MeshShape::setPointSize(GLfloat pointSize) {
   _mat._pointSize=pointSize;

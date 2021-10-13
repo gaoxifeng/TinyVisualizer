@@ -48,6 +48,8 @@ class MeshShape : public Shape {
   void setVertex(int i,const Eigen::Matrix<GLfloat,3,1>& vertex);
   void setVertices(const std::vector<GLfloat>& vertices);  //batched update of vertices
   Eigen::Matrix<GLfloat,3,1> getVertex(int i) const;
+  void setTexcoord(int i,const Eigen::Matrix<GLfloat,2,1>& texcoord);
+  Eigen::Matrix<GLfloat,2,1> getTexcoord(int i) const;
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
   virtual void setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;
