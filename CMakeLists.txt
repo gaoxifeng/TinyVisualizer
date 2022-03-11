@@ -32,16 +32,21 @@ MACRO(SEARCH_SOURCE NAME DIRPRJ)
   FILE(GLOB_RECURSE source${NAME} ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.cpp ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.cc ${PROJECT_SOURCE_DIR}/${DIRPRJ}/*.c)
 ENDMACRO(SEARCH_SOURCE)
 SEARCH_SOURCE(TinyVisualizer TinyVisualizer)
+SEARCH_SOURCE(TextureBaker TextureBaker)
 SEARCH_SOURCE(GLAD extern/glad)
 
 #BUILD LIBRARY
 IF(MSVC)
-  ADD_LIBRARY(TinyVisualizer STATIC ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${IMGUI})
+  ADD_LIBRARY(TinyVisualizer STATIC ${sourceTinyVisualizer} ${headerTinyVisualizer}
+      ${sourceTextureBaker} ${headerTextureBaker}
+      ${sourceGLAD} ${headerGLAD} ${IMGUI} ${TINY_OBJ_LOADER})
 ELSE(MSVC)
-  ADD_LIBRARY(TinyVisualizer SHARED ${sourceTinyVisualizer} ${headerTinyVisualizer} ${sourceGLAD} ${headerGLAD} ${IMGUI})
+  ADD_LIBRARY(TinyVisualizer SHARED ${sourceTinyVisualizer} ${headerTinyVisualizer}
+      ${sourceTextureBaker} ${headerTextureBaker}
+      ${sourceGLAD} ${headerGLAD} ${IMGUI} ${TINY_OBJ_LOADER})
 ENDIF(MSVC)
-SET_TARGET_PROPERTIES(TinyVisualizer PROPERTIES PUBLIC_HEADER "${headerTinyVisualizer}")
-TARGET_LINK_LIBRARIES(TinyVisualizer ${ALL_LIBRARIES})
+SET_TARGET_PROPERTIES(TinyVisualizer PROPERTIES PUBLIC_HEADER "${headerTinyVisualizer} ${headerTextureBaker}")
+TARGET_LINK_LIBRARIES(TinyVisualizer stdc++fs ${ALL_LIBRARIES})
 
 #INSTALL LIBRARY
 IF(MSVC)
@@ -129,16 +134,7 @@ MACRO(ADD_EXE NAME)
   TARGET_LINK_LIBRARIES(${NAME} TinyVisualizer ${ALL_LIBRARIES})
 ENDMACRO(ADD_EXE)
 #DEBUG
-ADD_EXE(mainBox2D)
-ADD_EXE(mainBullet3D)
-ADD_EXE(mainVisibility)
-ADD_EXE(mainSphericalBox)
-ADD_EXE(mainTerrain)
+ADD_EXE(mainTextureBaker)
 ADD_EXE(mainChecker)
-ADD_EXE(mainOctree)
-ADD_EXE(mainBezier)
-ADD_EXE(mainLight)
-ADD_EXE(mainArrow)
-ADD_EXE(mainCell)
-ADD_EXE(mainImGui)
 ADD_EXE(mainMesh)
+ADD_EXE(mainBullet3D)

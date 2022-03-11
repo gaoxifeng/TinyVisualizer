@@ -23,6 +23,11 @@ ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.cpp
 ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.h
 ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.cpp)
 
+#tiny_obj_loader
+FILE(GLOB TINY_OBJ_LOADER
+${PROJECT_SOURCE_DIR}/extern/tinyobjloader/tiny_obj_loader.h
+${PROJECT_SOURCE_DIR}/extern/tinyobjloader/tiny_obj_loader.cc)
+
 #Box2D
 OPTION(USE_BOX2D "Add internal support for Box2D" OFF)
 MARK_AS_ADVANCED(USE_BOX2D)

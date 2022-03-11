@@ -1,4 +1,6 @@
 #include "Texture.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 namespace DRAWER {
 Texture::Texture(int width,int height,GLenum format):_format(format) {
@@ -38,6 +40,17 @@ int Texture::height() const {
 }
 GLuint Texture::id() const {
   return _id;
+}
+std::shared_ptr<Texture> Texture::load(const std::string& path) {
+  int w,h,c;
+  stbi_uc* data=stbi_load(path.c_str(),&w,&h,&c,0);
+  ASSERT(c==3 || c==4);
+  std::shared_ptr<Texture> ret(new Texture(w,h,c==4?GL_RGBA:GL_RGB));
+  ret->begin();
+  glTexImage2D(GL_TEXTURE_2D,0,ret->_format,w,h,0,c==4?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
+  ret->end();
+  free(data);
+  return ret;
 }
 void Texture::reset(int width,int height) {
   ASSERT_MSG(glad_glGenTextures,"Texture not supported!")

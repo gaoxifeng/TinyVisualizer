@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include "DrawerUtility.h"
+#include <memory>
 
 namespace DRAWER {
 class Texture {
@@ -15,6 +16,7 @@ class Texture {
   int width() const;
   int height() const;
   GLuint id() const;
+  static std::shared_ptr<Texture> load(const std::string& path);
  protected:
   void reset(int width,int height);
   void clear();

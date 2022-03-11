@@ -5,7 +5,7 @@ using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
-  std::shared_ptr<Texture> grid=drawGrid();
+  std::shared_ptr<Texture> grid=drawChecker();
   drawer.addCamera2D(10);
   drawer.setDrawFunc([&]() {
     glActiveTexture(GL_TEXTURE0);
