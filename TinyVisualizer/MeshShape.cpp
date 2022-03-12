@@ -118,6 +118,10 @@ Eigen::Matrix<GLfloat,2,1> MeshShape::getTexcoord(int i) const {
   ASSERT_MSGV((int)_texcoords.size()>=i*2+2,"Texcoord index %d does not exist!",i)
   return Eigen::Map<const Eigen::Matrix<GLfloat,2,1>>(&_texcoords[i*2]);
 }
+GLuint MeshShape::getIndex(int i) const {
+  ASSERT_MSGV((int)_indices.size()>i,"Index %d does not exist!",i)
+  return _indices[i];
+}
 void MeshShape::setPointSize(GLfloat pointSize) {
   _mat._pointSize=pointSize;
 }

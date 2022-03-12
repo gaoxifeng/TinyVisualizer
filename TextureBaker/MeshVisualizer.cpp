@@ -1,4 +1,6 @@
 #include "MeshVisualizer.h"
+#include <TinyVisualizer/CompositeShape.h>
+#include <TinyVisualizer/MeshShape.h>
 #include <experimental/filesystem>
 
 namespace DRAWER {
@@ -27,7 +29,7 @@ MeshVisualizer::MeshVisualizer(const std::string& path,const Eigen::Matrix<GLflo
                                        reader.GetAttrib().normals[a.normal_index*3+2]);
           Eigen::Matrix<GLfloat,2,1> t(reader.GetAttrib().texcoords[a.texcoord_index*2+0],
                                        reader.GetAttrib().texcoords[a.texcoord_index*2+1]);
-          component._mesh->addVertex(v*0.001,&t);
+          component._mesh->addVertex(v,&t);
           component._mesh->setNormal(component._mesh->nrVertex()-1,n);
         }
         Eigen::Matrix<GLuint,3,1> I(component._mesh->nrVertex()-3,
@@ -38,6 +40,18 @@ MeshVisualizer::MeshVisualizer(const std::string& path,const Eigen::Matrix<GLflo
       voff+=nV;
     }
   }
+  //scale
+  Eigen::Matrix<GLfloat,6,1> bb=getBB();
+  GLfloat coef=1/(bb.segment<3>(3)-bb.segment<3>(0)).maxCoeff();
+  for(auto& component:_components) {
+    for(int i=0; i<component.second._mesh->nrVertex(); i++) {
+      Eigen::Matrix<GLfloat,3,1> v=component.second._mesh->getVertex(i);
+      component.second._mesh->setVertex(i,v*coef);
+    }
+  }
+}
+const std::unordered_map<GLuint,MeshVisualizer::MeshComponent>& MeshVisualizer::getComponents() const {
+  return _components;
 }
 std::string MeshVisualizer::replaceTexturePath(std::string path) const {
   bool more=true;
@@ -60,6 +74,12 @@ std::shared_ptr<CompositeShape> MeshVisualizer::getShape() const {
   for(auto comp:_components)
     ret->addShape(comp.second._mesh);
   return ret;
+}
+Eigen::Matrix<GLfloat,6,1> MeshVisualizer::getBB() const {
+  Eigen::Matrix<GLfloat,6,1> bb=resetBB();
+  for(auto& component:_components)
+    bb=unionBB(bb,component.second._mesh->getBB());
+  return bb;
 }
 void MeshVisualizer::initializeComponent(const std::string& path,MeshComponent& component,const tinyobj::material_t& material) {
   if(!component._mesh) {
