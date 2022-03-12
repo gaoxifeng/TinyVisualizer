@@ -122,6 +122,12 @@ GLuint MeshShape::getIndex(int i) const {
   ASSERT_MSGV((int)_indices.size()>i,"Index %d does not exist!",i)
   return _indices[i];
 }
+const ShadowLight::Material& MeshShape::getMaterial() const {
+  return _mat;
+}
+void MeshShape::setMaterial(const ShadowLight::Material& mat) {
+  _mat=mat;
+}
 void MeshShape::setPointSize(GLfloat pointSize) {
   _mat._pointSize=pointSize;
 }

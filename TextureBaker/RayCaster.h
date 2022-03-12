@@ -6,9 +6,9 @@
 
 namespace DRAWER {
 
-class MeshVisualizer;
 class Texture;
 class MeshShape;
+class MeshVisualizer;
 class RayCaster {
  public:
   struct Triangle {

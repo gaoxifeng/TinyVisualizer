@@ -50,9 +50,41 @@ MeshVisualizer::MeshVisualizer(const std::string& path,const Eigen::Matrix<GLflo
     }
   }
 }
-const std::unordered_map<GLuint,MeshVisualizer::MeshComponent>& MeshVisualizer::getComponents() const {
+const std::unordered_map<int,MeshVisualizer::MeshComponent>& MeshVisualizer::getComponents() const {
   return _components;
 }
+std::shared_ptr<CompositeShape> MeshVisualizer::getTextureCoordShape() const {
+  std::shared_ptr<CompositeShape> ret(new CompositeShape);
+  for(auto& component:_components) {
+    std::shared_ptr<MeshShape> mesh=component.second._mesh;
+    std::shared_ptr<MeshShape> meshTC(new MeshShape);
+    meshTC->setMode(GL_TRIANGLES);
+    meshTC->setTexture(component.second._texture);
+    meshTC->setMaterial(mesh->getMaterial());
+    for(int i=0; i<mesh->nrVertex(); i++) {
+      Eigen::Matrix<GLfloat,2,1> tc=mesh->getTexcoord(i);
+      meshTC->addVertex(Eigen::Matrix<GLfloat,3,1>(tc[0],tc[1],0),&tc);
+      meshTC->setNormal(i,Eigen::Matrix<GLfloat,3,1>(0,0,1));
+    }
+    for(int i=0; i<mesh->nrIndex(); i++)
+      meshTC->addIndexSingle(mesh->getIndex(i));
+    ret->addShape(meshTC);
+  }
+  return ret;
+}
+std::shared_ptr<CompositeShape> MeshVisualizer::getShape() const {
+  std::shared_ptr<CompositeShape> ret(new CompositeShape);
+  for(auto comp:_components)
+    ret->addShape(comp.second._mesh);
+  return ret;
+}
+Eigen::Matrix<GLfloat,6,1> MeshVisualizer::getBB() const {
+  Eigen::Matrix<GLfloat,6,1> bb=resetBB();
+  for(auto& component:_components)
+    bb=unionBB(bb,component.second._mesh->getBB());
+  return bb;
+}
+//helper
 std::string MeshVisualizer::replaceTexturePath(std::string path) const {
   bool more=true;
   while(more) {
@@ -68,18 +100,6 @@ std::string MeshVisualizer::replaceTexturePath(std::string path) const {
     if(path[i]=='\\')
       path[i]='/';
   return path;
-}
-std::shared_ptr<CompositeShape> MeshVisualizer::getShape() const {
-  std::shared_ptr<CompositeShape> ret(new CompositeShape);
-  for(auto comp:_components)
-    ret->addShape(comp.second._mesh);
-  return ret;
-}
-Eigen::Matrix<GLfloat,6,1> MeshVisualizer::getBB() const {
-  Eigen::Matrix<GLfloat,6,1> bb=resetBB();
-  for(auto& component:_components)
-    bb=unionBB(bb,component.second._mesh->getBB());
-  return bb;
 }
 void MeshVisualizer::initializeComponent(const std::string& path,MeshComponent& component,const tinyobj::material_t& material) {
   if(!component._mesh) {
