@@ -4,7 +4,6 @@
 #include <stack>
 
 namespace DRAWER {
-
 GLdouble area(const Eigen::Matrix<GLdouble,6,1>& bb) {
   for(int d=0; d<3; d++)
     if(bb[d]>=bb[d+3])
@@ -51,6 +50,9 @@ bool intersectBB(const Eigen::Matrix<GLdouble,6,1>& bb,const Eigen::Matrix<GLdou
   }
   return true;
 }
+bool intersectBB2D(const Eigen::Matrix<GLdouble,6,1>& bb,const Eigen::Matrix<GLdouble,2,1>& b) {
+  return (bb.segment<2>(0).array()<=b.array()).all() && (bb.segment<2>(3).array()>=b.array()).all();
+}
 Eigen::Matrix<GLdouble,6,1> unionBB(const Eigen::Matrix<GLdouble,6,1>& a,const Eigen::Matrix<GLdouble,6,1>& b) {
   Eigen::Matrix<GLdouble,6,1> ret;
   ret.segment<3>(0)=minCorner(a).cwiseMin(minCorner(b));
@@ -62,6 +64,9 @@ Eigen::Matrix<GLdouble,6,1> unionBB(const Eigen::Matrix<GLdouble,6,1>& a,const E
   ret.segment<3>(0)=minCorner(a).cwiseMin(b);
   ret.segment<3>(3)=maxCorner(a).cwiseMax(b);
   return ret;
+}
+Eigen::Matrix<GLdouble,6,1> unionBB(const Eigen::Matrix<GLdouble,6,1>& a,const Eigen::Matrix<GLdouble,2,1>& b) {
+  return unionBB(a,Eigen::Matrix<GLdouble,3,1>(b[0],b[1],0));
 }
 Eigen::Matrix<GLdouble,6,1> resetBBD() {
   Eigen::Matrix<GLdouble,6,1> bb;
@@ -257,5 +262,4 @@ void BVHBuilder::split(const std::vector<Node>& bvh,std::vector<BVHHandle>& X,in
   lt=rf=j;
   std::copy(R.begin(),R.end(),X.begin()+rf);
 }
-
 }

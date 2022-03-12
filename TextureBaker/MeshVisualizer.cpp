@@ -4,7 +4,6 @@
 #include <experimental/filesystem>
 
 namespace DRAWER {
-
 MeshVisualizer::MeshVisualizer(const std::string& path,const Eigen::Matrix<GLfloat,3,1>& diffuse):_diffuse(diffuse) {
   tinyobj::ObjReader reader;
   reader.ParseFromFile(path);
@@ -83,6 +82,35 @@ Eigen::Matrix<GLfloat,6,1> MeshVisualizer::getBB() const {
   for(auto& component:_components)
     bb=unionBB(bb,component.second._mesh->getBB());
   return bb;
+}
+void MeshVisualizer::saveAllTexture(const std::string& path) {
+  std::experimental::filesystem::create_directory(path);
+  for(auto& component:_components)
+    if(component.second._texture)
+      component.second._texture->save(path+"/"+std::to_string(component.first)+".png");
+}
+void MeshVisualizer::setTexture(std::shared_ptr<Texture> texture,bool rescale,GLfloat margin) {
+  ASSERT_MSG(_components.size()==1,"setTexture can only be called for mesh with a single component!")
+  MeshComponent& component=_components.begin()->second;
+  component._mesh->setTexture(texture);
+  component._texture=texture;
+
+  if(rescale) {
+    Eigen::Matrix<GLfloat,2,1> tcmin;
+    Eigen::Matrix<GLfloat,2,1> tcmax;
+    tcmin.setConstant( std::numeric_limits<GLfloat>::max());
+    tcmax.setConstant(-std::numeric_limits<GLfloat>::max());
+    for(int i=0; i<component._mesh->nrVertex(); i++) {
+      tcmin=tcmin.cwiseMin(component._mesh->getTexcoord(i));
+      tcmax=tcmax.cwiseMax(component._mesh->getTexcoord(i));
+    }
+    GLfloat scale=(1-margin*2)/(tcmax-tcmin).maxCoeff();
+    Eigen::Matrix<GLfloat,2,1> translation=Eigen::Matrix<GLfloat,2,1>::Constant(margin)-tcmin*scale;
+    for(int i=0; i<component._mesh->nrVertex(); i++) {
+      auto tc=component._mesh->getTexcoord(i);
+      component._mesh->setTexcoord(i,tc*scale+translation);
+    }
+  }
 }
 //helper
 std::string MeshVisualizer::replaceTexturePath(std::string path) const {

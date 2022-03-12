@@ -4,15 +4,16 @@
 #include <TinyVisualizer/DrawerUtility.h>
 
 namespace DRAWER {
-
 extern GLdouble area(const Eigen::Matrix<GLdouble,6,1>& bb);
 extern Eigen::Map<const Eigen::Matrix<GLdouble,3,1>> minCorner(const Eigen::Matrix<GLdouble,6,1>& bb);
 extern Eigen::Map<const Eigen::Matrix<GLdouble,3,1>> maxCorner(const Eigen::Matrix<GLdouble,6,1>& bb);
 extern Eigen::Map<Eigen::Matrix<GLdouble,3,1>> minCorner(Eigen::Matrix<GLdouble,6,1>& bb);
 extern Eigen::Map<Eigen::Matrix<GLdouble,3,1>> maxCorner(Eigen::Matrix<GLdouble,6,1>& bb);
 extern bool intersectBB(const Eigen::Matrix<GLdouble,6,1>& bb,const Eigen::Matrix<GLdouble,6,1>& ray);
+extern bool intersectBB2D(const Eigen::Matrix<GLdouble,6,1>& bb,const Eigen::Matrix<GLdouble,2,1>& b);
 extern Eigen::Matrix<GLdouble,6,1> unionBB(const Eigen::Matrix<GLdouble,6,1>& a,const Eigen::Matrix<GLdouble,6,1>& b);
 extern Eigen::Matrix<GLdouble,6,1> unionBB(const Eigen::Matrix<GLdouble,6,1>& a,const Eigen::Matrix<GLdouble,3,1>& b);
+extern Eigen::Matrix<GLdouble,6,1> unionBB(const Eigen::Matrix<GLdouble,6,1>& a,const Eigen::Matrix<GLdouble,2,1>& b);
 extern Eigen::Matrix<GLdouble,6,1> resetBBD();
 struct Node {
   Node():_l(-1),_r(-1),_parent(-1),_nrCell(-1) {}
@@ -57,7 +58,6 @@ struct BVHBuilder {
   std::vector<BVHHandle> _hdls[3];
   std::vector<int> _roots;
 };
-
 }
 
 #endif

@@ -135,4 +135,3 @@ MACRO(ADD_EXE NAME)
 ENDMACRO(ADD_EXE)
 #DEBUG
 ADD_EXE(mainTextureBaker)
-ADD_EXE(mainTexcoord)

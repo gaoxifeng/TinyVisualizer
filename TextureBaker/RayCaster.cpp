@@ -1,14 +1,18 @@
 #include "RayCaster.h"
 #include "MeshVisualizer.h"
 #include <TinyVisualizer/MakeMesh.h>
+#include <stb/stb_image_write.h>
 #include <iostream>
 #include <stack>
 
 namespace DRAWER {
-
-RayCaster::RayCaster(const MeshVisualizer& mesh) {
+RayCaster::RayCaster(const MeshVisualizer& mesh,bool useTC) {
   for(const auto& component:mesh.getComponents()) {
     const MeshVisualizer::MeshComponent& comp=component.second;
+    if(!useTC && !comp._texture) {
+      std::cout << "We found a mesh component without texture, skipping!" << std::endl;
+      continue;
+    }
     int off=(int)_vss.size();
     for(int i=0; i<comp._mesh->nrVertex(); i++) {
       _vss.push_back(comp._mesh->getVertex(i).cast<GLdouble>());
@@ -24,13 +28,21 @@ RayCaster::RayCaster(const MeshVisualizer& mesh) {
       n._nrCell=1;
       n._cell=(int)_triss.size()-1;
       n._bb=resetBBD();
-      n._bb=unionBB(n._bb,_vss[_triss.back()._vid[0]]);
-      n._bb=unionBB(n._bb,_vss[_triss.back()._vid[1]]);
-      n._bb=unionBB(n._bb,_vss[_triss.back()._vid[2]]);
+      if(useTC) {
+        n._bb=unionBB(n._bb,_tcss[_triss.back()._vid[0]]);
+        n._bb=unionBB(n._bb,_tcss[_triss.back()._vid[1]]);
+        n._bb=unionBB(n._bb,_tcss[_triss.back()._vid[2]]);
+      } else {
+        n._bb=unionBB(n._bb,_vss[_triss.back()._vid[0]]);
+        n._bb=unionBB(n._bb,_vss[_triss.back()._vid[1]]);
+        n._bb=unionBB(n._bb,_vss[_triss.back()._vid[2]]);
+      }
       _bvh.push_back(n);
     }
-    if(comp._texture)
+    if(comp._texture) {
+      comp._texture->loadCPUData();
       _textures.push_back(comp._texture);
+    }
   }
   BVHBuilder().buildBVH(_bvh);
   for(int i=(int)_triss.size(); i<(int)_bvh.size(); i++)
@@ -91,11 +103,19 @@ std::vector<RayCaster::RayIntersect> RayCaster::castRayBatched(std::vector<Eigen
   }
   return ret;
 }
-Eigen::Matrix<GLdouble,3,1> RayCaster::getIntersect(const RayIntersect& I) const {
+Eigen::Matrix<GLdouble,3,1> RayCaster::getIntersectVert(const RayIntersect& I) const {
   ASSERT(I.first>=0)
   return _vss[_triss[I.first]._vid[0]]*I.second[0]+
          _vss[_triss[I.first]._vid[1]]*I.second[1]+
          _vss[_triss[I.first]._vid[2]]*I.second[2];
+}
+Eigen::Matrix<GLdouble,2,1> RayCaster::getIntersectTexcoord(const RayIntersect& I) const {
+  return _tcss[_triss[I.first]._vid[0]]*I.second[0]+
+         _tcss[_triss[I.first]._vid[1]]*I.second[1]+
+         _tcss[_triss[I.first]._vid[2]]*I.second[2];
+}
+Eigen::Matrix<GLdouble,4,1> RayCaster::getIntersectColor(const RayIntersect& I) const {
+  return _textures[_triss[I.first]._tid]->getData<GLdouble>(getIntersectTexcoord(I));
 }
 bool RayCaster::intersect(const Triangle& tri,Eigen::Matrix<GLdouble,6,1>& ray,RayIntersect& ret) const {
   Eigen::Matrix<GLdouble,3,1> abt,a=_vss[tri._vid[0]],b=_vss[tri._vid[1]],c=_vss[tri._vid[2]];
@@ -110,13 +130,69 @@ bool RayCaster::intersect(const Triangle& tri,Eigen::Matrix<GLdouble,6,1>& ray,R
   bool succ=(abt.x()>=0 && abt.y()>=0 && (abt.x()+abt.y())<=1) && //in triangle
             (abt.z()>=0 && abt.z()<1);  //in segment
   if(succ) {
-    ret.second.x()=abt.x();
-    ret.second.y()=abt.y();
-    ret.second.z()=1-abt.x()-abt.y();
+    ret.second[0]=abt.x();
+    ret.second[1]=abt.y();
+    ret.second[2]=1-abt.x()-abt.y();
     maxCorner(ray)=minCorner(ray)-abt.z()*mat.col(2);
     return true;
   }
   return false;
+}
+void RayCaster::castRayImage(const std::string& path,int resw,Eigen::Matrix<GLdouble,3,1> z,
+                             const Eigen::Matrix<GLdouble,3,1>& g,const Eigen::Matrix<GLdouble,4,1>& bkg) const {
+  z.normalize();
+  Eigen::Matrix<GLdouble,3,1> x=g.cross(z).normalized();
+  Eigen::Matrix<GLdouble,3,1> y=x.cross(z).normalized();
+
+  //cast bounding box to x,y axes
+  GLdouble xmin= std::numeric_limits<GLdouble>::max();
+  GLdouble xmax=-std::numeric_limits<GLdouble>::max();
+  GLdouble ymin= std::numeric_limits<GLdouble>::max();
+  GLdouble ymax=-std::numeric_limits<GLdouble>::max();
+  GLdouble zmin= std::numeric_limits<GLdouble>::max();
+  GLdouble zmax=-std::numeric_limits<GLdouble>::max();
+  Eigen::Matrix<GLdouble,6,1> bb=_bvh.back()._bb;
+  for(GLdouble X: {
+        bb[0],bb[3]
+      })
+    for(GLdouble Y: {
+          bb[1],bb[4]
+        })
+      for(GLdouble Z: {
+            bb[2],bb[5]
+          }) {
+        Eigen::Matrix<GLdouble,3,1> pt(X,Y,Z);
+        GLdouble ptx=pt.dot(x),pty=pt.dot(y),ptz=pt.dot(z);
+        xmin=std::min(xmin,ptx),xmax=std::max(xmax,ptx);
+        ymin=std::min(ymin,pty),ymax=std::max(ymax,pty);
+        zmin=std::min(ymin,ptz),zmax=std::max(ymax,ptz);
+      }
+
+  //cast rays
+  int resh=resw*(ymax-ymin)/(xmax-xmin);
+  std::vector<Eigen::Matrix<GLdouble,6,1>> ray(resw*resh);
+  for(int h=0,off=0; h<resh; h++) {
+    GLdouble ypos=interp1D(ymax,ymin,(h+0.5)/resh);
+    for(int w=0; w<resw; w++,off++) {
+      GLdouble xpos=interp1D(xmin,xmax,(w+0.5)/resw);
+      minCorner(ray[off])=z*zmin+x*xpos+y*ypos;
+      maxCorner(ray[off])=minCorner(ray[off])+z*(zmax-zmin);
+    }
+  }
+  std::vector<RayIntersect> rayI=castRayBatched(ray);
+
+  //fill color
+  unsigned char* data=new unsigned char[resw*resh*4];
+  #pragma omp parallel for
+  for(int h=0; h<resh; h++)
+    for(int w=0,off=h*resw; w<resw; w++,off++) {
+      Eigen::Map<Eigen::Matrix<unsigned char,4,1>> color(data+4*(w+resw*h));
+      if(rayI[off].first<0)
+        color=(bkg*255).cast<unsigned char>();
+      else color=(getIntersectColor(rayI[off])*255).cast<unsigned char>();
+    }
+  stbi_write_png(path.c_str(),resw,resh,4,data,resw*4);
+  free(data);
 }
 std::vector<Eigen::Matrix<GLdouble,3,1>> RayCaster::sampleDir(int res,const Eigen::Matrix<GLdouble,3,1>& g) const {
   std::vector<Eigen::Matrix<GLdouble,3,1>> dirs;
@@ -166,7 +242,7 @@ std::shared_ptr<MeshShape> RayCaster::drawRay(int res,const Eigen::Matrix<GLdoub
     Eigen::Matrix<GLdouble,6,1> r=ray[i];
     if(rayI[i].first<0)
       continue;
-    maxCorner(r)=getIntersect(rayI[i]);
+    maxCorner(r)=getIntersectVert(rayI[i]);
     mesh->addIndexSingle(mesh->nrVertex());
     mesh->addVertex(minCorner(r).cast<GLfloat>());
     mesh->addIndexSingle(mesh->nrVertex());

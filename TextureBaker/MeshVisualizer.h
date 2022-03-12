@@ -22,6 +22,8 @@ class MeshVisualizer {
   std::shared_ptr<CompositeShape> getTextureCoordShape() const;
   std::shared_ptr<CompositeShape> getShape() const;
   Eigen::Matrix<GLfloat,6,1> getBB() const;
+  void saveAllTexture(const std::string& path);
+  void setTexture(std::shared_ptr<Texture> texture,bool rescale,GLfloat margin);
  protected:
   std::string replaceTexturePath(std::string path) const;
   void initializeComponent(const std::string& path,MeshComponent& component,const tinyobj::material_t& material);
