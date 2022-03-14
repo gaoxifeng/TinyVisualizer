@@ -223,7 +223,7 @@ void RayCaster::castRayImage(const std::string& path,int resw,Eigen::Matrix<GLdo
 }
 std::vector<Eigen::Matrix<GLdouble,3,1>> RayCaster::sampleDir(int res,const Eigen::Matrix<GLdouble,3,1>& g) const {
   std::vector<Eigen::Matrix<GLdouble,3,1>> dirs,dirsUnique;
-  auto mesh=makeSphere(res,false,1);
+  auto mesh=makeSphere(res,true,1);
   for(int i=0; i<mesh->nrVertex(); i++) {
     Eigen::Matrix<GLdouble,3,1> v=mesh->getVertex(i).cast<GLdouble>();
     if(g.isZero() || v.dot(g)<=0)
@@ -251,7 +251,7 @@ std::vector<Eigen::Matrix<GLdouble,6,1>> RayCaster::sampleRay(int res,const Eige
 
   Eigen::Matrix<GLdouble,6,1> ray;
   std::vector<Eigen::Matrix<GLdouble,6,1>> rays,raysUnique;
-  auto mesh=makeSphere(res,false,rad);
+  auto mesh=makeSphere(res,true,rad);
   for(int i=0; i<mesh->nrVertex(); i++) {
     Eigen::Matrix<GLdouble,3,1> v=mesh->getVertex(i).cast<GLdouble>();
     if(g.isZero() || v.dot(g)<=0) {
