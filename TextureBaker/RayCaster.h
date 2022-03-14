@@ -12,12 +12,14 @@ class MeshVisualizer;
 class RayCaster {
  public:
   struct Triangle {
-    Triangle() {}
-    Triangle(int v0,int v1,int v2,int t):_vid(v0,v1,v2),_tid(t) {}
+    Triangle();
+    Triangle(int v0,int v1,int v2,int t,const Eigen::Matrix<GLdouble,4,1>& defaultColor);
+    void computeNormal(const std::vector<Eigen::Matrix<GLdouble,3,1>>& vss);
+    Eigen::Matrix<GLdouble,3,1> _normal;
+    Eigen::Matrix<GLdouble,4,1> _defaultColor;
     Eigen::Matrix<GLuint,3,1> _vid;
     int _tid;
   };
-  friend class NormalBasedTextureBaker;
   typedef std::pair<int,Eigen::Matrix<GLdouble,3,1>> RayIntersect;
   RayCaster(const MeshVisualizer& mesh,bool useTC=false);
   RayIntersect castRay(Eigen::Matrix<GLdouble,6,1>& ray) const;
@@ -25,6 +27,10 @@ class RayCaster {
   Eigen::Matrix<GLdouble,3,1> getIntersectVert(const RayIntersect& I) const;
   Eigen::Matrix<GLdouble,2,1> getIntersectTexcoord(const RayIntersect& I) const;
   Eigen::Matrix<GLdouble,4,1> getIntersectColor(const RayIntersect& I) const;
+  const std::vector<Node>& getBVH() const;
+  const std::vector<Triangle>& getTriss() const;
+  const std::vector<Eigen::Matrix<GLdouble,3,1>>& getVss() const;
+  const std::vector<Eigen::Matrix<GLdouble,2,1>>& getTcss() const;
   bool intersect(const Triangle& tri,Eigen::Matrix<GLdouble,6,1>& ray,RayIntersect& ret) const;
   void castRayImage(const std::string& path,int resw,Eigen::Matrix<GLdouble,3,1> dir,
                     const Eigen::Matrix<GLdouble,3,1>& g=-Eigen::Matrix<GLdouble,3,1>::UnitZ(),

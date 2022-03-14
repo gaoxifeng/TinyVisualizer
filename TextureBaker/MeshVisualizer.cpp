@@ -134,6 +134,7 @@ void MeshVisualizer::initializeComponent(const std::string& path,MeshComponent& 
     component._mesh.reset(new MeshShape);
     component._mesh->setMode(GL_TRIANGLES);
     component._mesh->setColor(GL_TRIANGLES,material.diffuse[0],material.diffuse[1],material.diffuse[2]);
+    component._defaultColor=Eigen::Matrix<GLfloat,4,1>(material.diffuse[0],material.diffuse[1],material.diffuse[2],1);
   }
   if(!component._texture) {
     std::experimental::filesystem::path p(path);
@@ -148,6 +149,7 @@ void MeshVisualizer::initializeComponent(MeshComponent& component) {
     component._mesh.reset(new MeshShape);
     component._mesh->setMode(GL_TRIANGLES);
     component._mesh->setColor(GL_TRIANGLES,_diffuse[0],_diffuse[1],_diffuse[2]);
+    component._defaultColor=Eigen::Matrix<GLfloat,4,1>(_diffuse[0],_diffuse[1],_diffuse[2],1);
   }
 }
 }

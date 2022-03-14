@@ -16,6 +16,7 @@ class MeshVisualizer {
   struct MeshComponent {
     std::shared_ptr<MeshShape> _mesh;
     std::shared_ptr<Texture> _texture;
+    Eigen::Matrix<GLfloat,4,1> _defaultColor;
   };
   MeshVisualizer(const std::string& path,const Eigen::Matrix<GLfloat,3,1>& diffuse=Eigen::Matrix<GLfloat,3,1>::Constant(0.5));
   const std::unordered_map<int,MeshComponent>& getComponents() const;

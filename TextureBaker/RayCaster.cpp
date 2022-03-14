@@ -6,24 +6,32 @@
 #include <stack>
 
 namespace DRAWER {
+RayCaster::Triangle::Triangle() {}
+RayCaster::Triangle::Triangle(int v0,int v1,int v2,int t,const Eigen::Matrix<GLdouble,4,1>& defaultColor):_defaultColor(defaultColor),_vid(v0,v1,v2),_tid(t) {}
+void RayCaster::Triangle::computeNormal(const std::vector<Eigen::Matrix<GLdouble,3,1>>& vss) {
+  const Eigen::Matrix<GLdouble,3,1>& a=vss[_vid[0]];
+  const Eigen::Matrix<GLdouble,3,1>& b=vss[_vid[1]];
+  const Eigen::Matrix<GLdouble,3,1>& c=vss[_vid[2]];
+  _normal=(b-a).cross(c-a).normalized();
+}
 RayCaster::RayCaster(const MeshVisualizer& mesh,bool useTC) {
   for(const auto& component:mesh.getComponents()) {
     const MeshVisualizer::MeshComponent& comp=component.second;
-    if(!useTC && !comp._texture) {
-      std::cout << "We found a mesh component without texture, skipping!" << std::endl;
-      continue;
-    }
     int off=(int)_vss.size();
+    //build Vertex
     for(int i=0; i<comp._mesh->nrVertex(); i++) {
       _vss.push_back(comp._mesh->getVertex(i).cast<GLdouble>());
       _tcss.push_back(comp._mesh->getTexcoord(i).cast<GLdouble>());
     }
+    //build Triangle
     for(int i=0; i<comp._mesh->nrIndex(); i+=3) {
       int tid=comp._texture ? (int)_textures.size() : -1;
       _triss.push_back(Triangle(comp._mesh->getIndex(i+0)+off,
                                 comp._mesh->getIndex(i+1)+off,
                                 comp._mesh->getIndex(i+2)+off,
-                                tid));
+                                tid,comp._defaultColor.cast<GLdouble>()));
+      _triss.back().computeNormal(_vss);
+      //build BVH
       Node n;
       n._nrCell=1;
       n._cell=(int)_triss.size()-1;
@@ -50,9 +58,12 @@ RayCaster::RayCaster(const MeshVisualizer& mesh,bool useTC) {
   std::cout << "BVH optimal depth=" << BVHBuilder::depthOptimal(_bvh) << " depth=" << BVHBuilder::depth(_bvh) << std::endl;
 }
 RayCaster::RayIntersect RayCaster::castRay(Eigen::Matrix<GLdouble,6,1>& ray) const {
+  RayIntersect ret=RayIntersectNone;
+  if(!ray.array().isFinite().all())
+    return ret;
+
   std::stack<int> ss;
   ss.push((int)_bvh.size()-1);
-  RayIntersect ret=RayIntersectNone;
   while(!ss.empty()) {
     int id=ss.top();
     ss.pop();
@@ -82,7 +93,9 @@ std::vector<RayCaster::RayIntersect> RayCaster::castRayBatched(std::vector<Eigen
     //batched intersectBB/intersect
     #pragma omp parallel for
     for(int i=0; i<(int)indices.size(); i++) {
-      if(!intersectBB(_bvh[id]._bb,ray[indices[i]]))
+      if(!ray[indices[i]].array().isFinite().all())
+        indices[i]=-1;
+      else if(!intersectBB(_bvh[id]._bb,ray[indices[i]]))
         indices[i]=-1;
       else if(_bvh[id]._cell>=0) {
         if(intersect(_triss[_bvh[id]._cell],ray[indices[i]],ret[indices[i]]))
@@ -115,7 +128,21 @@ Eigen::Matrix<GLdouble,2,1> RayCaster::getIntersectTexcoord(const RayIntersect& 
          _tcss[_triss[I.first]._vid[2]]*I.second[2];
 }
 Eigen::Matrix<GLdouble,4,1> RayCaster::getIntersectColor(const RayIntersect& I) const {
+  if(_triss[I.first]._tid==-1)
+    return _triss[I.first]._defaultColor;
   return _textures[_triss[I.first]._tid]->getData<GLdouble>(getIntersectTexcoord(I));
+}
+const std::vector<Node>& RayCaster::getBVH() const {
+  return _bvh;
+}
+const std::vector<RayCaster::Triangle>& RayCaster::getTriss() const {
+  return _triss;
+}
+const std::vector<Eigen::Matrix<GLdouble,3,1>>& RayCaster::getVss() const {
+  return _vss;
+}
+const std::vector<Eigen::Matrix<GLdouble,2,1>>& RayCaster::getTcss() const {
+  return _tcss;
 }
 bool RayCaster::intersect(const Triangle& tri,Eigen::Matrix<GLdouble,6,1>& ray,RayIntersect& ret) const {
   Eigen::Matrix<GLdouble,3,1> abt,a=_vss[tri._vid[0]],b=_vss[tri._vid[1]],c=_vss[tri._vid[2]];
