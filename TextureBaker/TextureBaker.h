@@ -15,9 +15,9 @@ class TextureBaker {
   void setLaplaceTextureExtender();
   virtual void bakeTexture()=0;
  protected:
-  Eigen::Matrix<GLdouble,2,1> texelPos(int id,int w,int h) const;
+  Eigen::Matrix<GLdouble,2,1> texelPos(int id,int w,int h,const Eigen::Matrix<GLdouble,2,1>& offset) const;
   bool inside(const RayCaster::Triangle& tri,const Eigen::Matrix<GLdouble,2,1>& texelPos,Eigen::Matrix<GLdouble,3,1>* bary) const;
-  std::vector<TexelIntersect> getInteriorTexel(bool compact) const;
+  std::vector<TexelIntersect> getInteriorTexel(bool compact,const Eigen::Matrix<GLdouble,2,1>& offset=Eigen::Matrix<GLdouble,2,1>::Zero()) const;
   //data
   MeshVisualizer& _low;
   const MeshVisualizer& _high;

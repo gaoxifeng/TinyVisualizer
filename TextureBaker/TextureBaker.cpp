@@ -17,10 +17,10 @@ void TextureBaker::setLaplaceTextureExtender() {
   _extender.reset(new LaplaceTextureExtender(_texture));
 }
 //helper
-Eigen::Matrix<GLdouble,2,1> TextureBaker::texelPos(int id,int w,int h) const {
+Eigen::Matrix<GLdouble,2,1> TextureBaker::texelPos(int id,int w,int h,const Eigen::Matrix<GLdouble,2,1>& offset) const {
   Eigen::Matrix<GLdouble,2,1> pos;
-  pos.x()=(int(id%w)+0.5)/w;
-  pos.y()=(int(id/w)+0.5)/h;
+  pos.x()=(int(id%w)+0.5+offset[0])/w;
+  pos.y()=(int(id/w)+0.5+offset[1])/h;
   return pos;
 }
 bool TextureBaker::inside(const RayCaster::Triangle& tri,const Eigen::Matrix<GLdouble,2,1>& p,Eigen::Matrix<GLdouble,3,1>* bary) const {
@@ -37,7 +37,7 @@ bool TextureBaker::inside(const RayCaster::Triangle& tri,const Eigen::Matrix<GLd
     *bary=Eigen::Matrix<GLdouble,3,1>(ab[0],ab[1],1-ab[0]-ab[1]);
   return ab[0]>=0 && ab[1]>=0 && ab[0]+ab[1]<=1;
 }
-std::vector<TextureBaker::TexelIntersect> TextureBaker::getInteriorTexel(bool compact) const {
+std::vector<TextureBaker::TexelIntersect> TextureBaker::getInteriorTexel(bool compact,const Eigen::Matrix<GLdouble,2,1>& offset) const {
   int w=_texture->width(),h=_texture->height();
   std::vector<TexelIntersect> texelI(w*h,TexelIntersectNone);
   //main loop
@@ -53,11 +53,12 @@ std::vector<TextureBaker::TexelIntersect> TextureBaker::getInteriorTexel(bool co
     //batched intersectBB/intersect
     #pragma omp parallel for
     for(int i=0; i<(int)indices.size(); i++) {
-      if(!intersectBB2D(_lowRayTexture.getBVH()[id]._bb,texelPos(indices[i],w,h)))
+      Eigen::Matrix<GLdouble,2,1>  tpos=texelPos(indices[i],w,h,offset);
+      if(!intersectBB2D(_lowRayTexture.getBVH()[id]._bb,tpos))
         indices[i]=-1;
       else if(_lowRayTexture.getBVH()[id]._cell>=0) {
         Eigen::Matrix<GLdouble,3,1> bary;
-        if(inside(_lowRayTexture.getTriss()[_lowRayTexture.getBVH()[id]._cell],texelPos(indices[i],w,h),&bary))
+        if(inside(_lowRayTexture.getTriss()[_lowRayTexture.getBVH()[id]._cell],tpos,&bary))
           texelI[indices[i]]=std::make_tuple(indices[i],_lowRayTexture.getBVH()[id]._cell,bary);
       }
     }
