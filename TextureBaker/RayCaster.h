@@ -20,7 +20,7 @@ class RayCaster {
     Eigen::Matrix<GLuint,3,1> _vid;
     int _tid;
   };
-  typedef std::pair<int,Eigen::Matrix<GLdouble,3,1>> RayIntersect;
+  typedef std::pair<int,Eigen::Matrix<GLdouble,3,1>> RayIntersect;  //triId,bary
   RayCaster(const MeshVisualizer& mesh,bool useTC=false);
   RayIntersect castRay(Eigen::Matrix<GLdouble,6,1>& ray) const;
   std::vector<RayIntersect> castRayBatched(std::vector<Eigen::Matrix<GLdouble,6,1>>& ray) const;

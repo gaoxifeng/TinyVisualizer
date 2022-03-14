@@ -27,17 +27,17 @@ int main(int argc,char** argv) {
   MeshVisualizer visHigh("high-poly/OBJ/SM_M2_Build_Apartment_02.obj");
   MeshVisualizer visLow("low-poly/SM_M2_Build_Apartment_02.obj");
 
-  int resSphere=16;
+  int res=512,resSphere=8;
   BAKER_MODE baker=VISUAL;
   VIS_MODE mode=LOW_MESH;
   auto g=-Eigen::Matrix<GLdouble,3,1>::UnitY();
 
   if(baker==NORMAL) {
-    NormalBasedTextureBaker baker(visHigh,visLow,2048);
+    NormalBasedTextureBaker baker(visHigh,visLow,res);
     baker.setNearestTextureExtender();
     baker.bakeTexture();
   } else if(baker==VISUAL) {
-    VisualTextureBaker baker(visHigh,visLow,2048,resSphere,g);
+    VisualTextureBaker baker(visHigh,visLow,res,resSphere,g);
     baker.setNearestTextureExtender();
     baker.bakeTexture();
   }

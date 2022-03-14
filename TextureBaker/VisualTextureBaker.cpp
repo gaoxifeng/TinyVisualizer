@@ -34,27 +34,24 @@ void VisualTextureBaker::bakeTexture() {
       const auto& c=_lowRayTexture.getVss()[tri._vid[2]];
       //ray along direction
       Eigen::Matrix<GLdouble,6,1>& ray=rays[i];
-      GLdouble weight=tri._normal.dot(_dirs[d]);
-      if(weight<=0) //back face culling
-        ray.setConstant(std::numeric_limits<GLdouble>::infinity());
-      else {
-        auto ctr=a*std::get<2>(texels[i])[0]+b*std::get<2>(texels[i])[1]+c*std::get<2>(texels[i])[2];
-        minCorner(ray)=ctr+_dirs[d]*extLen;
-        maxCorner(ray)=ctr-_dirs[d]*extLen;
-      }
+      auto ctr=a*std::get<2>(texels[i])[0]+b*std::get<2>(texels[i])[1]+c*std::get<2>(texels[i])[2];
+      minCorner(ray)=ctr-_dirs[d]*extLen;
+      maxCorner(ray)=ctr+_dirs[d]*extLen;
     }
     std::cout << "Intersecting " << rays.size() << " visual rays!" << std::endl;
-    std::vector<RayIntersect> rayI=_highRay.castRayBatched(rays);
+    std::vector<RayIntersect> rayIHigh=_highRay.castRayBatched(rays);
+    std::vector<RayIntersect> rayILow=_lowRay.castRayBatched(rays);
 
     //compute averaged color values
     std::cout << "Accumulating " << texels.size() << " visual rays!" << std::endl;
     #pragma omp parallel for
     for(int i=0; i<(int)texels.size(); i++) {
-      const RayIntersect& rayIDT=rayI[i];
-      if(rayIDT.first>=0) {
-        GLdouble weight=_lowRay.getTriss()[std::get<1>(texels[i])]._normal.dot(_dirs[d]);
-        num[i]+=_highRay.getIntersectColor(rayIDT)*weight;
-        denom[i]+=weight;
+      const RayIntersect& rayIHDT=rayIHigh[i];
+      const RayIntersect& rayILDT=rayILow[i];
+      if(rayIHDT.first>=0 && rayILDT.first==std::get<1>(texels[i])) {
+        GLdouble weight=std::abs(_lowRay.getTriss()[std::get<1>(texels[i])]._normal.dot(_dirs[d]));
+        num[std::get<0>(texels[i])]+=_highRay.getIntersectColor(rayIHDT)*weight;
+        denom[std::get<0>(texels[i])]+=weight;
       }
     }
   }

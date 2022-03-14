@@ -222,14 +222,27 @@ void RayCaster::castRayImage(const std::string& path,int resw,Eigen::Matrix<GLdo
   free(data);
 }
 std::vector<Eigen::Matrix<GLdouble,3,1>> RayCaster::sampleDir(int res,const Eigen::Matrix<GLdouble,3,1>& g) const {
-  std::vector<Eigen::Matrix<GLdouble,3,1>> dirs;
+  std::vector<Eigen::Matrix<GLdouble,3,1>> dirs,dirsUnique;
   auto mesh=makeSphere(res,false,1);
   for(int i=0; i<mesh->nrVertex(); i++) {
     Eigen::Matrix<GLdouble,3,1> v=mesh->getVertex(i).cast<GLdouble>();
     if(g.isZero() || v.dot(g)<=0)
       dirs.push_back(-v);
   }
-  return dirs;
+
+  //find unique dir
+  std::sort(dirs.begin(),dirs.end(),[&](const Eigen::Matrix<GLdouble,3,1>& a,const Eigen::Matrix<GLdouble,3,1>& b) {
+    for(int d=0; d<3; d++)
+      if(a[d]<b[d])
+        return true;
+      else if(a[d]>b[d])
+        return false;
+    return false;
+  });
+  for(int i=0; i<(int)dirs.size(); i++)
+    if(i==0 || (dirs[i]-dirs[i-1]).norm()>1e-4)
+      dirsUnique.push_back(dirs[i]);
+  return dirsUnique;
 }
 std::vector<Eigen::Matrix<GLdouble,6,1>> RayCaster::sampleRay(int res,const Eigen::Matrix<GLdouble,3,1>& g) const {
   Eigen::Matrix<GLdouble,3,1> ext=(maxCorner(_bvh.back()._bb)-minCorner(_bvh.back()._bb));
@@ -237,7 +250,7 @@ std::vector<Eigen::Matrix<GLdouble,6,1>> RayCaster::sampleRay(int res,const Eige
   GLfloat rad=(GLfloat)ext.norm()/2;
 
   Eigen::Matrix<GLdouble,6,1> ray;
-  std::vector<Eigen::Matrix<GLdouble,6,1>> rays;
+  std::vector<Eigen::Matrix<GLdouble,6,1>> rays,raysUnique;
   auto mesh=makeSphere(res,false,rad);
   for(int i=0; i<mesh->nrVertex(); i++) {
     Eigen::Matrix<GLdouble,3,1> v=mesh->getVertex(i).cast<GLdouble>();
@@ -247,7 +260,20 @@ std::vector<Eigen::Matrix<GLdouble,6,1>> RayCaster::sampleRay(int res,const Eige
       rays.push_back(ray);
     }
   }
-  return rays;
+
+  //find unique dir
+  std::sort(rays.begin(),rays.end(),[&](const Eigen::Matrix<GLdouble,6,1>& a,const Eigen::Matrix<GLdouble,6,1>& b) {
+    for(int d=0; d<3; d++)
+      if(a[d]<b[d])
+        return true;
+      else if(a[d]>b[d])
+        return false;
+    return false;
+  });
+  for(int i=0; i<(int)rays.size(); i++)
+    if(i==0 || (rays[i]-rays[i-1]).norm()>1e-4*rad)
+      raysUnique.push_back(rays[i]);
+  return raysUnique;
 }
 std::shared_ptr<MeshShape> RayCaster::drawRay(int res,const Eigen::Matrix<GLdouble,3,1>& g,bool batched) const {
   std::shared_ptr<MeshShape> mesh(new MeshShape);
