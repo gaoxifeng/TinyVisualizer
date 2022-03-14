@@ -27,7 +27,7 @@ int main(int argc,char** argv) {
   MeshVisualizer visHigh("high-poly/OBJ/SM_M2_Build_Apartment_02.obj");
   MeshVisualizer visLow("low-poly/SM_M2_Build_Apartment_02.obj");
 
-  int res=512,resSphere=8;
+  int res=2048,resSphere=8;
   BAKER_MODE baker=VISUAL;
   VIS_MODE mode=LOW_MESH;
   auto g=-Eigen::Matrix<GLdouble,3,1>::UnitY();
