@@ -76,77 +76,80 @@ void VisualTextureBakerStaggered::solveLinearSystem(const Eigen::Matrix<GLdouble
   Eigen::Matrix<GLdouble,4,1>* ret=new Eigen::Matrix<GLdouble,4,1>[data._width*data._height];
   memset(ret,0,sizeof(Eigen::Matrix<GLdouble,4,1>)*data._width*data._height);
   //solve
-  bool more=true;
-  for(int iter=0; more; iter++) {
-    more=false;
-    std::cout << "Staggered-Solve iter=" << iter << std::endl;
+  for(int iter=0; iter<5000; iter++) {
+    GLdouble err=0;
     for(unsigned int passX=0; passX<2; passX++)
       for(unsigned int passY=0; passY<2; passY++) {
         #pragma omp parallel for
         for(unsigned int h=0; h<data._height; h++)
           for(unsigned int w=0; w<data._width; w++)
-            if((w%2)==passX && (h%2)==passY) {
-              GLdouble error=applyGaussSeidel(w,h,data._width,data._height,ret,num,denom);
-              if(error>1.0/255.0)
-                more=true;
-            }
+            if((w%2)==passX && (h%2)==passY)
+              #pragma omp atomic
+              err+=applyGaussSeidel(w,h,data._width,data._height,ret,num,denom);
+        if(err<1e-10)
+          return;
       }
+    std::cout << "Staggered-Solve iter=" << iter << " err=" << err << std::endl;
   }
   //assign
+  Eigen::Matrix<unsigned char,4,1>* dataColor=reinterpret_cast<Eigen::Matrix<unsigned char,4,1>*>(data._data);
   #pragma omp parallel for
   for(unsigned int h=0; h<data._height; h++)
     for(unsigned int w=0; w<data._width; w++)
-      Eigen::Map<Eigen::Matrix<unsigned char,4,1>>(data._data+(w+data._width*h)*4)=ret[w+data._width*h].cast<unsigned char>();
+      dataColor[w+data._width*h]=(ret[w+data._width*h]*255).cast<unsigned char>();
   delete [] ret;
 }
 GLdouble VisualTextureBakerStaggered::applyGaussSeidel
 (int w,int h,int width,int height,Eigen::Matrix<GLdouble,4,1>* data,
  const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const {
+#define ToD(X) X//(X.cast<GLdouble>()/255).eval()
+#define FromD(X) X//(X*255).cast<unsigned char>();
   int off=w+width*h;
   //initialize
   Eigen::Matrix<GLdouble,4,1> NUM=Eigen::Matrix<GLdouble,4,1>::Zero();
   GLdouble DENOM=0;
   //laplace term
   if(w>0) {
-    NUM+=data[off-1]*_LReg;
+    NUM+=ToD(data[off-1])*_LReg;
     DENOM+=_LReg;
   }
   if(w<width-1) {
-    NUM+=data[off+1]*_LReg;
+    NUM+=ToD(data[off+1])*_LReg;
     DENOM+=_LReg;
   }
   if(h>0) {
-    NUM+=data[off-width]*_LReg;
+    NUM+=ToD(data[off-width])*_LReg;
     DENOM+=_LReg;
   }
   if(h<height-1) {
-    NUM+=data[off+width]*_LReg;
+    NUM+=ToD(data[off+width])*_LReg;
     DENOM+=_LReg;
   }
   //data term: bottom left
   if(w>0 && h>0) {
-    NUM+=num[off-1-width]/4-(data[off-1-width]+data[off-width]+data[off-1])*denom[off-1-width]/16;
+    NUM+=num[off-1-width]/4-(ToD(data[off-1-width])+ToD(data[off-width])+ToD(data[off-1]))*denom[off-1-width]/16;
     DENOM+=denom[off-1-width]/16;
   }
   //data term: bottom right
   if(w<width-1 && h>0) {
-    NUM+=num[off  -width]/4-(data[off+1-width]+data[off-width]+data[off+1])*denom[off  -width]/16;
+    NUM+=num[off  -width]/4-(ToD(data[off+1-width])+ToD(data[off-width])+ToD(data[off+1]))*denom[off  -width]/16;
     DENOM+=denom[off  -width]/16;
   }
   //data term: top left
   if(w>0 && h<height-1) {
-    NUM+=num[off-1]/4-(data[off-1+width]+data[off+width]+data[off-1])*denom[off-1]/16;
+    NUM+=num[off-1]/4-(ToD(data[off-1+width])+ToD(data[off+width])+ToD(data[off-1]))*denom[off-1]/16;
     DENOM+=denom[off-1]/16;
   }
   //data term: top right
   if(w<width-1 && h<height-1) {
-    NUM+=num[off+1]/4-(data[off+1+width]+data[off+width]+data[off+1])*denom[off+1]/16;
-    DENOM+=denom[off+1]/16;
+    NUM+=num[off  ]/4-(ToD(data[off+1+width])+ToD(data[off+width])+ToD(data[off+1]))*denom[off  ]/16;
+    DENOM+=denom[off  ]/16;
   }
   //solve
-  NUM/=DENOM;
-  GLdouble error=(NUM-data[off]).maxCoeff();
-  data[off]=NUM;
-  return error;
+  NUM=(NUM/DENOM).cwiseMin(Eigen::Matrix<GLdouble,4,1>::Ones());
+  GLdouble err=(NUM-ToD(data[off])).squaredNorm();
+  data[off]=FromD(NUM);
+  return err;
+#undef ToD
 }
 }

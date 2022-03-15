@@ -1,16 +1,17 @@
 #include <TextureBaker/MeshVisualizer.h>
-#include <TextureBaker/TextureExtender.h>
-#include <TextureBaker/NormalBasedTextureBaker.h>
 #include <TextureBaker/VisualTextureBaker.h>
-#include <TinyVisualizer/Drawer.h>
-#include <TinyVisualizer/MeshShape.h>
+#include <TextureBaker/NormalBasedTextureBaker.h>
+#include <TextureBaker/VisualTextureBakerStaggered.h>
 #include <TinyVisualizer/CompositeShape.h>
+#include <TinyVisualizer/MeshShape.h>
+#include <TinyVisualizer/Drawer.h>
 
 using namespace DRAWER;
 
 enum BAKER_MODE {
   NORMAL,
   VISUAL,
+  VISUAL_STAGGERED,
   NONE,
 };
 
@@ -24,13 +25,13 @@ enum VIS_MODE {
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
 
+  int res=512;
+  int resSphere=8;
+  VIS_MODE mode=LOW_MESH;
+  BAKER_MODE baker=VISUAL_STAGGERED;
+  auto g=-Eigen::Matrix<GLdouble,3,1>::UnitY();
   MeshVisualizer visHigh("high-poly/OBJ/SM_M2_Build_Apartment_02.obj");
   MeshVisualizer visLow("low-poly/SM_M2_Build_Apartment_02.obj");
-
-  int res=2048,resSphere=8;
-  BAKER_MODE baker=VISUAL;
-  VIS_MODE mode=LOW_MESH;
-  auto g=-Eigen::Matrix<GLdouble,3,1>::UnitY();
 
   if(baker==NORMAL) {
     NormalBasedTextureBaker baker(visHigh,visLow,res);
@@ -38,6 +39,10 @@ int main(int argc,char** argv) {
     baker.bakeTexture();
   } else if(baker==VISUAL) {
     VisualTextureBaker baker(visHigh,visLow,res,resSphere,g);
+    baker.setNearestTextureExtender();
+    baker.bakeTexture();
+  } else if(baker==VISUAL_STAGGERED) {
+    VisualTextureBakerStaggered baker(visHigh,visLow,res,resSphere,g);
     baker.setNearestTextureExtender();
     baker.bakeTexture();
   }
