@@ -13,11 +13,11 @@ class VisualTextureBakerStaggered : public TextureBaker {
   void setLaplaceRegularization(GLdouble LReg);
   void bakeTexture() override;
  protected:
-  void solveLinearSystem(const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const;
-  bool applyGaussSeidel(int w,int h,int width,int height,Eigen::Matrix<unsigned char,4,1>* data,
+  void solveLinearSystem(Eigen::Matrix<GLdouble,4,1>* num,GLdouble* denom) const;
+  bool applyGaussSeidel(int w,int h,int width,int height,Eigen::Matrix<GLdouble,4,1>* data,
                         const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const;
   std::vector<Eigen::Matrix<GLdouble,3,1>> _dirs;
-  GLdouble _LReg;
+  GLdouble _LReg,_tolLeastSquare;
 };
 
 }

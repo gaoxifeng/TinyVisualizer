@@ -6,7 +6,7 @@
 namespace DRAWER {
 VisualTextureBakerStaggered::VisualTextureBakerStaggered
 (const MeshVisualizer& high,MeshVisualizer& low,int res,int resSphere,
- const Eigen::Matrix<GLdouble,3,1>& g):TextureBaker(high,low,res),_LReg(1e-2) {
+ const Eigen::Matrix<GLdouble,3,1>& g):TextureBaker(high,low,res),_LReg(1e-3),_tolLeastSquare(1e-5) {
   _dirs=_lowRay.sampleDir(resSphere,g);
 }
 void VisualTextureBakerStaggered::setLaplaceRegularization(GLdouble LReg) {
@@ -71,10 +71,19 @@ void VisualTextureBakerStaggered::bakeTexture() {
   //CPU->GPU
   _texture->syncGPUData();
 }
-void VisualTextureBakerStaggered::solveLinearSystem(const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const {
+void VisualTextureBakerStaggered::solveLinearSystem(Eigen::Matrix<GLdouble,4,1>* num,GLdouble* denom) const {
   Texture::TextureCPUData& data=_texture->loadCPUData();
-  Eigen::Matrix<unsigned char,4,1>* ret=reinterpret_cast<Eigen::Matrix<unsigned char,4,1>*>(data._data);
-  memset(ret,0,sizeof(Eigen::Matrix<unsigned char,4,1>)*data._width*data._height);
+  Eigen::Matrix<GLdouble,4,1>* ret=new Eigen::Matrix<GLdouble,4,1>[data._width*data._height];
+  memset(ret,0,sizeof(Eigen::Matrix<GLdouble,4,1>)*data._width*data._height);
+  //rescale
+  #pragma omp parallel for
+  for(unsigned int h=0; h<data._height; h++)
+    for(unsigned int w=0; w<data._width; w++)
+      if(denom[w+data._width*h]>0) {
+        num[w+data._width*h]/=denom[w+data._width*h];
+        ret[w+data._width*h]=num[w+data._width*h];
+        denom[w+data._width*h]=1;
+      }
   //solve
   bool more=true;
   for(int iter=0; more; iter++) {
@@ -89,12 +98,18 @@ void VisualTextureBakerStaggered::solveLinearSystem(const Eigen::Matrix<GLdouble
       }
     std::cout << "Staggered-Solve iter=" << iter << std::endl;
   }
+  //assign
+  #pragma omp parallel for
+  for(unsigned int h=0; h<data._height; h++)
+    for(unsigned int w=0; w<data._width; w++)
+      reinterpret_cast<Eigen::Matrix<unsigned char,4,1>*>(data._data)[w+data._width*h]=(ret[w+data._width*h]*255).cast<unsigned char>();
+  delete [] ret;
 }
 bool VisualTextureBakerStaggered::applyGaussSeidel
-(int w,int h,int width,int height,Eigen::Matrix<unsigned char,4,1>* data,
+(int w,int h,int width,int height,Eigen::Matrix<GLdouble,4,1>* data,
  const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const {
-#define ToD(X) (X.cast<GLdouble>()/255).eval()
-#define FromD(X) (X*255).cast<unsigned char>()
+#define ToD(X) X//(X.cast<GLdouble>()/255).eval()
+#define FromD(X) X//(X*255).cast<unsigned char>()
   int off=w+width*h;
   //initialize
   Eigen::Matrix<GLdouble,4,1> NUM=Eigen::Matrix<GLdouble,4,1>::Zero();
@@ -138,7 +153,7 @@ bool VisualTextureBakerStaggered::applyGaussSeidel
   }
   //solve
   NUM=(NUM/DENOM).cwiseMax(Eigen::Matrix<GLdouble,4,1>::Zero()).cwiseMin(Eigen::Matrix<GLdouble,4,1>::Ones());
-  bool ret=FromD(NUM)!=data[off];
+  bool ret=(FromD(NUM)-data[off]).cwiseAbs().maxCoeff()>_tolLeastSquare;
   data[off]=FromD(NUM);
   return ret;
 #undef ToD
