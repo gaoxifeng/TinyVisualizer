@@ -6,7 +6,7 @@
 namespace DRAWER {
 VisualTextureBakerStaggered::VisualTextureBakerStaggered
 (const MeshVisualizer& high,MeshVisualizer& low,int res,int resSphere,
- const Eigen::Matrix<GLdouble,3,1>& g):TextureBaker(high,low,res),_LReg(1e-3) {
+ const Eigen::Matrix<GLdouble,3,1>& g):TextureBaker(high,low,res),_LReg(1e-2) {
   _dirs=_lowRay.sampleDir(resSphere,g);
 }
 void VisualTextureBakerStaggered::setLaplaceRegularization(GLdouble LReg) {
@@ -77,7 +77,7 @@ void VisualTextureBakerStaggered::solveLinearSystem(const Eigen::Matrix<GLdouble
   memset(ret,0,sizeof(Eigen::Matrix<unsigned char,4,1>)*data._width*data._height);
   //solve
   bool more=true;
-  for(int iter=0; more && iter<5000; iter++) {
+  for(int iter=0; more; iter++) {
     more=false;
     for(unsigned int passX=0; passX<2; passX++)
       for(unsigned int passY=0; passY<2; passY++) {
