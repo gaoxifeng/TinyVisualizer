@@ -30,8 +30,8 @@ int main(int argc,char** argv) {
   VIS_MODE mode=LOW_MESH;
   BAKER_MODE baker=VISUAL_STAGGERED;
   auto g=-Eigen::Matrix<GLdouble,3,1>::UnitY();
-  MeshVisualizer visHigh("high-poly/OBJ/SM_M2_Build_Apartment_02.obj");
-  MeshVisualizer visLow("low-poly/SM_M2_Build_Apartment_02.obj");
+  MeshVisualizer visHigh("high-poly/OBJ/SM_M2_Build_YellowHouse_01.obj");
+  MeshVisualizer visLow("low-poly/SM_M2_Build_YellowHouse_01.obj");
 
   if(baker==NORMAL) {
     NormalBasedTextureBaker baker(visHigh,visLow,res);

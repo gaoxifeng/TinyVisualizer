@@ -109,7 +109,7 @@ std::vector<RayCaster::RayIntersect> RayCaster::castRayBatched(std::vector<Eigen
         indices[newSz++]=indices[i];
     indices.resize(newSz);
     //descend
-    if(!indices.empty()) {
+    if(!indices.empty() && _bvh[id]._l>=0) {
       ss.push(std::make_pair(_bvh[id]._l,indices));
       ss.push(std::make_pair(_bvh[id]._r,indices));
     }

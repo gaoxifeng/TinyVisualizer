@@ -25,7 +25,7 @@ void VisualTextureBaker::bakeTexture() {
   for(int d=0; d<(int)_dirs.size(); d++) {
     //find rays: one ray per texel-direction pair
     std::cout << "Constructing visual rays for " << d << "/" << _dirs.size() << " view!" << std::endl;
-    std::vector<Eigen::Matrix<GLdouble,6,1>> rays(texels.size());
+    std::vector<Eigen::Matrix<GLdouble,6,1>> rays(texels.size()),raysTmp;
     #pragma omp parallel for
     for(int i=0; i<(int)texels.size(); i++) {
       const RayCaster::Triangle& tri=_lowRayTexture.getTriss()[std::get<1>(texels[i])];
@@ -39,8 +39,8 @@ void VisualTextureBaker::bakeTexture() {
       maxCorner(ray)=ctr+_dirs[d]*extLen;
     }
     std::cout << "Intersecting " << rays.size() << " visual rays!" << std::endl;
-    std::vector<RayIntersect> rayIHigh=_highRay.castRayBatched(rays);
-    std::vector<RayIntersect> rayILow=_lowRay.castRayBatched(rays);
+    std::vector<RayIntersect> rayIHigh=_highRay.castRayBatched(raysTmp=rays);
+    std::vector<RayIntersect> rayILow=_lowRay.castRayBatched(raysTmp=rays);
 
     //compute averaged color values
     std::cout << "Accumulating " << texels.size() << " visual rays!" << std::endl;
