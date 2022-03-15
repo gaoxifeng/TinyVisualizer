@@ -73,37 +73,28 @@ void VisualTextureBakerStaggered::bakeTexture() {
 }
 void VisualTextureBakerStaggered::solveLinearSystem(const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const {
   Texture::TextureCPUData& data=_texture->loadCPUData();
-  Eigen::Matrix<GLdouble,4,1>* ret=new Eigen::Matrix<GLdouble,4,1>[data._width*data._height];
-  memset(ret,0,sizeof(Eigen::Matrix<GLdouble,4,1>)*data._width*data._height);
+  Eigen::Matrix<unsigned char,4,1>* ret=reinterpret_cast<Eigen::Matrix<unsigned char,4,1>*>(data._data);
+  memset(ret,0,sizeof(Eigen::Matrix<unsigned char,4,1>)*data._width*data._height);
   //solve
-  for(int iter=0; iter<5000; iter++) {
-    GLdouble err=0;
+  bool more=true;
+  for(int iter=0; more; iter++) {
+    more=false;
     for(unsigned int passX=0; passX<2; passX++)
       for(unsigned int passY=0; passY<2; passY++) {
         #pragma omp parallel for
         for(unsigned int h=0; h<data._height; h++)
           for(unsigned int w=0; w<data._width; w++)
             if((w%2)==passX && (h%2)==passY)
-              #pragma omp atomic
-              err+=applyGaussSeidel(w,h,data._width,data._height,ret,num,denom);
-        if(err<1e-10)
-          return;
+              more=more|applyGaussSeidel(w,h,data._width,data._height,ret,num,denom);
       }
-    std::cout << "Staggered-Solve iter=" << iter << " err=" << err << std::endl;
+    std::cout << "Staggered-Solve iter=" << iter << std::endl;
   }
-  //assign
-  Eigen::Matrix<unsigned char,4,1>* dataColor=reinterpret_cast<Eigen::Matrix<unsigned char,4,1>*>(data._data);
-  #pragma omp parallel for
-  for(unsigned int h=0; h<data._height; h++)
-    for(unsigned int w=0; w<data._width; w++)
-      dataColor[w+data._width*h]=(ret[w+data._width*h]*255).cast<unsigned char>();
-  delete [] ret;
 }
-GLdouble VisualTextureBakerStaggered::applyGaussSeidel
-(int w,int h,int width,int height,Eigen::Matrix<GLdouble,4,1>* data,
+bool VisualTextureBakerStaggered::applyGaussSeidel
+(int w,int h,int width,int height,Eigen::Matrix<unsigned char,4,1>* data,
  const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const {
-#define ToD(X) X//(X.cast<GLdouble>()/255).eval()
-#define FromD(X) X//(X*255).cast<unsigned char>();
+#define ToD(X) (X.cast<GLdouble>()/255).eval()
+#define FromD(X) (X*255).cast<unsigned char>()
   int off=w+width*h;
   //initialize
   Eigen::Matrix<GLdouble,4,1> NUM=Eigen::Matrix<GLdouble,4,1>::Zero();
@@ -147,9 +138,9 @@ GLdouble VisualTextureBakerStaggered::applyGaussSeidel
   }
   //solve
   NUM=(NUM/DENOM).cwiseMin(Eigen::Matrix<GLdouble,4,1>::Ones());
-  GLdouble err=(NUM-ToD(data[off])).squaredNorm();
+  bool ret=FromD(NUM)!=data[off];
   data[off]=FromD(NUM);
-  return err;
+  return ret;
 #undef ToD
 }
 }

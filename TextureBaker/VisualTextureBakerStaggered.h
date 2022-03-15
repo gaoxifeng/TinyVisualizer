@@ -14,8 +14,8 @@ class VisualTextureBakerStaggered : public TextureBaker {
   void bakeTexture() override;
  protected:
   void solveLinearSystem(const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const;
-  GLdouble applyGaussSeidel(int w,int h,int width,int height,Eigen::Matrix<GLdouble,4,1>* data,
-                            const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const;
+  bool applyGaussSeidel(int w,int h,int width,int height,Eigen::Matrix<unsigned char,4,1>* data,
+                        const Eigen::Matrix<GLdouble,4,1>* num,const GLdouble* denom) const;
   std::vector<Eigen::Matrix<GLdouble,3,1>> _dirs;
   GLdouble _LReg;
 };
