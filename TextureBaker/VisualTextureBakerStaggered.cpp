@@ -77,7 +77,7 @@ void VisualTextureBakerStaggered::solveLinearSystem(const Eigen::Matrix<GLdouble
   memset(ret,0,sizeof(Eigen::Matrix<unsigned char,4,1>)*data._width*data._height);
   //solve
   bool more=true;
-  for(int iter=0; more; iter++) {
+  for(int iter=0; more && iter<5000; iter++) {
     more=false;
     for(unsigned int passX=0; passX<2; passX++)
       for(unsigned int passY=0; passY<2; passY++) {
@@ -137,7 +137,7 @@ bool VisualTextureBakerStaggered::applyGaussSeidel
     DENOM+=denom[off  ]/16;
   }
   //solve
-  NUM=(NUM/DENOM).cwiseMin(Eigen::Matrix<GLdouble,4,1>::Ones());
+  NUM=(NUM/DENOM).cwiseMax(Eigen::Matrix<GLdouble,4,1>::Zero()).cwiseMin(Eigen::Matrix<GLdouble,4,1>::Ones());
   bool ret=FromD(NUM)!=data[off];
   data[off]=FromD(NUM);
   return ret;
