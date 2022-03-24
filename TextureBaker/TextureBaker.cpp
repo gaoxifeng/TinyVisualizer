@@ -69,7 +69,7 @@ std::vector<TextureBaker::TexelIntersect> TextureBaker::getInteriorTexel(bool co
         indices[newSz++]=indices[i];
     indices.resize(newSz);
     //descend
-    if(!indices.empty()) {
+    if(!indices.empty() && _bvh[id]._l>=0) {
       ss.push(std::make_pair(_lowRayTexture.getBVH()[id]._l,indices));
       ss.push(std::make_pair(_lowRayTexture.getBVH()[id]._r,indices));
     }
