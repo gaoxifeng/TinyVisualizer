@@ -77,7 +77,7 @@ void VisualTextureBakerStaggered::solveLinearSystem(Eigen::Matrix<GLdouble,4,1>*
   memset(ret,0,sizeof(Eigen::Matrix<GLdouble,4,1>)*data._width*data._height);
   //rescale
   #pragma omp parallel for
-  for(unsigned int h=0; h<data._height; h++)
+  for(int h=0; h<data._height; h++)
     for(unsigned int w=0; w<data._width; w++)
       if(denom[w+data._width*h]>0) {
         num[w+data._width*h]/=denom[w+data._width*h];
@@ -91,7 +91,7 @@ void VisualTextureBakerStaggered::solveLinearSystem(Eigen::Matrix<GLdouble,4,1>*
     for(unsigned int passX=0; passX<2; passX++)
       for(unsigned int passY=0; passY<2; passY++) {
         #pragma omp parallel for
-        for(unsigned int h=0; h<data._height; h++)
+        for(int h=0; h<data._height; h++)
           for(unsigned int w=0; w<data._width; w++)
             if((w%2)==passX && (h%2)==passY)
               more=more|applyGaussSeidel(w,h,data._width,data._height,ret,num,denom);
@@ -100,7 +100,7 @@ void VisualTextureBakerStaggered::solveLinearSystem(Eigen::Matrix<GLdouble,4,1>*
   }
   //assign
   #pragma omp parallel for
-  for(unsigned int h=0; h<data._height; h++)
+  for(int h=0; h<data._height; h++)
     for(unsigned int w=0; w<data._width; w++)
       reinterpret_cast<Eigen::Matrix<unsigned char,4,1>*>(data._data)[w+data._width*h]=(ret[w+data._width*h]*255).cast<unsigned char>();
   delete [] ret;

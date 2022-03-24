@@ -1,6 +1,7 @@
 #include "MeshVisualizer.h"
 #include <TinyVisualizer/CompositeShape.h>
 #include <TinyVisualizer/MeshShape.h>
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
 
 namespace DRAWER {
