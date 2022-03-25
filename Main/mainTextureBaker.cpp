@@ -27,11 +27,13 @@ int main(int argc,char** argv) {
 
   int res=512;
   int resSphere=8;
-  VIS_MODE mode=LOW_MESH;
+  VIS_MODE mode= HIGH_MESH;
   BAKER_MODE baker= NORMAL;
   auto g=-Eigen::Matrix<GLdouble,3,1>::UnitY();
   MeshVisualizer visHigh("D:/data/siggraphasia2022/input/high-poly/OBJ/SM_M2_Build_Apartment_01.obj");
   MeshVisualizer visLow("D:/data/siggraphasia2022/input/low-poly/SM_M2_Build_Apartment_01.obj");
+  /*MeshVisualizer visHigh("D:/projects/lod/rendering/nvdiffmodeling/data/buildings/T2A_SM_M2_Build_City_01.obj");
+  MeshVisualizer visLow("D:/projects/lod/rendering/nvdiffmodeling/data/buildings/T2A_SM_M2_Build_City_01_Low.obj");*/
 
   if(baker==NORMAL) {
     NormalBasedTextureBaker baker(visHigh,visLow,res);
