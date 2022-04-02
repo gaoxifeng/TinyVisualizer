@@ -45,7 +45,7 @@ int main(int argc,char** argv) {
   points->setPointSize(5);
   points->setMode(GL_POINTS);
   points->setUseLight(false);
-  points->setColor(GL_POINTS,0,0,0);
+  points->setColor(GL_POINTS,1,0,0);
   for(int i=0; i<256; i++) {
     GLfloat theta=M_PI*2*i/256;
     points->addVertex(Eigen::Matrix<GLfloat,3,1>(R*std::cos(theta)+params.size()/2,R*std::sin(theta),0));
