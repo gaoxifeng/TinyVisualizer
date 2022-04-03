@@ -2,41 +2,23 @@
 #include <TinyVisualizer/CompositeShape.h>
 #include <TinyVisualizer/MeshShape.h>
 #include <experimental/filesystem>
+#include <iostream>
 
 namespace DRAWER {
-MeshVisualizer::MeshVisualizer(const std::string& path,const Eigen::Matrix<GLfloat,3,1>& diffuse):_diffuse(diffuse) {
+MeshVisualizer::MeshVisualizer(const std::string& path,bool shareVertex,const Eigen::Matrix<GLfloat,3,1>& diffuse):_diffuse(diffuse) {
   tinyobj::ObjReader reader;
   reader.ParseFromFile(path);
   for(const tinyobj::shape_t& shape:reader.GetShapes()) { //shape
     const tinyobj::mesh_t& mesh=shape.mesh;
     for(GLuint fid=0,voff=0; fid<mesh.num_face_vertices.size(); fid++) { //mesh
-      GLuint nV=mesh.num_face_vertices[fid];
       MeshComponent& component=_components[mesh.material_ids[fid]];
       //appearance
       if(mesh.material_ids[fid]==-1)
         initializeComponent(component);
       else initializeComponent(path,component,reader.GetMaterials()[mesh.material_ids[fid]]);
-      //geometry
-      for(GLuint i=1; i<(GLuint)nV-1; i++) { //face
-        for(GLuint vid: std::vector<GLuint>({0,i,i+1})) {  //triangle
-          const tinyobj::index_t& a=mesh.indices[voff+vid];
-          Eigen::Matrix<GLfloat,3,1> v(reader.GetAttrib().vertices[a.vertex_index*3+0],
-                                       reader.GetAttrib().vertices[a.vertex_index*3+1],
-                                       reader.GetAttrib().vertices[a.vertex_index*3+2]);
-          Eigen::Matrix<GLfloat,3,1> n(reader.GetAttrib().normals[a.normal_index*3+0],
-                                       reader.GetAttrib().normals[a.normal_index*3+1],
-                                       reader.GetAttrib().normals[a.normal_index*3+2]);
-          Eigen::Matrix<GLfloat,2,1> t(reader.GetAttrib().texcoords[a.texcoord_index*2+0],
-                                       reader.GetAttrib().texcoords[a.texcoord_index*2+1]);
-          component._mesh->addVertex(v,&t);
-          component._mesh->setNormal(component._mesh->nrVertex()-1,n);
-        }
-        Eigen::Matrix<GLuint,3,1> I(component._mesh->nrVertex()-3,
-                                    component._mesh->nrVertex()-2,
-                                    component._mesh->nrVertex()-1);
-        component._mesh->addIndex(I);
-      }
-      voff+=nV;
+      if(shareVertex)
+        readMeshComponentShared(voff,fid,reader,mesh,component);
+      else readMeshComponent(voff,fid,reader,mesh,component);
     }
   }
   //scale
@@ -112,6 +94,13 @@ void MeshVisualizer::setTexture(std::shared_ptr<Texture> texture,bool rescale,GL
     }
   }
 }
+void MeshVisualizer::printInfo() const {
+  for(auto comp:_components) {
+    std::cout << "MeshComponent: material-id=" << comp.first  <<
+              " #vertex=" << comp.second._mesh->nrVertex() <<
+              " #triangle=" << comp.second._mesh->nrIndex()/3 << std::endl;
+  }
+}
 //helper
 std::string MeshVisualizer::replaceTexturePath(std::string path) const {
   bool more=true;
@@ -128,6 +117,82 @@ std::string MeshVisualizer::replaceTexturePath(std::string path) const {
     if(path[i]=='\\')
       path[i]='/';
   return path;
+}
+void MeshVisualizer::readMeshComponent(GLuint& voff,GLuint fid,const tinyobj::ObjReader& reader,const tinyobj::mesh_t& mesh,MeshComponent& component) {
+  bool recomputeNormal=false;
+  GLuint nV=mesh.num_face_vertices[fid];
+  for(GLuint i=1; i<(GLuint)nV-1; i++) { //face
+    for(GLuint vid: std::vector<GLuint>({0,i,i+1})) {  //triangle
+      const tinyobj::index_t& a=mesh.indices[voff+vid];
+      //position
+      Eigen::Matrix<GLfloat,3,1> v(reader.GetAttrib().vertices[a.vertex_index*3+0],
+                                   reader.GetAttrib().vertices[a.vertex_index*3+1],
+                                   reader.GetAttrib().vertices[a.vertex_index*3+2]);
+      //texture
+      if(a.texcoord_index>=0) {
+        Eigen::Matrix<GLfloat,2,1> t(reader.GetAttrib().texcoords[a.texcoord_index*2+0],
+                                     reader.GetAttrib().texcoords[a.texcoord_index*2+1]);
+        component._mesh->addVertex(v,&t);
+      } else {
+        component._mesh->addVertex(v);
+      }
+      //normal
+      if(a.normal_index>=0) {
+        Eigen::Matrix<GLfloat,3,1> n(reader.GetAttrib().normals[a.normal_index*3+0],
+                                     reader.GetAttrib().normals[a.normal_index*3+1],
+                                     reader.GetAttrib().normals[a.normal_index*3+2]);
+        component._mesh->setNormal(component._mesh->nrVertex()-1,n);
+      } else recomputeNormal=true;
+    }
+    Eigen::Matrix<GLuint,3,1> I(component._mesh->nrVertex()-3,
+                                component._mesh->nrVertex()-2,
+                                component._mesh->nrVertex()-1);
+    component._mesh->addIndex(I);
+  }
+  if(recomputeNormal)
+    component._mesh->computeNormals();
+  voff+=nV;
+}
+void MeshVisualizer::readMeshComponentShared(GLuint& voff,GLuint fid,const tinyobj::ObjReader& reader,const tinyobj::mesh_t& mesh,MeshComponent& component) {
+  bool recomputeNormal=false;
+  GLuint nV=mesh.num_face_vertices[fid];
+  for(GLuint i=1; i<(GLuint)nV-1; i++) { //face
+    GLuint voffI=0;
+    Eigen::Matrix<GLuint,3,1> I;
+    for(GLuint vid: std::vector<GLuint>({0,i,i+1})) {  //triangle
+      const tinyobj::index_t& a=mesh.indices[voff+vid];
+      if(component._vertexIdMap.find(a.vertex_index)!=component._vertexIdMap.end())
+        I[voffI++]=component._vertexIdMap.find(a.vertex_index)->second;
+      else {
+        //position
+        Eigen::Matrix<GLfloat,3,1> v(reader.GetAttrib().vertices[a.vertex_index*3+0],
+                                     reader.GetAttrib().vertices[a.vertex_index*3+1],
+                                     reader.GetAttrib().vertices[a.vertex_index*3+2]);
+        //texture
+        if(a.texcoord_index>=0) {
+          ASSERT_MSGV(a.texcoord_index==a.vertex_index,"texcoord_index != vertex_index for %dth index!",voff+vid)
+          Eigen::Matrix<GLfloat,2,1> t(reader.GetAttrib().texcoords[a.texcoord_index*2+0],
+                                       reader.GetAttrib().texcoords[a.texcoord_index*2+1]);
+          component._mesh->addVertex(v,&t);
+        } else {
+          component._mesh->addVertex(v);
+        }
+        //normal
+        if(a.normal_index>=0) {
+          ASSERT_MSGV(a.normal_index==a.vertex_index,"normal_index != vertex_index for %dth index!",voff+vid)
+          Eigen::Matrix<GLfloat,3,1> n(reader.GetAttrib().normals[a.normal_index*3+0],
+                                       reader.GetAttrib().normals[a.normal_index*3+1],
+                                       reader.GetAttrib().normals[a.normal_index*3+2]);
+          component._mesh->setNormal(component._mesh->nrVertex()-1,n);
+        } else recomputeNormal=true;
+        I[voffI++]=component._vertexIdMap[a.vertex_index]=component._mesh->nrVertex()-1;
+      }
+    }
+    component._mesh->addIndex(I);
+    if(recomputeNormal)
+      component._mesh->computeNormals();
+    voff+=nV;
+  }
 }
 void MeshVisualizer::initializeComponent(const std::string& path,MeshComponent& component,const tinyobj::material_t& material) {
   if(!component._mesh) {

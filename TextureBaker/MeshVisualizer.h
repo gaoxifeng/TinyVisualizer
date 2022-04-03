@@ -17,16 +17,20 @@ class MeshVisualizer {
     std::shared_ptr<MeshShape> _mesh;
     std::shared_ptr<Texture> _texture;
     Eigen::Matrix<GLfloat,4,1> _defaultColor;
+    std::unordered_map<int,int> _vertexIdMap;
   };
-  MeshVisualizer(const std::string& path,const Eigen::Matrix<GLfloat,3,1>& diffuse=Eigen::Matrix<GLfloat,3,1>::Constant(0.5));
+  MeshVisualizer(const std::string& path,bool shareVertex=false,const Eigen::Matrix<GLfloat,3,1>& diffuse=Eigen::Matrix<GLfloat,3,1>::Constant(0.5));
   const std::unordered_map<int,MeshComponent>& getComponents() const;
   std::shared_ptr<CompositeShape> getTextureCoordShape() const;
   std::shared_ptr<CompositeShape> getShape() const;
   Eigen::Matrix<GLfloat,6,1> getBB() const;
   void saveAllTexture(const std::string& path);
   void setTexture(std::shared_ptr<Texture> texture,bool rescale,GLfloat margin);
+  void printInfo() const;
  protected:
   std::string replaceTexturePath(std::string path) const;
+  void readMeshComponent(GLuint& voff,GLuint fid,const tinyobj::ObjReader& reader,const tinyobj::mesh_t& mesh,MeshComponent& component);
+  void readMeshComponentShared(GLuint& voff,GLuint fid,const tinyobj::ObjReader& reader,const tinyobj::mesh_t& mesh,MeshComponent& component);
   void initializeComponent(const std::string& path,MeshComponent& component,const tinyobj::material_t& material);
   void initializeComponent(MeshComponent& component);
   std::unordered_map<int,MeshComponent> _components;
