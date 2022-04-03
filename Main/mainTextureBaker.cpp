@@ -27,13 +27,8 @@ int main(int argc,char** argv) {
 
   int res=512;
   int resSphere=8;
-<<<<<<< HEAD
-  VIS_MODE mode=HIGH_MESH;
-  BAKER_MODE baker=NONE;
-=======
   VIS_MODE mode= HIGH_MESH;
   BAKER_MODE baker= NORMAL;
->>>>>>> 04e6589c58413aeb93ee0fc87b8a3209a991ec01
   auto g=-Eigen::Matrix<GLdouble,3,1>::UnitY();
   MeshVisualizer visHigh("D:/data/siggraphasia2022/input/high-poly/OBJ/SM_M2_Build_Apartment_01.obj");
   MeshVisualizer visLow("D:/data/siggraphasia2022/input/low-poly/SM_M2_Build_Apartment_01.obj");

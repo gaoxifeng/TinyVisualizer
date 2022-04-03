@@ -1,6 +1,7 @@
 #ifndef PATCH_DEFORMER_H
 #define PATCH_DEFORMER_H
 
+#include <TinyVisualizer/MeshShape.h>
 #include <TextureBaker/MeshVisualizer.h>
 #include <boost/multiprecision/mpfr.hpp>
 typedef boost::multiprecision::mpfr_float mpfr_float;
@@ -22,6 +23,9 @@ class PatchDeformer {
   typedef Eigen::SparseMatrix<T> SMat;
   typedef std::vector<Eigen::Triplet<T>> Trips;
   PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer& patch3D,T convexMargin=1e-4);
+  T buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,DVec* grad,SMat* hess);
+  bool optimize(T epsl1,T wl1,T wl1Inc,T wArea,T wConvex,T wArap,int maxIter=1e4,bool callback=true,bool visualize=true);
+  const std::vector<std::shared_ptr<Shape>>& getOptimizeHistory() const;
   void debugL1(T eps,T DELTA) const;
   void debugConvex(T DELTA) const;
   void debugArea(T DELTA) const;
@@ -49,11 +53,13 @@ class PatchDeformer {
   static void addStructuredBlock(DVec& grad,const Eigen::Matrix<int,3,1>& id,const Grad& gi);
   static void addStructuredBlock(Trips& trips,const Eigen::Matrix<int,3,1>& id,const Hess& hi);
   static void addBlock(Trips& trips,int row,int col,const DMat& D);
+  std::shared_ptr<Shape> createShape(const DVec& vss) const;
   //data
   DVec _vss0;
-  std::vector<F> _Fss;
   T _convexMargin;
+  std::vector<F> _Fss;
   std::vector<Eigen::Matrix<int,3,1>> _iss,_bss;
+  std::vector<std::shared_ptr<Shape>> _history;
 };
 
 }

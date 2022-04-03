@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <TinyVisualizer/MeshShape.h>
+#include <TinyVisualizer/CompositeShape.h>
 #include <iostream>
 
 namespace DRAWER {
@@ -120,6 +121,111 @@ PatchDeformer::PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer&
     _convexMargin=std::min(_convexMargin,score);
   }
   _convexMargin-=convexMargin;
+}
+PatchDeformer::T PatchDeformer::buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,DVec* grad,SMat* hess) {
+  T ret=0;
+  if(grad)
+    grad->setZero(vss.size());
+  if(hess)
+    hess->resize(vss.size(),vss.size());
+  if(wl1>0) {
+    DVec g;
+    SMat h;
+    ret+=l1(epsl1,vss,grad?&g:NULL,hess?&h:NULL)*wl1;
+    if(grad)
+      *grad+=g*wl1;
+    if(hess)
+      *hess+=h*wl1;
+  }
+  if(wArea>0) {
+    DVec g;
+    SMat h;
+    ret+=areaLogBarrier(vss,grad?&g:NULL,hess?&h:NULL)*wArea;
+    if(grad)
+      *grad+=g*wArea;
+    if(hess)
+      *hess+=h*wArea;
+  }
+  if(wConvex>0) {
+    DVec g;
+    SMat h;
+    ret+=convexLogBarrier(vss,grad?&g:NULL,hess?&h:NULL)*wConvex;
+    if(grad)
+      *grad+=g*wConvex;
+    if(hess)
+      *hess+=h*wConvex;
+  }
+  if(wArap>0) {
+    DVec g;
+    SMat h;
+    ret+=arap(vss,grad?&g:NULL,hess?&h:NULL)*wArap;
+    if(grad)
+      *grad+=g*wArap;
+    if(hess)
+      *hess+=h*wArap;
+  }
+  return ret;
+}
+bool PatchDeformer::optimize(T epsl1,T wl1,T wl1Inc,T wArea,T wConvex,T wArap,int maxIter,bool callback,bool visualize) {
+  int it=0;
+  DVec grad;
+  SMat hess,id;
+  DVec vss=_vss0,dvss;
+  T e=0,e2=0,diagReg=0,alpha=1.0;
+  T diagRegInc=2.0,diagRegDec=0.8;
+  T alphaInc=2.0,alphaDec=0.8,alphaMin=1e-8;
+  Eigen::SimplicialCholesky<SMat> sol;
+  if(visualize)
+    _history.clear();
+  for(; it<maxIter; it++) {
+    //compute system
+    e=buildEnergy(vss,epsl1,wl1,wArea,wConvex,wArap,&grad,&hess);
+    if(callback)
+      std::cout << "Iter=" << it << " energy=" << e << " alpha=" << alpha << std::endl;
+    if(visualize)
+      _history.push_back(createShape(vss));
+    //compute search direction
+    if(it==0) {
+      //build identity
+      std::vector<Eigen::Triplet<T>> trips;
+      for(int r=0; r<hess.rows(); r++)
+        trips.push_back(Eigen::Triplet<T>(r,r,1));
+      id.resize(hess.rows(),hess.cols());
+      id.setFromTriplets(trips.begin(),trips.end());
+      //build diag0
+      for(int k=0; k<hess.outerSize(); ++k)
+        for(typename SMat::InnerIterator it(hess,k); it; ++it)
+          diagReg=std::max<T>(diagReg,std::abs(it.value()));
+      diagReg*=1e-4;
+    }
+    while(true) {
+      sol.compute(hess+id*diagReg);
+      if(sol.info()!=Eigen::Success) {
+        diagReg*=diagRegInc;
+      } else {
+        diagReg=std::min<T>(diagReg*diagRegDec,1e-8);
+        break;
+      }
+    }
+    dvss=-sol.solve(grad);
+    //line search
+    while(alpha>alphaMin) {
+      e2=buildEnergy(vss+dvss*alpha,epsl1,wl1,wArea,wConvex,wArap,NULL,NULL);
+      if(e2<e) {
+        vss+=dvss*alpha;
+        alpha*=alphaInc;
+        break;
+      } else {
+        alpha*=alphaDec;
+      }
+    }
+    if(alpha<=alphaMin)
+      break;
+  }
+  return it<maxIter;
+}
+const std::vector<std::shared_ptr<Shape>>& PatchDeformer::getOptimizeHistory() const {
+  return _history;
 }
 void PatchDeformer::debugL1(T eps,T DELTA) const {
   {
@@ -480,5 +586,33 @@ void PatchDeformer::addBlock(Trips& trips,int row,int col,const DMat& D) {
   for(int r=0; r<D.rows(); r++)
     for(int c=0; c<D.cols(); c++)
       trips.push_back(Eigen::Triplet<T>(row+r,col+c,D(r,c)));
+}
+std::shared_ptr<Shape> PatchDeformer::createShape(const DVec& vss) const {
+  std::shared_ptr<MeshShape> mesh(new MeshShape);
+  mesh->setUseLight(false);
+  mesh->setMode(GL_TRIANGLES);
+  mesh->setColorAmbient(GL_TRIANGLES,1,0,0);
+  for(int i=0; i<vss.size(); i+=2)
+    mesh->addVertex(Eigen::Matrix<GLfloat,3,1>(vss[i+0],vss[i+1],0));
+  for(int i=0; i<(int)_iss.size(); i++)
+    mesh->addIndex(_iss[i]);
+
+  std::shared_ptr<MeshShape> line(new MeshShape);
+  line->setUseLight(false);
+  line->setLineWidth(2);
+  line->setMode(GL_LINES);
+  line->setColorAmbient(GL_LINES,0,0,0);
+  for(int i=0; i<vss.size(); i+=2)
+    line->addVertex(Eigen::Matrix<GLfloat,3,1>(vss[i+0],vss[i+1],0));
+  for(int i=0; i<(int)_iss.size(); i++) {
+    line->addIndex(Eigen::Matrix<int,2,1>(_iss[i][0],_iss[i][1]));
+    line->addIndex(Eigen::Matrix<int,2,1>(_iss[i][0],_iss[i][2]));
+    line->addIndex(Eigen::Matrix<int,2,1>(_iss[i][1],_iss[i][2]));
+  }
+
+  std::shared_ptr<CompositeShape> ret(new CompositeShape);
+  ret->addShape(mesh);
+  ret->addShape(line);
+  return ret;
 }
 }
