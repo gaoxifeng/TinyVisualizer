@@ -10,7 +10,7 @@ namespace DRAWER {
 
 class PatchDeformer {
  public:
-  typedef double T;
+  typedef mpfr_float T;
   typedef Eigen::Matrix<T,2,1> Vert2;
   typedef Eigen::Matrix<T,3,1> Vert3;
   typedef Eigen::Matrix<T,6,1> Grad;
@@ -23,14 +23,15 @@ class PatchDeformer {
   typedef Eigen::SparseMatrix<T> SMat;
   typedef std::vector<Eigen::Triplet<T>> Trips;
   PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer& patch3D,T convexMargin=1e-4);
-  T buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,DVec* grad,SMat* hess);
-  bool optimize(T epsl1,T wl1,T wl1Inc,T wArea,T wConvex,T wArap,int maxIter=1e4,bool callback=true,bool visualize=true);
+  bool optimize(T epsl1=1e-2,T wl1=1e0,T wArea=1e-2,T wConvex=1e-2,T wArap=1e-2,int maxIter=1e4,T tol=1e-4,bool callback=true,bool visualize=true);
   const std::vector<std::shared_ptr<Shape>>& getOptimizeHistory() const;
   void debugL1(T eps,T DELTA) const;
   void debugConvex(T DELTA) const;
   void debugArea(T DELTA) const;
   void debugArap(T DELTA) const;
  private:
+  T buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,DVec* grad,SMat* hess);
+  void factorOutOrientation(T eps,DVec& vss,int RES=180);
   //l1
   T l1(T eps,const DVec& vss,DVec* grad,SMat* hess) const;
   T l1(T eps,const DVec& vss,const Eigen::Matrix<int,2,1>& iss,Grad* f,Hess* h) const;
@@ -58,6 +59,7 @@ class PatchDeformer {
   DVec _vss0;
   T _convexMargin;
   std::vector<F> _Fss;
+  std::vector<T> _l1Coefss;
   std::vector<Eigen::Matrix<int,3,1>> _iss,_bss;
   std::vector<std::shared_ptr<Shape>> _history;
 };

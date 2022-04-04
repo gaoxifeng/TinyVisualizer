@@ -121,70 +121,47 @@ PatchDeformer::PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer&
     _convexMargin=std::min(_convexMargin,score);
   }
   _convexMargin-=convexMargin;
+  //compute l1 energy's edge length coefficient
+  T maxL1Coefss=0;
+  _l1Coefss.resize(_bss.size());
+  for(int i=0; i<(int)_l1Coefss.size(); i++) {
+    Vert2 v[2];
+    for(int d=0; d<2; d++)
+      v[d]=_vss0.segment<2>(_bss[i][d]*2);
+    _l1Coefss[i]=(v[1]-v[0]).norm();
+    maxL1Coefss=std::max<T>(maxL1Coefss,_l1Coefss[i]);
+  }
+  for(int i=0; i<(int)_l1Coefss.size(); i++)
+    _l1Coefss[i]/=maxL1Coefss;
+
 }
-PatchDeformer::T PatchDeformer::buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,DVec* grad,SMat* hess) {
-  T ret=0;
-  if(grad)
-    grad->setZero(vss.size());
-  if(hess)
-    hess->resize(vss.size(),vss.size());
-  if(wl1>0) {
-    DVec g;
-    SMat h;
-    ret+=l1(epsl1,vss,grad?&g:NULL,hess?&h:NULL)*wl1;
-    if(grad)
-      *grad+=g*wl1;
-    if(hess)
-      *hess+=h*wl1;
-  }
-  if(wArea>0) {
-    DVec g;
-    SMat h;
-    ret+=areaLogBarrier(vss,grad?&g:NULL,hess?&h:NULL)*wArea;
-    if(grad)
-      *grad+=g*wArea;
-    if(hess)
-      *hess+=h*wArea;
-  }
-  if(wConvex>0) {
-    DVec g;
-    SMat h;
-    ret+=convexLogBarrier(vss,grad?&g:NULL,hess?&h:NULL)*wConvex;
-    if(grad)
-      *grad+=g*wConvex;
-    if(hess)
-      *hess+=h*wConvex;
-  }
-  if(wArap>0) {
-    DVec g;
-    SMat h;
-    ret+=arap(vss,grad?&g:NULL,hess?&h:NULL)*wArap;
-    if(grad)
-      *grad+=g*wArap;
-    if(hess)
-      *hess+=h*wArap;
-  }
-  return ret;
-}
-bool PatchDeformer::optimize(T epsl1,T wl1,T wl1Inc,T wArea,T wConvex,T wArap,int maxIter,bool callback,bool visualize) {
+bool PatchDeformer::optimize(T epsl1,T wl1,T wArea,T wConvex,T wArap,int maxIter,T tol,bool callback,bool visualize) {
   int it=0;
   DVec grad;
   SMat hess,id;
   DVec vss=_vss0,dvss;
   T e=0,e2=0,diagReg=0,alpha=1.0;
-  T diagRegInc=2.0,diagRegDec=0.8;
-  T alphaInc=2.0,alphaDec=0.8,alphaMin=1e-8;
+  T diagRegInc=2.0,diagRegDec=0.8,diagRegMin=0,diagRegMax=0;
+  T alphaInc=2.0,alphaDec=0.8,alphaMin=1e-8,lastAlpha=0;
   Eigen::SimplicialCholesky<SMat> sol;
   if(visualize)
     _history.clear();
   for(; it<maxIter; it++) {
     //compute system
+    factorOutOrientation(epsl1,vss);
     e=buildEnergy(vss,epsl1,wl1,wArea,wConvex,wArap,&grad,&hess);
     if(callback)
-      std::cout << "Iter=" << it << " energy=" << e << " alpha=" << alpha << std::endl;
+      std::cout << "Iter=" << it << " energy=" << e << " alpha=" << alpha <<
+                " LInf(grad)=" << grad.cwiseAbs().maxCoeff() <<
+                " diagReg=" << diagReg << std::endl;
+    if(grad.cwiseAbs().maxCoeff()<tol) {
+      if(callback)
+        std::cout << "Exit on LInf(grad)=" << grad.cwiseAbs().maxCoeff() << "<tol=" << tol << std::endl;
+      break;
+    }
     if(visualize)
       _history.push_back(createShape(vss));
-    //compute search direction
+    //problem specific initialization
     if(it==0) {
       //build identity
       std::vector<Eigen::Triplet<T>> trips;
@@ -195,32 +172,48 @@ bool PatchDeformer::optimize(T epsl1,T wl1,T wl1Inc,T wArea,T wConvex,T wArap,in
       //build diag0
       for(int k=0; k<hess.outerSize(); ++k)
         for(typename SMat::InnerIterator it(hess,k); it; ++it)
-          diagReg=std::max<T>(diagReg,std::abs(it.value()));
-      diagReg*=1e-4;
+          diagReg=std::max<T>(diagReg,abs(it.value()));
+      diagRegMin=diagReg*1e-4;
+      diagRegMax=diagReg*1e4;
     }
+    //compute search direction
     while(true) {
-      sol.compute(hess+id*diagReg);
-      if(sol.info()!=Eigen::Success) {
+      //factorize hessian
+      while(true) {
+        sol.compute(hess+id*diagReg);
+        if(sol.info()!=Eigen::Success) {
+          diagReg*=diagRegInc;
+        } else {
+          diagReg=std::max<T>(diagReg*diagRegDec,diagRegMin);
+          break;
+        }
+      }
+      dvss=-sol.solve(grad);
+      //line search
+      lastAlpha=alpha;
+      while(alpha>alphaMin) {
+        e2=buildEnergy(vss+dvss*alpha,epsl1,wl1,wArea,wConvex,wArap,NULL,NULL);
+        if(e2<e) {
+          vss+=dvss*alpha;
+          alpha*=alphaInc;
+          break;
+        } else {
+          alpha*=alphaDec;
+        }
+      }
+      if(alpha>alphaMin)
+        break;
+      else if(diagReg<diagRegMax) {
         diagReg*=diagRegInc;
-      } else {
-        diagReg=std::min<T>(diagReg*diagRegDec,1e-8);
-        break;
-      }
+        alpha=lastAlpha;
+      } else break;
     }
-    dvss=-sol.solve(grad);
-    //line search
-    while(alpha>alphaMin) {
-      e2=buildEnergy(vss+dvss*alpha,epsl1,wl1,wArea,wConvex,wArap,NULL,NULL);
-      if(e2<e) {
-        vss+=dvss*alpha;
-        alpha*=alphaInc;
-        break;
-      } else {
-        alpha*=alphaDec;
-      }
-    }
-    if(alpha<=alphaMin)
+    if(alpha<=alphaMin && diagReg>=diagRegMax) {
+      if(callback)
+        std::cout << "Exit on alpha=" << alpha << "<alphaMin=" << alphaMin <<
+                  " and diagReg=" << diagReg << ">=diagRegMax=" << diagRegMax << std::endl;
       break;
+    }
   }
   return it<maxIter;
 }
@@ -320,6 +313,72 @@ void PatchDeformer::debugArap(T DELTA) const {
   }
 }
 //helper
+PatchDeformer::T PatchDeformer::buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,DVec* grad,SMat* hess) {
+  T ret=0;
+  if(grad)
+    grad->setZero(vss.size());
+  if(hess)
+    hess->resize(vss.size(),vss.size());
+  if(wl1>0) {
+    DVec g;
+    SMat h;
+    ret+=l1(epsl1,vss,grad?&g:NULL,hess?&h:NULL)*wl1;
+    if(grad)
+      *grad+=g*wl1;
+    if(hess)
+      *hess+=h*wl1;
+  }
+  if(wArea>0) {
+    DVec g;
+    SMat h;
+    ret+=areaLogBarrier(vss,grad?&g:NULL,hess?&h:NULL)*wArea;
+    if(grad)
+      *grad+=g*wArea;
+    if(hess)
+      *hess+=h*wArea;
+  }
+  if(wConvex>0) {
+    DVec g;
+    SMat h;
+    ret+=convexLogBarrier(vss,grad?&g:NULL,hess?&h:NULL)*wConvex;
+    if(grad)
+      *grad+=g*wConvex;
+    if(hess)
+      *hess+=h*wConvex;
+  }
+  if(wArap>0) {
+    DVec g;
+    SMat h;
+    ret+=arap(vss,grad?&g:NULL,hess?&h:NULL)*wArap;
+    if(grad)
+      *grad+=g*wArap;
+    if(hess)
+      *hess+=h*wArap;
+  }
+  return ret;
+}
+void PatchDeformer::factorOutOrientation(T eps,DVec& vss,int RES) {
+  F rot;
+  T E,bestE;
+  DVec vssTmp=vss,bestVss=vss;
+  E=bestE=l1(eps,vss,NULL,NULL);
+  for(int r=0; r<RES; r++) {
+    //rotate
+    T theta=M_PI/180*(r+0.5);
+    rot(0,0)=rot(1,1)=cos(theta);
+    rot(0,1)=rot(1,0)=sin(theta);
+    rot(0,1)=-rot(0,1);
+    for(int d=0; d<vss.size(); d+=2)
+      vssTmp.segment<2>(d)=rot*vss.segment<2>(d);
+    //compute energy
+    E=l1(eps,vssTmp,NULL,NULL);
+    if(E<bestE) {
+      bestE=E;
+      bestVss=vssTmp;
+    }
+  }
+  vss.swap(bestVss);
+}
 PatchDeformer::T PatchDeformer::l1(T eps,const DVec& vss,DVec* grad,SMat* hess) const {
   Grad fi;
   Hess hi;
@@ -329,11 +388,11 @@ PatchDeformer::T PatchDeformer::l1(T eps,const DVec& vss,DVec* grad,SMat* hess) 
     grad->setZero(_vss0.size());
   for(int i=0; i<(int)_bss.size(); i++) {
     Eigen::Matrix<int,2,1> bi(_bss[i][0],_bss[i][1]);
-    e+=l1(eps,vss,bi,grad?&fi:NULL,hess?&hi:NULL);
+    e+=l1(eps,vss,bi,grad?&fi:NULL,hess?&hi:NULL)*_l1Coefss[i];
     if(grad)
-      addStructuredBlock(*grad,bi,fi);
+      addStructuredBlock(*grad,bi,fi*_l1Coefss[i]);
     if(hess)
-      addStructuredBlock(trips,bi,hi);
+      addStructuredBlock(trips,bi,hi*_l1Coefss[i]);
   }
   if(hess) {
     hess->resize(_vss0.size(),_vss0.size());
@@ -500,8 +559,10 @@ PatchDeformer::T PatchDeformer::arap(const DVec& vss,const F& d,const Eigen::Mat
   FGrad fgrad;
   fFunc(vss,d,iss,fFlat,grad?&fgrad:NULL);
   //SVD
-  Eigen::JacobiSVD<F> SVD(Eigen::Map<F>(fFlat.data()),Eigen::ComputeFullU|Eigen::ComputeFullV);
-  F Q=SVD.matrixU()*SVD.matrixV().transpose();
+  Eigen::JacobiSVD<Eigen::Matrix<double,2,2>> SVD
+      (Eigen::Map<F>(fFlat.data()).cast<double>(),
+       Eigen::ComputeFullU|Eigen::ComputeFullV);
+  F Q=(SVD.matrixU()*SVD.matrixV().transpose()).cast<T>();
   Eigen::Map<FFlat> QFlat(Q.data());
   if(grad)
     *grad=fgrad.transpose()*(fFlat-QFlat);
@@ -593,7 +654,7 @@ std::shared_ptr<Shape> PatchDeformer::createShape(const DVec& vss) const {
   mesh->setMode(GL_TRIANGLES);
   mesh->setColorAmbient(GL_TRIANGLES,1,0,0);
   for(int i=0; i<vss.size(); i+=2)
-    mesh->addVertex(Eigen::Matrix<GLfloat,3,1>(vss[i+0],vss[i+1],0));
+    mesh->addVertex(Eigen::Matrix<GLfloat,3,1>((GLfloat)vss[i+0],(GLfloat)vss[i+1],0));
   for(int i=0; i<(int)_iss.size(); i++)
     mesh->addIndex(_iss[i]);
 
@@ -603,7 +664,7 @@ std::shared_ptr<Shape> PatchDeformer::createShape(const DVec& vss) const {
   line->setMode(GL_LINES);
   line->setColorAmbient(GL_LINES,0,0,0);
   for(int i=0; i<vss.size(); i+=2)
-    line->addVertex(Eigen::Matrix<GLfloat,3,1>(vss[i+0],vss[i+1],0));
+    line->addVertex(Eigen::Matrix<GLfloat,3,1>((GLfloat)vss[i+0],(GLfloat)vss[i+1],0));
   for(int i=0; i<(int)_iss.size(); i++) {
     line->addIndex(Eigen::Matrix<int,2,1>(_iss[i][0],_iss[i][1]));
     line->addIndex(Eigen::Matrix<int,2,1>(_iss[i][0],_iss[i][2]));
