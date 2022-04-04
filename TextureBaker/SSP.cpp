@@ -9,7 +9,7 @@ SSP::SSP(const DVec& vss0,const DVec& tss0,std::shared_ptr<Texture> tex,
          const std::vector<Eigen::Matrix<int,3,1>>& iss0,T texelSize) {
   reset(vss0,tss0,tex,iss0,texelSize);
 }
-SSP::T SSP::energy(const DVec& vss,DVec* grad,SMat* hess) const {
+SSP::T SSP::energy(const DVec& vss,DVec* grad,SMat* hess,bool areaScaled) const {
   Grad fi;
   Hess hi;
   Trips trips;
@@ -17,7 +17,9 @@ SSP::T SSP::energy(const DVec& vss,DVec* grad,SMat* hess) const {
   if(grad)
     grad->setZero(vss.size());
   for(int i=0; i<(int)_JHTJHss.size(); i++) {
-    e+=energy(vss,_iss[i],_JHTJHss[i],grad?&fi:NULL,hess?&hi:NULL);
+    if(areaScaled)
+      e+=energyAreaScaled(vss,_iss[i],_JHTJHss[i],grad?&fi:NULL,hess?&hi:NULL);
+    else e+=energy(vss,_iss[i],_JHTJHss[i],grad?&fi:NULL,hess?&hi:NULL);
     if(grad)
       PatchDeformer::addStructuredBlock(*grad,_iss[i],fi);
     if(hess)
@@ -39,6 +41,16 @@ void SSP::debug(T DELTA) const {
     T e1=energy(vss+dvss*DELTA,Eigen::Matrix<int,3,1>(0,1,2),H,&grad2,NULL);
     std::cout << "SSP gradient: " << grad.dot(dvss) << " error: " << grad.dot(dvss)-(e1-e0)/DELTA << std::endl;
     std::cout << "SSP hessian: " << (hess*dvss).norm() << " error: " << (hess*dvss-(grad2-grad)/DELTA).norm() << std::endl;
+  }
+  {
+    Hess hess;
+    Grad grad,grad2;
+    F H=F::Random();
+    DVec vss=DVec::Random(6),dvss=DVec::Random(6);
+    T e0=energyAreaScaled(vss,Eigen::Matrix<int,3,1>(0,1,2),H,&grad,&hess);
+    T e1=energyAreaScaled(vss+dvss*DELTA,Eigen::Matrix<int,3,1>(0,1,2),H,&grad2,NULL);
+    std::cout << "SSPAreaScaled gradient: " << grad.dot(dvss) << " error: " << grad.dot(dvss)-(e1-e0)/DELTA << std::endl;
+    std::cout << "SSPAreaScaled hessian: " << (hess*dvss).norm() << " error: " << (hess*dvss-(grad2-grad)/DELTA).norm() << std::endl;
   }
   {
     SMat hess;
@@ -640,6 +652,87 @@ SSP::T SSP::energy(const Vert2& a,const Vert2& b,const Vert2& c,const T H[2][2],
     (*hess)(5,3)=x138*x464 + x144*(H[0][0]*x468 + H[1][0]*x467 + x405) + x146*(H[1][1]*x467 + x15*x466 + x403) + x149*(H[1][1]*x465 + x466*x5) + x151*(H[1][0]*x465 + x150*x464) + x18*x468 + x20*x467 + x406 + x465*x8;
     (*hess)(5,4)=x138*x469 + x144*(H[0][0]*x473 + H[1][0]*x472 + x200) + x146*(H[1][1]*x472 + x15*x471 + x206) + x149*(H[1][1]*x470 + x301 + x471*x5) + x151*(H[1][0]*x470 + x150*x469 + x304) + x18*x473 + x20*x472 + x447 + x470*x8;
     (*hess)(5,5)=2*x129 + x138*x474 + x144*(H[0][0]*x476 + H[1][0]*x477 + 2*x219) + x146*(H[1][1]*x477 + x15*x479 + 2*x228) + x149*(H[1][1]*x475 + x479*x5) + x151*(H[1][0]*x475 + x150*x474) + x18*x476 + x20*x477 + 2*x307 + x443*x478 + x444*x478 + x445*x478 + x446*x478 + x475*x8;
+  }
+  return E;
+}
+SSP::T SSP::energyAreaScaled(const DVec& vss,const Eigen::Matrix<int,3,1>& iss,const F H,Grad* grad,Hess* hess) const {
+  T h[2][2];
+  h[0][0]=H(0,0);
+  h[0][1]=H(0,1);
+  h[1][0]=H(1,0);
+  h[1][1]=H(1,1);
+  return energyAreaScaled(vss.segment<2>(iss[0]*2),vss.segment<2>(iss[1]*2),vss.segment<2>(iss[2]*2),h,grad,hess);
+}
+SSP::T SSP::energyAreaScaled(const Vert2& a,const Vert2& b,const Vert2& c,const T H[2][2],Grad* grad,Hess* hess) const {
+  T x0=-a[0] + b[0];
+  T x1=a[0] - c[0];
+  T x2=H[0][1]*x1;
+  T x3=H[1][1]*x0;
+  T x4=H[0][0]*x1;
+  T x5=H[1][0]*x0;
+  T x6=x4 + x5;
+  T x7=-a[1] + c[1];
+  T x8=H[0][0]*x7;
+  T x9=a[1] - b[1];
+  T x10=H[1][0]*x9;
+  T x11=H[0][1]*x7;
+  T x12=H[1][1]*x9;
+  T x13=x11 + x12;
+  T x14=-H[1][0];
+  T x15=-H[0][1];
+  T x16=2*H[0][0];
+  T x17=2*H[1][1];
+  T x18=-2*H[0][1] - 2*H[1][0] + x16 + x17;
+  T x19=H[0][1] + H[1][0];
+  T x20=-x17 + x19;
+  T x21=-x16 + x19;
+  T x22=x14 + x15;
+  T E=x0*(x2 + x3) + x1*x6 + x13*x9 + x7*(x10 + x8);
+  if(grad) {
+    (*grad)[0]=x0*(H[0][1] - H[1][1]) + x1*(H[0][0] + x14) - x2 - x3 + x6;
+    (*grad)[1]=-x10 + x13 + x7*(-H[0][0] + H[1][0]) - x8 + x9*(H[1][1] + x15);
+    (*grad)[2]=H[1][0]*x1 + x2 + 2*x3;
+    (*grad)[3]=-H[1][0]*x7 - x11 - 2*x12;
+    (*grad)[4]=-H[0][1]*x0 - 2*x4 - x5;
+    (*grad)[5]=H[0][1]*x9 + x10 + 2*x8;
+  }
+  if(hess) {
+    (*hess)(0,0)=x18;
+    (*hess)(0,1)=0;
+    (*hess)(0,2)=x20;
+    (*hess)(0,3)=0;
+    (*hess)(0,4)=x21;
+    (*hess)(0,5)=0;
+    (*hess)(1,0)=0;
+    (*hess)(1,1)=x18;
+    (*hess)(1,2)=0;
+    (*hess)(1,3)=x20;
+    (*hess)(1,4)=0;
+    (*hess)(1,5)=x21;
+    (*hess)(2,0)=x20;
+    (*hess)(2,1)=0;
+    (*hess)(2,2)=x17;
+    (*hess)(2,3)=0;
+    (*hess)(2,4)=x22;
+    (*hess)(2,5)=0;
+    (*hess)(3,0)=0;
+    (*hess)(3,1)=x20;
+    (*hess)(3,2)=0;
+    (*hess)(3,3)=x17;
+    (*hess)(3,4)=0;
+    (*hess)(3,5)=x22;
+    (*hess)(4,0)=x21;
+    (*hess)(4,1)=0;
+    (*hess)(4,2)=x22;
+    (*hess)(4,3)=0;
+    (*hess)(4,4)=x16;
+    (*hess)(4,5)=0;
+    (*hess)(5,0)=0;
+    (*hess)(5,1)=x21;
+    (*hess)(5,2)=0;
+    (*hess)(5,3)=x22;
+    (*hess)(5,4)=0;
+    (*hess)(5,5)=x16;
   }
   return E;
 }

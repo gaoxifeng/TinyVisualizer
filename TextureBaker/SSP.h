@@ -26,7 +26,7 @@ class SSP {
   SSP(const PatchDeformer& deformer,std::shared_ptr<Texture> tex,T texelSize);
   SSP(const DVec& vss0,const DVec& tss0,std::shared_ptr<Texture> tex,
       const std::vector<Eigen::Matrix<int,3,1>>& iss0,T texelSize);
-  T energy(const DVec& vss,DVec* grad,SMat* hess) const;
+  T energy(const DVec& vss,DVec* grad,SMat* hess,bool areaScaled=true) const;
   void debug(T DELTA) const;
  private:
   void reset(const DVec& vss0,const DVec& tss0,std::shared_ptr<Texture> tex,
@@ -34,6 +34,8 @@ class SSP {
   F computeJHTJH(const Vert2 t[3],std::shared_ptr<Texture> tex,T len,T texelSize) const;
   T energy(const DVec& vss,const Eigen::Matrix<int,3,1>& iss,const F H,Grad* grad,Hess* hess) const;
   T energy(const Vert2& a,const Vert2& b,const Vert2& c,const T H[2][2],Grad* grad,Hess* hess) const;
+  T energyAreaScaled(const DVec& vss,const Eigen::Matrix<int,3,1>& iss,const F H,Grad* grad,Hess* hess) const;
+  T energyAreaScaled(const Vert2& a,const Vert2& b,const Vert2& c,const T H[2][2],Grad* grad,Hess* hess) const;
   //data
   std::vector<Eigen::Matrix<int,3,1>> _iss;
   std::vector<F> _JHTJHss;

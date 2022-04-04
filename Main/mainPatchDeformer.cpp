@@ -17,7 +17,7 @@ int main(int argc,char** argv) {
   mpfr_float::default_precision(1000);
   PatchDeformer deform(patch2D,patch3D);
   SSP ssp(deform,patch3D.getComponents().begin()->second._texture,0.1);
-  deform.optimize(vss,0.0001,10,0.01,0.01,0.0,0.01,100);
+  deform.optimize(vss,0.0001,10,0.01,0.01,0.0,0.01);
   //deform.debugL1(1e-2,1e-8);
   //deform.debugConvex(1e-8);
   //deform.debugArea(1e-8);
