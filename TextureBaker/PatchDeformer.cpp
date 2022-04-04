@@ -60,9 +60,12 @@ PatchDeformer::PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer&
   const MeshVisualizer::MeshComponent& comp2D=patch2D.getComponents().begin()->second;
   const MeshVisualizer::MeshComponent& comp3D=patch3D.getComponents().begin()->second;
   //vss
+  _tss0.resize(comp2D._mesh->nrVertex()*2);
   _vss0.resize(comp2D._mesh->nrVertex()*2);
-  for(int i=0; i<comp2D._mesh->nrVertex(); i++)
+  for(int i=0; i<comp2D._mesh->nrVertex(); i++) {
     _vss0.segment<2>(i*2)=comp2D._mesh->getVertex(i).segment<2>(0).cast<T>();
+    _tss0.segment<2>(i*2)=comp3D._mesh->getTexcoord(i).cast<T>();
+  }
   //iss/bss
   Vert3 v[3];
   Eigen::Matrix<int,3,1> id;
@@ -124,11 +127,11 @@ PatchDeformer::PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer&
   //compute weight
   computeWeights();
 }
-bool PatchDeformer::optimize(T epsl1,T wl1,T wArea,T wConvex,T wArap,int maxIter,T tol,bool callback,bool visualize) {
+bool PatchDeformer::optimize(DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,int maxIter,T tol,bool callback,bool visualize) {
   int it=0;
-  DVec grad;
+  vss=_vss0;
   SMat hess,id;
-  DVec vss=_vss0,dvss;
+  DVec grad,dvss;
   T e=0,e2=0,diagReg=0,alpha=1.0;
   T diagRegInc=2.0,diagRegDec=0.8,diagRegMin=0,diagRegMax=0;
   T alphaInc=2.0,alphaDec=0.8,alphaMin=1e-8,lastAlpha=0;
@@ -182,7 +185,7 @@ bool PatchDeformer::optimize(T epsl1,T wl1,T wArea,T wConvex,T wArap,int maxIter
       lastAlpha=alpha;
       while(alpha>alphaMin) {
         e2=buildEnergy(vss+dvss*alpha,epsl1,wl1,wArea,wConvex,wArap,NULL,NULL);
-        if(e2<e) {
+        if(isfinite(e2) && e2<e) {
           vss+=dvss*alpha;
           alpha*=alphaInc;
           break;

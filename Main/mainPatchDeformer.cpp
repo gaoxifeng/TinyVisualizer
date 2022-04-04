@@ -1,5 +1,6 @@
 #include <TextureBaker/MeshVisualizer.h>
 #include <TextureBaker/PatchDeformer.h>
+#include <TextureBaker/SSP.h>
 #include <TinyVisualizer/ArrowShape.h>
 #include <TinyVisualizer/Drawer.h>
 
@@ -12,13 +13,16 @@ int main(int argc,char** argv) {
   patch2D.printInfo();
   patch3D.printInfo();
 
+  PatchDeformer::DVec vss;
   mpfr_float::default_precision(1000);
   PatchDeformer deform(patch2D,patch3D);
-  deform.optimize(0.0001,10,0.01,0.01,0.01);
+  SSP ssp(deform,patch3D.getComponents().begin()->second._texture,0.1);
+  deform.optimize(vss,0.0001,10,0.01,0.01,0.01);
   //deform.debugL1(1e-2,1e-8);
   //deform.debugConvex(1e-8);
   //deform.debugArea(1e-8);
   //deform.debugArap(1e-8);
+  ssp.debug(1e-8);
 
   int id=0;
   std::shared_ptr<Shape> last;

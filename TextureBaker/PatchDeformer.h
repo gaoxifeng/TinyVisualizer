@@ -10,7 +10,8 @@ namespace DRAWER {
 
 class PatchDeformer {
  public:
-  typedef mpfr_float T;
+  friend class SSP;
+  typedef double T;
   typedef Eigen::Matrix<T,2,1> Vert2;
   typedef Eigen::Matrix<T,3,1> Vert3;
   typedef Eigen::Matrix<T,6,1> Grad;
@@ -23,7 +24,7 @@ class PatchDeformer {
   typedef Eigen::SparseMatrix<T> SMat;
   typedef std::vector<Eigen::Triplet<T>> Trips;
   PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer& patch3D,T convexMargin=1e-4);
-  bool optimize(T epsl1=1e-2,T wl1=1e0,T wArea=1e-2,T wConvex=1e-2,T wArap=1e-2,int maxIter=1e4,T tol=1e-4,bool callback=true,bool visualize=true);
+  bool optimize(DVec& vss,T epsl1=1e-2,T wl1=1e0,T wArea=1e-2,T wConvex=1e-2,T wArap=1e-2,int maxIter=1e4,T tol=1e-4,bool callback=true,bool visualize=true);
   const std::vector<std::shared_ptr<Shape>>& getOptimizeHistory() const;
   void debugL1(T eps,T DELTA) const;
   void debugConvex(T DELTA) const;
@@ -57,8 +58,8 @@ class PatchDeformer {
   static void addBlock(Trips& trips,int row,int col,const DMat& D);
   std::shared_ptr<Shape> createShape(const DVec& vss) const;
   //data
-  DVec _vss0;
   T _convexMargin;
+  DVec _vss0,_tss0;
   std::vector<F> _Fss;
   std::vector<T> _l1Coefss,_arapCoefss;
   std::vector<Eigen::Matrix<int,3,1>> _iss,_bss;
