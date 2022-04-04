@@ -8,6 +8,7 @@ typedef boost::multiprecision::mpfr_float mpfr_float;
 
 namespace DRAWER {
 
+class SSP;
 class PatchDeformer {
  public:
   friend class SSP;
@@ -23,15 +24,16 @@ class PatchDeformer {
   typedef Eigen::Matrix<T,-1,-1> DMat;
   typedef Eigen::SparseMatrix<T> SMat;
   typedef std::vector<Eigen::Triplet<T>> Trips;
-  PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer& patch3D,T convexMargin=1e-4);
-  bool optimize(DVec& vss,T epsl1=1e-2,T wl1=1e0,T wArea=1e-2,T wConvex=1e-2,T wArap=1e-2,int maxIter=1e4,T tol=1e-4,bool callback=true,bool visualize=true);
+  PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer& patch3D,T texelSize=0.01,T convexMargin=1e-4);
+  bool optimize(DVec& vss,T epsl1=1e-2,T wl1=1e0,T wArea=1e-2,T wConvex=1e-2,T wArap=0,T wSSP=1e-2,int maxIter=1e4,T tol=1e-4,bool callback=true,bool visualize=true);
   const std::vector<std::shared_ptr<Shape>>& getOptimizeHistory() const;
   void debugL1(T eps,T DELTA) const;
   void debugConvex(T DELTA) const;
   void debugArea(T DELTA) const;
   void debugArap(T DELTA) const;
+  void debugSSP(T DELTA) const;
  private:
-  T buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,DVec* grad,SMat* hess);
+  T buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,T wSSP,DVec* grad,SMat* hess);
   void factorOutOrientation(T eps,DVec& vss,int RES=180);
   //l1
   T l1(T eps,const DVec& vss,DVec* grad,SMat* hess) const;
@@ -64,6 +66,7 @@ class PatchDeformer {
   std::vector<T> _l1Coefss,_arapCoefss;
   std::vector<Eigen::Matrix<int,3,1>> _iss,_bss;
   std::vector<std::shared_ptr<Shape>> _history;
+  std::shared_ptr<SSP> _SSP;
 };
 
 }

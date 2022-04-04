@@ -1,4 +1,5 @@
 #include "PatchDeformer.h"
+#include "SSP.h"
 #include <unordered_map>
 #include <unordered_set>
 #include <TinyVisualizer/MeshShape.h>
@@ -55,7 +56,7 @@ std::vector<int> findRing(const std::unordered_map<int,std::pair<int,int>>& bdNe
   return ret;
 }
 //PatchDeformer
-PatchDeformer::PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer& patch3D,T convexMargin) {
+PatchDeformer::PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer& patch3D,T texelSize,T convexMargin) {
   ASSERT(patch2D.getComponents().size()==1 && patch3D.getComponents().size()==1)
   const MeshVisualizer::MeshComponent& comp2D=patch2D.getComponents().begin()->second;
   const MeshVisualizer::MeshComponent& comp3D=patch3D.getComponents().begin()->second;
@@ -126,8 +127,10 @@ PatchDeformer::PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer&
   _convexMargin-=convexMargin;
   //compute weight
   computeWeights();
+  //compute SSP
+  _SSP.reset(new SSP(*this,comp3D._texture,texelSize));
 }
-bool PatchDeformer::optimize(DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,int maxIter,T tol,bool callback,bool visualize) {
+bool PatchDeformer::optimize(DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,T wSSP,int maxIter,T tol,bool callback,bool visualize) {
   int it=0;
   vss=_vss0;
   SMat hess,id;
@@ -141,7 +144,7 @@ bool PatchDeformer::optimize(DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,i
   for(; it<maxIter; it++) {
     //compute system
     factorOutOrientation(epsl1,vss);
-    e=buildEnergy(vss,epsl1,wl1,wArea,wConvex,wArap,&grad,&hess);
+    e=buildEnergy(vss,epsl1,wl1,wArea,wConvex,wArap,wSSP,&grad,&hess);
     if(callback)
       std::cout << "Iter=" << it << " energy=" << e << " alpha=" << alpha <<
                 " LInf(grad)=" << grad.cwiseAbs().maxCoeff() <<
@@ -184,7 +187,7 @@ bool PatchDeformer::optimize(DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,i
       //line search
       lastAlpha=alpha;
       while(alpha>alphaMin) {
-        e2=buildEnergy(vss+dvss*alpha,epsl1,wl1,wArea,wConvex,wArap,NULL,NULL);
+        e2=buildEnergy(vss+dvss*alpha,epsl1,wl1,wArea,wConvex,wArap,wSSP,NULL,NULL);
         if(isfinite(e2) && e2<e) {
           vss+=dvss*alpha;
           alpha*=alphaInc;
@@ -305,7 +308,7 @@ void PatchDeformer::debugArap(T DELTA) const {
   }
 }
 //helper
-PatchDeformer::T PatchDeformer::buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,DVec* grad,SMat* hess) {
+PatchDeformer::T PatchDeformer::buildEnergy(const DVec& vss,T epsl1,T wl1,T wArea,T wConvex,T wArap,T wSSP,DVec* grad,SMat* hess) {
   T ret=0;
   if(grad)
     grad->setZero(vss.size());
@@ -346,6 +349,15 @@ PatchDeformer::T PatchDeformer::buildEnergy(const DVec& vss,T epsl1,T wl1,T wAre
       *grad+=g*wArap;
     if(hess)
       *hess+=h*wArap;
+  }
+  if(wSSP>0) {
+    DVec g;
+    SMat h;
+    ret+=_SSP->energy(vss,grad?&g:NULL,hess?&h:NULL)*wSSP;
+    if(grad)
+      *grad+=g*wSSP;
+    if(hess)
+      *hess+=h*wSSP;
   }
   return ret;
 }
