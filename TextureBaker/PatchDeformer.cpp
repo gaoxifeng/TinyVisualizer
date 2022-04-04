@@ -121,19 +121,8 @@ PatchDeformer::PatchDeformer(const MeshVisualizer& patch2D,const MeshVisualizer&
     _convexMargin=std::min(_convexMargin,score);
   }
   _convexMargin-=convexMargin;
-  //compute l1 energy's edge length coefficient
-  T maxL1Coefss=0;
-  _l1Coefss.resize(_bss.size());
-  for(int i=0; i<(int)_l1Coefss.size(); i++) {
-    Vert2 v[2];
-    for(int d=0; d<2; d++)
-      v[d]=_vss0.segment<2>(_bss[i][d]*2);
-    _l1Coefss[i]=(v[1]-v[0]).norm();
-    maxL1Coefss=std::max<T>(maxL1Coefss,_l1Coefss[i]);
-  }
-  for(int i=0; i<(int)_l1Coefss.size(); i++)
-    _l1Coefss[i]/=maxL1Coefss;
-
+  //compute weight
+  computeWeights();
 }
 bool PatchDeformer::optimize(T epsl1,T wl1,T wArea,T wConvex,T wArap,int maxIter,T tol,bool callback,bool visualize) {
   int it=0;
@@ -542,11 +531,11 @@ PatchDeformer::T PatchDeformer::arap(const DVec& vss,DVec* grad,SMat* hess) cons
   if(grad)
     grad->setZero(_vss0.size());
   for(int i=0; i<(int)_iss.size(); i++) {
-    e+=arap(vss,_Fss[i],_iss[i],grad?&fi:NULL,hess?&hi:NULL);
+    e+=arap(vss,_Fss[i],_iss[i],grad?&fi:NULL,hess?&hi:NULL)*_arapCoefss[i];
     if(grad)
-      addStructuredBlock(*grad,_iss[i],fi);
+      addStructuredBlock(*grad,_iss[i],fi*_arapCoefss[i]);
     if(hess)
-      addStructuredBlock(trips,_iss[i],hi);
+      addStructuredBlock(trips,_iss[i],hi*_arapCoefss[i]);
   }
   if(hess) {
     hess->resize(_vss0.size(),_vss0.size());
@@ -624,6 +613,33 @@ PatchDeformer::F PatchDeformer::F0(const Vert3 v[3]) const {
   ret.col(0)=Proj(v[1],t1,t2)-Proj(v[0],t1,t2);
   ret.col(1)=Proj(v[2],t1,t2)-Proj(v[0],t1,t2);
   return ret;
+}
+void PatchDeformer::computeWeights() {
+  //compute arap energy's area coefficient
+  {
+    T maxArapCoefss=0;
+    _arapCoefss.resize(_iss.size());
+    for(int i=0; i<(int)_arapCoefss.size(); i++) {
+      _arapCoefss[i]=area(_vss0,_iss[i],NULL,NULL);
+      maxArapCoefss=std::max<T>(maxArapCoefss,_arapCoefss[i]);
+    }
+    for(int i=0; i<(int)_arapCoefss.size(); i++)
+      _arapCoefss[i]/=maxArapCoefss;
+  }
+  //compute l1 energy's edge length coefficient
+  {
+    T maxL1Coefss=0;
+    _l1Coefss.resize(_bss.size());
+    for(int i=0; i<(int)_l1Coefss.size(); i++) {
+      Vert2 v[2];
+      for(int d=0; d<2; d++)
+        v[d]=_vss0.segment<2>(_bss[i][d]*2);
+      _l1Coefss[i]=(v[1]-v[0]).norm();
+      maxL1Coefss=std::max<T>(maxL1Coefss,_l1Coefss[i]);
+    }
+    for(int i=0; i<(int)_l1Coefss.size(); i++)
+      _l1Coefss[i]/=maxL1Coefss;
+  }
 }
 void PatchDeformer::addStructuredBlock(DVec& grad,const Eigen::Matrix<int,2,1>& id,const Grad& gi) {
   for(int d=0; d<2; d++)

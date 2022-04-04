@@ -49,6 +49,7 @@ class PatchDeformer {
   Vert2 Proj(const Vert3& a,const Vert3& t1,const Vert3& t2) const;
   F F0(const Vert2 v[3]) const;
   F F0(const Vert3 v[3]) const;
+  void computeWeights();
   static void addStructuredBlock(DVec& grad,const Eigen::Matrix<int,2,1>& id,const Grad& gi);
   static void addStructuredBlock(Trips& trips,const Eigen::Matrix<int,2,1>& id,const Hess& hi);
   static void addStructuredBlock(DVec& grad,const Eigen::Matrix<int,3,1>& id,const Grad& gi);
@@ -59,7 +60,7 @@ class PatchDeformer {
   DVec _vss0;
   T _convexMargin;
   std::vector<F> _Fss;
-  std::vector<T> _l1Coefss;
+  std::vector<T> _l1Coefss,_arapCoefss;
   std::vector<Eigen::Matrix<int,3,1>> _iss,_bss;
   std::vector<std::shared_ptr<Shape>> _history;
 };
