@@ -11,6 +11,9 @@ class TextureBaker {
   typedef RayCaster::RayIntersect RayIntersect;
   typedef std::tuple<int,int,Eigen::Matrix<GLdouble,3,1>> TexelIntersect; //texelId,triId,bary
   TextureBaker(const MeshVisualizer& high,MeshVisualizer& low,int res);
+  const RayCaster& getHighRayCaster() const;
+  const RayCaster& getLowRayCaster() const;
+  void save(const std::string& path);
   void setNearestTextureExtender();
   void setLaplaceTextureExtender();
   virtual void bakeTexture()=0;

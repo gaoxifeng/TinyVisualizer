@@ -10,11 +10,20 @@ TextureBaker::TextureBaker(const MeshVisualizer& high,MeshVisualizer& low,int re
   _texture.reset(new Texture(res,res,GL_RGBA));
   _low.setTexture(_texture,true,2.0/res);
 }
+const RayCaster& TextureBaker::getHighRayCaster() const {
+  return _highRay;
+}
+const RayCaster& TextureBaker::getLowRayCaster() const {
+  return _lowRay;
+}
 void TextureBaker::setNearestTextureExtender() {
   _extender.reset(new NearestTextureExtender(_texture));
 }
 void TextureBaker::setLaplaceTextureExtender() {
   _extender.reset(new LaplaceTextureExtender(_texture));
+}
+void TextureBaker::save(const std::string& path) {
+  _low.getComponents().begin()->second._texture->save(path);
 }
 //helper
 Eigen::Matrix<GLdouble,2,1> TextureBaker::texelPos(int id,int w,int h,const Eigen::Matrix<GLdouble,2,1>& offset) const {

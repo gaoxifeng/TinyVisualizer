@@ -38,8 +38,8 @@ class RayCaster {
   std::vector<Eigen::Matrix<GLdouble,3,1>> sampleDir(int res,const Eigen::Matrix<GLdouble,3,1>& g=-Eigen::Matrix<GLdouble,3,1>::UnitZ()) const;
   std::vector<Eigen::Matrix<GLdouble,6,1>> sampleRay(int res,const Eigen::Matrix<GLdouble,3,1>& g=-Eigen::Matrix<GLdouble,3,1>::UnitZ()) const;
   std::shared_ptr<MeshShape> drawRay(int res,const Eigen::Matrix<GLdouble,3,1>& g=-Eigen::Matrix<GLdouble,3,1>::UnitZ(),bool batched=true) const; //for debug of castRay(Batched)
- private:
   static RayIntersect RayIntersectNone;
+ private:
   std::vector<Eigen::Matrix<GLdouble,3,1>> _vss;
   std::vector<Eigen::Matrix<GLdouble,2,1>> _tcss;
   std::vector<std::shared_ptr<Texture>> _textures;

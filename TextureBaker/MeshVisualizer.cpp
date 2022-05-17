@@ -8,7 +8,7 @@
 namespace DRAWER {
 MeshVisualizer::MeshVisualizer(const std::string& path,bool shareVertex,const Eigen::Matrix<GLfloat,3,1>& diffuse):_diffuse(diffuse) {
   tinyobj::ObjReader reader;
-  reader.ParseFromFile(path);
+  ASSERT_MSGV(reader.ParseFromFile(path),"File %s does not exist!",path.c_str())
   for(const tinyobj::shape_t& shape:reader.GetShapes()) { //shape
     const tinyobj::mesh_t& mesh=shape.mesh;
     for(GLuint fid=0,voff=0; fid<mesh.num_face_vertices.size(); fid++) { //mesh
@@ -205,8 +205,8 @@ void MeshVisualizer::initializeComponent(const std::string& path,MeshComponent& 
   if(!component._texture) {
     std::experimental::filesystem::path p(path);
     p=p.parent_path()/replaceTexturePath(material.diffuse_texname);
-    ASSERT_MSGV(std::experimental::filesystem::exists(p),"File %s does not exist!",p.c_str());
-    component._texture=Texture::load(p.string());
+    if(std::experimental::filesystem::exists(p))
+      component._texture=Texture::load(p.string());
     component._mesh->setTexture(component._texture);
   }
 }

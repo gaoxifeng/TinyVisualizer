@@ -99,7 +99,7 @@ void LaplaceTextureExtender::extend(const std::vector<TexelIntersect>& intersect
     std::cout << "Laplace iter=" << iter << std::endl;
     for(unsigned int pass=0; pass<2; pass++) {
       #pragma omp parallel for
-      for(int hh=0; hh<data._height; hh++)
+      for(unsigned int hh=0; hh<data._height; hh++)
         for(unsigned int ww=0; ww<data._width; ww++) {
           int off=ww+data._width*hh;
           if(!inside[off] && ((ww+hh)%2)==pass) {
