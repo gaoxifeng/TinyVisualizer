@@ -1,5 +1,6 @@
 #include "ArrowShape.h"
 #include "Matrix.h"
+#include <iostream>
 
 namespace DRAWER {
 ArrowShape::ArrowShape(GLfloat angle,GLfloat thickness,GLfloat thicknessOuter,int RES) {
@@ -64,10 +65,14 @@ void ArrowShape::setArrow(const Eigen::Matrix<GLfloat,3,1>& from,
   //trans
   int id;
   Eigen::Matrix<GLfloat,3,3> R;
-  R.col(2)=(to-from).normalized();
-  R.col(2).cwiseAbs().minCoeff(&id);
-  R.col(1)=Eigen::Matrix<GLfloat,3,1>::Unit(id).cross(R.col(2)).normalized();
-  R.col(0)=R.col(1).cross(R.col(2));
+  if((to-from).norm()<1e-6)
+    R.setIdentity();
+  else {
+    R.col(2)=(to-from).normalized();
+    R.col(2).cwiseAbs().minCoeff(&id);
+    R.col(1)=Eigen::Matrix<GLfloat,3,1>::Unit(id).cross(R.col(2)).normalized();
+    R.col(0)=R.col(1).cross(R.col(2));
+  }
   _T.block<3,3>(0,0)=R;
   _T.block<3,1>(0,3)=(from+to)/2;
 
@@ -76,6 +81,7 @@ void ArrowShape::setArrow(const Eigen::Matrix<GLfloat,3,1>& from,
   _bb[2]=_vertices[2];
   _bb[5]=_vertices.back();
   _bb=transformBB(_bb,_T);
+  _VBO=NULL;
 }
 void ArrowShape::draw(PASS_TYPE passType) const {
   matrixMode(GL_MODELVIEW_MATRIX);
