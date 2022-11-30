@@ -68,6 +68,12 @@ bool CompositeShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat&
       ret=true;
   return ret;
 }
+void CompositeShape::updateChild(std::shared_ptr<Shape> s,int id) {
+  ASSERT_MSGV(id<numChildren(),
+              "User called CompositeShape::updateChild with id=%d, but there are only %d children!",
+              id,numChildren())
+  _shapes[id]=s;
+}
 std::shared_ptr<Shape> CompositeShape::getChild(int id) const {
   return _shapes[id];
 }
