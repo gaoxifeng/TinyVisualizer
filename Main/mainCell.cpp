@@ -15,6 +15,7 @@ int main(int argc,char** argv) {
           ids.push_back(Eigen::Matrix<int,3,1>(x,y,z));
   cells->reset(ids,0.1f);
   drawer.addShape(cells);
+  cells->debugWriteObj("cells.obj");
 
 #define USE_LIGHT
 #ifdef USE_LIGHT

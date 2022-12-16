@@ -3,6 +3,7 @@
 #include "Matrix.h"
 #include "MakeTexture.h"
 #include "DefaultLight.h"
+#include <fstream>
 
 namespace DRAWER {
 //MeshShape
@@ -121,6 +122,58 @@ Eigen::Matrix<GLfloat,2,1> MeshShape::getTexcoord(int i) const {
 GLuint MeshShape::getIndex(int i) const {
   ASSERT_MSGV((int)_indices.size()>i,"Index %d does not exist!",i)
   return _indices[i];
+}
+void MeshShape::debugWriteObj(const std::string& path) {
+  ASSERT_MSG(path.size()>4,"obj file path.size()<=4!");
+  ASSERT_MSG(path.substr(path.size()-4)==".obj" ||
+             path.substr(path.size()-4)==".OBJ",
+             "obj file path does not end with .obj or .OBJ");
+  std::string pathMtl=path.substr(0,path.size()-4)+".mtl";
+  {
+    std::ofstream os(pathMtl);
+    os<<"Ka "<<_mat._ambient[0]<<" "<<_mat._ambient[1]<<" "<<_mat._ambient[2]<<std::endl;
+    os<<"Kd "<<_mat._diffuse[0]<<" "<<_mat._diffuse[1]<<" "<<_mat._diffuse[2]<<std::endl;
+    os<<"Ks "<<_mat._specular[0]<<" "<<_mat._specular[1]<<" "<<_mat._specular[2]<<std::endl;
+    if(_mat._tex) {
+      std::string pathTex=path.substr(0,path.size()-4)+".png";
+      os<<"map_Kd "<<pathTex<<std::endl;
+      _mat._tex->save(pathTex);
+    }
+  }
+  {
+    std::ofstream os(path);
+    os<<"mtllib "<<pathMtl<<std::endl;
+    //vertex
+    for(int i=0; i<nrVertex(); i++) {
+      auto v=getVertex(i);
+      os<<"v "<<v[0]<<" "<<v[1]<<" "<<v[2]<<std::endl;
+    }
+    if((int)_texcoords.size()==nrVertex()*2)
+      for(int i=0; i<nrVertex(); i++) {
+        auto v=getTexcoord(i);
+        os<<"vt "<<v[0]<<" "<<v[1]<<std::endl;
+      }
+    if((int)_normals.size()==nrVertex()*3)
+      for(int i=0; i<nrVertex(); i++) {
+        auto v=getNormal(i);
+        os<<"vn "<<v[0]<<" "<<v[1]<<" "<<v[2]<<std::endl;
+      }
+    //index
+    if(_mode==GL_TRIANGLES)
+      for(int i=0; i<nrIndex(); i+=3) {
+        os<<"f ";
+        for(int d=0; d<3; d++)
+          os<<(getIndex(i+d)+1)<<"/"<<(getIndex(i+d)+1)<<"/"<<(getIndex(i+d)+1)<<" ";
+        os<<std::endl;
+      }
+    if(_mode==GL_LINES)
+      for(int i=0; i<nrIndex(); i+=2) {
+        os<<"l ";
+        for(int d=0; d<2; d++)
+          os<<(getIndex(i+d)+1)<<" ";
+        os<<std::endl;
+      }
+  }
 }
 const ShadowLight::Material& MeshShape::getMaterial() const {
   return _mat;
