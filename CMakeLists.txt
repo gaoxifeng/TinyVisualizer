@@ -131,11 +131,11 @@ IF(NOT (PYTHON_BINDING STREQUAL "None"))
   SWIG_ADD_LIBRARY(pyTinyVisualizer LANGUAGE python SOURCES ${sourceSWIG})
   SWIG_LINK_LIBRARIES(pyTinyVisualizer ${Python_LIBRARIES} TinyVisualizer)
   INSTALL(TARGETS TinyVisualizer 
-          ARCHIVE DESTINATION ${Python_SITELIB}/pyTinyVisualizer
-          LIBRARY DESTINATION ${Python_SITELIB}/pyTinyVisualizer
-          PUBLIC_HEADER DESTINATION ${Python_SITELIB}/pyTinyVisualizer)
-  INSTALL(TARGETS pyTinyVisualizer LIBRARY DESTINATION ${Python_SITELIB}/pyTinyVisualizer)
-  INSTALL(FILES ${CMAKE_BINARY_DIR}/pyTinyVisualizer.py DESTINATION ${Python_SITELIB}/pyTinyVisualizer)
+          ARCHIVE DESTINATION ${PROJECT_BINARY_DIR}/pyTinyVisualizer
+          LIBRARY DESTINATION ${PROJECT_BINARY_DIR}/pyTinyVisualizer
+          PUBLIC_HEADER DESTINATION ${PROJECT_BINARY_DIR}/pyTinyVisualizer)
+  INSTALL(TARGETS pyTinyVisualizer LIBRARY DESTINATION ${PROJECT_BINARY_DIR}/pyTinyVisualizer)
+  INSTALL(FILES ${CMAKE_BINARY_DIR}/pyTinyVisualizer.py DESTINATION ${PROJECT_BINARY_DIR}/pyTinyVisualizer)
 ENDIF()
 
 #EXE
