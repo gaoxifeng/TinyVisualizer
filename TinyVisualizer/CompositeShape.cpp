@@ -91,7 +91,8 @@ bool CompositeShape::contain(std::shared_ptr<Shape> s) const {
   return false;
 }
 void CompositeShape::removeChild(std::shared_ptr<Shape> shape) {
-  std::remove(_shapes.begin(),_shapes.end(),shape);
+  auto end=std::remove(_shapes.begin(),_shapes.end(),shape);
+  _shapes.erase(end,_shapes.end());
 }
 int CompositeShape::numChildren() const {
   return (int)_shapes.size();
