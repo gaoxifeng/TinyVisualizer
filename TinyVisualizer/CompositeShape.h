@@ -23,6 +23,7 @@ class CompositeShape : public Shape {
   void updateChild(std::shared_ptr<Shape> s,int id);
   std::shared_ptr<Shape> getChild(int id) const;
   bool contain(std::shared_ptr<Shape> s) const;
+  void removeChild(int id);
   int numChildren() const;
  protected:
   std::vector<std::shared_ptr<Shape>> _shapes;
