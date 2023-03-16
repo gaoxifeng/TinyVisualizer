@@ -85,7 +85,8 @@ bool CompositeShape::contain(std::shared_ptr<Shape> s) const {
       return true;
     else {
       std::shared_ptr<CompositeShape> c=std::dynamic_pointer_cast<CompositeShape>(getChild(i));
-      return c && c->contain(s);
+      if(c && c->contain(s))
+        return true;
     }
   return false;
 }
