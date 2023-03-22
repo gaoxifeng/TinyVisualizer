@@ -46,29 +46,6 @@ class VBO {
   bool _hasT;
   bool _hasI;
 };
-//draw simple shapes
-extern void drawPointf(const Eigen::Matrix<GLfloat,2,1>& v0);
-extern void drawPointf(const Eigen::Matrix<GLfloat,3,1>& v0);
-extern void drawLinef(const Eigen::Matrix<GLfloat,2,1>& v0,
-                      const Eigen::Matrix<GLfloat,2,1>& v1);
-extern void drawLinef(const Eigen::Matrix<GLfloat,3,1>& v0,
-                      const Eigen::Matrix<GLfloat,3,1>& v1);
-extern void drawQuadf(const Eigen::Matrix<GLfloat,2,1>& v0,
-                      const Eigen::Matrix<GLfloat,2,1>& v1,
-                      const Eigen::Matrix<GLfloat,2,1>& v2,
-                      const Eigen::Matrix<GLfloat,2,1>& v3);
-extern void drawQuadf(const Eigen::Matrix<GLfloat,3,1>& v0,
-                      const Eigen::Matrix<GLfloat,3,1>& v1,
-                      const Eigen::Matrix<GLfloat,3,1>& v2,
-                      const Eigen::Matrix<GLfloat,3,1>& v3);
-extern void drawQuadf(const Eigen::Matrix<GLfloat,2,1>& t0,const Eigen::Matrix<GLfloat,2,1>& v0,
-                      const Eigen::Matrix<GLfloat,2,1>& t1,const Eigen::Matrix<GLfloat,2,1>& v1,
-                      const Eigen::Matrix<GLfloat,2,1>& t2,const Eigen::Matrix<GLfloat,2,1>& v2,
-                      const Eigen::Matrix<GLfloat,2,1>& t3,const Eigen::Matrix<GLfloat,2,1>& v3);
-extern void drawQuadf(const Eigen::Matrix<GLfloat,2,1>& t0,const Eigen::Matrix<GLfloat,3,1>& v0,
-                      const Eigen::Matrix<GLfloat,2,1>& t1,const Eigen::Matrix<GLfloat,3,1>& v1,
-                      const Eigen::Matrix<GLfloat,2,1>& t2,const Eigen::Matrix<GLfloat,3,1>& v2,
-                      const Eigen::Matrix<GLfloat,2,1>& t3,const Eigen::Matrix<GLfloat,3,1>& v3);
 }
 
 #endif

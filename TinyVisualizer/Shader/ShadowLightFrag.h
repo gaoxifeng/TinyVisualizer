@@ -1,4 +1,3 @@
-#define MAX_LIGHT 8
 const std::string LightFragConditional=
   "struct LightMaterial {\n"
   "  vec3 positionEye;\n"

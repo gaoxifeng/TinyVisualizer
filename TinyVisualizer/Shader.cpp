@@ -4,6 +4,11 @@
 
 namespace DRAWER {
 //shader
+void Shader::clearShader() {
+  for(auto& s:_shaders)
+    s.second->clear();
+  _shaders.clear();
+}
 std::shared_ptr<Shader> Shader::findShader(const std::string& name) {
   ASSERT_MSGV(_shaders.find(name)!=_shaders.end(),"Shader(%s) does not exists!",name.c_str())
   return _shaders[name];
@@ -87,14 +92,24 @@ void Shader::clear() {
     glDeleteShader(_fragS);
   if(!_compute.empty())
     glDeleteShader(_computeS);
+  _vert=_geom=_frag=_compute="";
+  _vertS=_geomS=_fragS=_computeS=-1;
 }
 std::map<std::string,std::shared_ptr<Shader>> Shader::_shaders;
 //program
+void Program::clearProgram() {
+  ASSERT_MSG(!_currentProgram,"Other program has not exited!")
+  Shader::clearShader();
+  for(auto& p:_programs)
+    p.second->clear();
+  _programs.clear();
+}
 std::shared_ptr<Program> Program::currentProgram() {
   return _currentProgram;
 }
 std::shared_ptr<Program> Program::findProgram(const std::string& name) {
-  ASSERT_MSGV(_programs.find(name)!=_programs.end(),"Program(%s) already exists!",name.c_str())
+  if(_programs.find(name)==_programs.end())
+    return std::shared_ptr<Program>();
   return _programs[name];
 }
 void Program::registerProgram(const std::string& name,const std::string& vert,const std::string& geom,const std::string& frag,const std::string& compute) {
@@ -240,7 +255,14 @@ void Program::reset(std::function<void(GLuint)> callback) {
   }
 }
 void Program::clear() {
-  glDeleteProgram(_prog);
+  _vertS=NULL;
+  _geomS=NULL;
+  _fragS=NULL;
+  _computeS=NULL;
+  if(!_name.empty())
+    glDeleteProgram(_prog);
+  _name="";
+  _prog=-1;
 }
 std::shared_ptr<Program> Program::_currentProgram;
 std::map<std::string,std::shared_ptr<Program>> Program::_programs;

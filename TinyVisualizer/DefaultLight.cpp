@@ -1,10 +1,10 @@
 #include "DefaultLight.h"
 
 namespace DRAWER {
+std::shared_ptr<Program> getDefaultProg() {
 #include "Shader/DefaultVert.h"
 #include "Shader/DefaultFrag.h"
-std::shared_ptr<Program> defaultProg;
-std::shared_ptr<Program> getDefaultProg() {
+  std::shared_ptr<Program> defaultProg=Program::findProgram("Default");
   if(!defaultProg) {
     Shader::registerShader("Default",DefaultVert,"",DefaultFrag);
     Program::registerProgram("Default","Default","","Default");
@@ -12,9 +12,9 @@ std::shared_ptr<Program> getDefaultProg() {
   }
   return defaultProg;
 }
-#include "Shader/DebugDrawTexCoordFrag.h"
-std::shared_ptr<Program> debugDrawTexCoordProg;
 std::shared_ptr<Program> getDebugDrawTexCoordProg() {
+#include "Shader/DebugDrawTexCoordFrag.h"
+  std::shared_ptr<Program> debugDrawTexCoordProg=Program::findProgram("DebugDrawTexCoord");
   if(!debugDrawTexCoordProg) {
     Shader::registerShader("DebugDrawTexCoord","","",DebugDrawTexCoordFrag);
     Program::registerProgram("DebugDrawTexCoord","Default","","DebugDrawTexCoord");
@@ -22,10 +22,10 @@ std::shared_ptr<Program> getDebugDrawTexCoordProg() {
   }
   return debugDrawTexCoordProg;
 }
+std::shared_ptr<Program> getRoundPointProg() {
 #include "Shader/RoundPointVert.h"
 #include "Shader/RoundPointFrag.h"
-std::shared_ptr<Program> roundPointProg;
-std::shared_ptr<Program> getRoundPointProg() {
+  std::shared_ptr<Program> roundPointProg=Program::findProgram("RoundPoint");
   if(!roundPointProg) {
     Shader::registerShader("RoundPoint",RoundPointVert,"",RoundPointFrag);
     Program::registerProgram("RoundPoint","RoundPoint","","RoundPoint");
@@ -35,13 +35,13 @@ std::shared_ptr<Program> getRoundPointProg() {
 }
 void setRoundPointSize(GLfloat size) {
   glEnable(GL_PROGRAM_POINT_SIZE);
-  roundPointProg->setUniformFloat("pointSize",size,false);
+  getRoundPointProg()->setUniformFloat("pointSize",size,false);
 }
+std::shared_ptr<Program> getThickLineProg() {
 #include "Shader/ThickLineVert.h"
 #include "Shader/ThickLineGeom.h"
 #include "Shader/ThickLineFrag.h"
-std::shared_ptr<Program> thickLineProg;
-std::shared_ptr<Program> getThickLineProg() {
+  std::shared_ptr<Program> thickLineProg=Program::findProgram("ThickLine");
   if(!thickLineProg) {
     Shader::registerShader("ThickLine",ThickLineVert,ThickLineGeom,ThickLineFrag);
     Program::registerProgram("ThickLine","ThickLine","ThickLine","ThickLine");
@@ -53,7 +53,7 @@ void setThickLineWidth(GLfloat size) {
   int width=0,height=0;
   GLFWwindow* wnd=glfwGetCurrentContext();
   glfwGetWindowSize(wnd,&width,&height);
-  thickLineProg->setUniformFloat("sz",size/std::max(width,height),false);
+  getThickLineProg()->setUniformFloat("sz",size/std::max(width,height),false);
 }
 void setupMaterial(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,4,1>& diffuse) {
   Program::currentProgram()->setUniformBool("useTexture",tex!=NULL,false);

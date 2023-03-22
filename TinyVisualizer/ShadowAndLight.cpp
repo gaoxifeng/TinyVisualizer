@@ -5,40 +5,9 @@
 #include <iostream>
 
 namespace DRAWER {
-#include "Shader/ShadowLightVert.h"
-#include "Shader/ShadowLightVertNoNormal.h"
-#include "Shader/NormalGeom.h"
-#include "Shader/ShadowLightFrag.h"
-#include "Shader/ShadowVert.h"
-#include "Shader/ShadowFrag.h"
-std::shared_ptr<Program> lightProg;
-std::shared_ptr<Program> lightNormalProg;
-std::shared_ptr<Program> shadowLightProg;
-std::shared_ptr<Program> shadowLightNormalProg;
-std::shared_ptr<Program> shadowProg;
+#define MAX_LIGHT 8
 ShadowLight::ShadowLight(int shadow,int softShadow,bool autoAdjust)
-  :_bias(0.1f),_softShadow(softShadow),_autoAdjust(autoAdjust),_shadow(shadow),_lightSz(0) {
-  if(!shadowLightProg) {
-    Shader::registerShader("Light",ShadowLightVert,"",LightFrag);
-    Program::registerProgram("Light","Light","","Light");
-    lightProg=Program::findProgram("Light");
-
-    Shader::registerShader("LightNormal",ShadowLightVertNoNormal,NormalGeom);
-    Program::registerProgram("LightNormal","LightNormal","LightNormal","Light");
-    lightNormalProg=Program::findProgram("LightNormal");
-
-    Shader::registerShader("ShadowLight","","",ShadowLightFrag);
-    Program::registerProgram("ShadowLight","Light","","ShadowLight");
-    shadowLightProg=Program::findProgram("ShadowLight");
-
-    Program::registerProgram("ShadowLightNormal","LightNormal","LightNormal","ShadowLight");
-    shadowLightNormalProg=Program::findProgram("ShadowLightNormal");
-
-    Shader::registerShader("Shadow",ShadowVert,"",ShadowFrag);
-    Program::registerProgram("Shadow","Shadow","","Shadow");
-    shadowProg=Program::findProgram("Shadow");
-  }
-}
+  :_bias(0.1f),_softShadow(softShadow),_autoAdjust(autoAdjust),_shadow(shadow),_lightSz(0) {}
 int ShadowLight::addLight(const Eigen::Matrix<GLfloat,3,1>& pos,
                           const Eigen::Matrix<GLfloat,3,1>& ambient,
                           const Eigen::Matrix<GLfloat,3,1>& diffuse,
@@ -114,6 +83,60 @@ void ShadowLight::setLightSpecular(int i,const Eigen::Matrix<GLfloat,3,1>& specu
 Eigen::Matrix<GLfloat,3,1> ShadowLight::getLightSpecular(int i) const {
   return _lights[i]._specular.segment<3>(0);
 }
+std::shared_ptr<Program> ShadowLight::getLightProg() const {
+#include "Shader/ShadowLightVert.h"
+#include "Shader/ShadowLightFrag.h"
+  std::shared_ptr<Program> lightProg=Program::findProgram("Light");
+  if(!lightProg) {
+    Shader::registerShader("Light",ShadowLightVert,"",LightFrag);
+    Program::registerProgram("Light","Light","","Light");
+    lightProg=Program::findProgram("Light");
+  }
+  return lightProg;
+}
+std::shared_ptr<Program> ShadowLight::getLightNormalProg() const {
+#include "Shader/ShadowLightVertNoNormal.h"
+#include "Shader/NormalGeom.h"
+  std::shared_ptr<Program> lightNormalProg=Program::findProgram("LightNormal");
+  if(!lightNormalProg) {
+    getLightProg();
+    Shader::registerShader("LightNormal",ShadowLightVertNoNormal,NormalGeom);
+    Program::registerProgram("LightNormal","LightNormal","LightNormal","Light");
+    lightNormalProg=Program::findProgram("LightNormal");
+  }
+  return lightNormalProg;
+}
+std::shared_ptr<Program> ShadowLight::getShadowLightProg() const {
+#include "Shader/ShadowLightFrag.h"
+  std::shared_ptr<Program> shadowLightProg=Program::findProgram("ShadowLight");
+  if(!shadowLightProg) {
+    getLightProg();
+    Shader::registerShader("ShadowLight","","",ShadowLightFrag);
+    Program::registerProgram("ShadowLight","Light","","ShadowLight");
+    shadowLightProg=Program::findProgram("ShadowLight");
+  }
+  return shadowLightProg;
+}
+std::shared_ptr<Program> ShadowLight::getShadowLightNormalProg() const {
+  std::shared_ptr<Program> shadowLightNormalProg=Program::findProgram("ShadowLightNormal");
+  if(!shadowLightNormalProg) {
+    getShadowLightProg();
+    Program::registerProgram("ShadowLightNormal","LightNormal","LightNormal","ShadowLight");
+    shadowLightNormalProg=Program::findProgram("ShadowLightNormal");
+  }
+  return shadowLightNormalProg;
+}
+std::shared_ptr<Program> ShadowLight::getShadowProg() const {
+#include "Shader/ShadowVert.h"
+#include "Shader/ShadowFrag.h"
+  std::shared_ptr<Program> shadowProg=Program::findProgram("Shadow");
+  if(!shadowProg) {
+    Shader::registerShader("Shadow",ShadowVert,"",ShadowFrag);
+    Program::registerProgram("Shadow","Shadow","","Shadow");
+    shadowProg=Program::findProgram("Shadow");
+  }
+  return shadowProg;
+}
 void ShadowLight::clear() {
   _lights.clear();
 }
@@ -150,16 +173,16 @@ bool ShadowLight::hasShadow() const {
 void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func) {
   if(_shadow>0) {
     GLfloat zNear,zFar,far=calculateFarPlane(bb);
-    shadowProg->begin();
-    shadowProg->setUniformFloat("far_plane",far);
+    getShadowProg()->begin();
+    getShadowProg()->setUniformFloat("far_plane",far);
     for(const Light& l:_lights) {
-      shadowProg->setUniformFloat("lightPos",Eigen::Matrix<GLfloat,3,1>(l._position.segment<3>(0)));
+      getShadowProg()->setUniformFloat("lightPos",Eigen::Matrix<GLfloat,3,1>(l._position.segment<3>(0)));
       for(int d=0; d<6; d++) {
         matrixMode(GL_MODELVIEW_MATRIX);
         pushMatrix();
         loadIdentity();
         multMatrixf(l._MV[d]);
-        shadowProg->setUniformFloat("invModelViewMatrixShadow",l._invMV[d]);
+        getShadowProg()->setUniformFloat("invModelViewMatrixShadow",l._invMV[d]);
         zRangef(bb,zNear,zFar);
         matrixMode(GL_PROJECTION_MATRIX);
         pushMatrix();
@@ -195,8 +218,8 @@ void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNorma
 
   std::shared_ptr<Program> prog;
   if(_shadow)
-    prog=recomputeNormal?shadowLightNormalProg:shadowLightProg;
-  else prog=recomputeNormal?lightNormalProg:lightProg;
+    prog=recomputeNormal?getShadowLightNormalProg():getShadowLightProg();
+  else prog=recomputeNormal?getLightNormalProg():getLightProg();
 
   prog->begin();
   prog->setUniformInt("MAX_LIGHTS",_lights.size());

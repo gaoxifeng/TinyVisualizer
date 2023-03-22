@@ -6,8 +6,6 @@
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 #endif
-#include <unordered_map>
-#include <unordered_set>
 
 namespace DRAWER {
 Bullet3DShape::Bullet3DShape():_body(NULL),_localTrans(Eigen::Matrix<GLfloat,4,4>::Identity()) {}
@@ -120,46 +118,43 @@ const btCollisionObject* Bullet3DShape::getBody() const {
 void Bullet3DShape::createShape(const btCollisionObject* b,std::shared_ptr<Texture> tex,int RES) {
   const btCollisionShape* shape=b->getCollisionShape();
   if(dynamic_cast<const btBoxShape*>(shape)) {
-    static std::shared_ptr<MeshShape> fillBox,borderBox;
-    if(!fillBox) {
-      fillBox=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(1,1,1));
-      borderBox=makeBox(1,false,Eigen::Matrix<GLfloat,3,1>(1,1,1));
-      fillBox->setTexture(tex);
+    if(!_fillBox) {
+      _fillBox=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(1,1,1));
+      _borderBox=makeBox(1,false,Eigen::Matrix<GLfloat,3,1>(1,1,1));
+      _fillBox->setTexture(tex);
     }
     btVector3 he=dynamic_cast<const btBoxShape*>(shape)->getHalfExtentsWithMargin();
     _localTrans.block<3,3>(0,0).diagonal()=Eigen::Matrix<GLfloat,3,1>(he.x(),he.y(),he.z());
-    addShape(fillBox);
+    addShape(_fillBox);
     if(!tex)
-      addShape(borderBox);
+      addShape(_borderBox);
   } else if(dynamic_cast<const btSphereShape*>(shape)) {
-    static std::shared_ptr<MeshShape> fillSphere,borderSphere;
-    if(!fillSphere) {
-      fillSphere=makeSphere(RES,true,1);
-      borderSphere=makeSphere(RES,false,1);
-      fillSphere->setTexture(tex);
+    if(!_fillSphere) {
+      _fillSphere=makeSphere(RES,true,1);
+      _borderSphere=makeSphere(RES,false,1);
+      _fillSphere->setTexture(tex);
     }
     GLfloat rad=dynamic_cast<const btSphereShape*>(shape)->getRadius();
     _localTrans.block<3,3>(0,0)*=rad;
-    addShape(fillSphere);
+    addShape(_fillSphere);
     if(!tex)
-      addShape(borderSphere);
+      addShape(_borderSphere);
   } else if(dynamic_cast<const btCapsuleShape*>(shape)) {
-    static std::unordered_map<GLfloat,std::shared_ptr<MeshShape>> fillCapsule,borderCapsule;
     GLfloat rad=dynamic_cast<const btCapsuleShape*>(shape)->getRadius();
     GLfloat height=dynamic_cast<const btCapsuleShape*>(shape)->getHalfHeight()/rad;
     int upAxis=dynamic_cast<const btCapsuleShape*>(shape)->getUpAxis();
-    if(fillCapsule.find(height)==fillCapsule.end()) {
-      fillCapsule[height]=makeCapsule(RES,true,1,height);
-      borderCapsule[height]=makeCapsule(RES,false,1,height);
-      fillCapsule[height]->setTexture(tex);
+    if(_fillCapsule.find(height)==_fillCapsule.end()) {
+      _fillCapsule[height]=makeCapsule(RES,true,1,height);
+      _borderCapsule[height]=makeCapsule(RES,false,1,height);
+      _fillCapsule[height]->setTexture(tex);
     }
     _localTrans.col(0).setUnit((upAxis+1)%3);
     _localTrans.col(1).setUnit((upAxis+2)%3);
     _localTrans.col(2).setUnit((upAxis+3)%3);
     _localTrans.block<3,3>(0,0)*=rad;
-    addShape(fillCapsule[height]);
+    addShape(_fillCapsule[height]);
     if(!tex)
-      addShape(borderCapsule[height]);
+      addShape(_borderCapsule[height]);
   } else {
     ASSERT_MSG(false,"Supported btCollisionObject!")
   }

@@ -2,8 +2,6 @@
 #include <iostream>
 
 namespace DRAWER {
-#include "Shader/MatVecMultVert.h"
-std::shared_ptr<Program> transformFeedbackProgram;
 LowDimensionalMeshShape::LowDimensionalMeshShape(std::shared_ptr<MeshShape> inner):_inner(inner),_dirtyCPU(false),_dirtyBB(false) {}
 void LowDimensionalMeshShape::setPointSize(GLfloat pointSize) {
   _inner->setPointSize(pointSize);
@@ -74,15 +72,6 @@ void LowDimensionalMeshShape::setLowToHighDimensionalMapping(const Eigen::Matrix
   _transformFeedbackVBO.reset(new VBO(DHDL.rows()/3,0,true,false,false,true));
   _transformFeedbackVBO->setVertexPosition(_inner->_vertices);
   _transformFeedbackVBO->setVertexId(id);
-  //program
-  if(!transformFeedbackProgram) {
-    Shader::registerShader("LowDimensional",MatVecMultVert);
-    Program::registerProgram("LowDimensional",[&](GLuint program) {
-      const char* varyings[]= {"VertexOut"};
-      glTransformFeedbackVaryings(program,1,varyings,GL_INTERLEAVED_ATTRIBS);
-    },"LowDimensional");
-    transformFeedbackProgram=Program::findProgram("LowDimensional");
-  }
   //bounding box
   _BBBase=_inner->getBB();
   _DHDLMax.setZero(3,DHDL.cols());
@@ -97,14 +86,14 @@ void LowDimensionalMeshShape::updateHighDimensionalMapping(const Eigen::Matrix<G
   glTexSubImage2D(GL_TEXTURE_2D,0,0,0,L.size(),1,GL_RED,GL_FLOAT,L.data());
   _LCoord->end();
   //setup program
-  transformFeedbackProgram->begin();
-  transformFeedbackProgram->setUniformInt("nL",L.size());
+  getTransformFeedbackProg()->begin();
+  getTransformFeedbackProg()->setUniformInt("nL",L.size());
   glActiveTexture(GL_TEXTURE0);
   _HMap->begin();
-  transformFeedbackProgram->setTexUnit("DHDL",0);
+  getTransformFeedbackProg()->setTexUnit("DHDL",0);
   glActiveTexture(GL_TEXTURE1);
   _LCoord->begin();
-  transformFeedbackProgram->setTexUnit("LCoord",1);
+  getTransformFeedbackProg()->setTexUnit("LCoord",1);
   glActiveTexture(GL_TEXTURE2);
   //perform computation
   glEnable(GL_RASTERIZER_DISCARD);
@@ -122,5 +111,18 @@ void LowDimensionalMeshShape::updateHighDimensionalMapping(const Eigen::Matrix<G
   Program::currentProgram()->end();
   _dirtyCPU=true;
   _dirtyBB=true;
+}
+std::shared_ptr<Program> LowDimensionalMeshShape::getTransformFeedbackProg() const {
+#include "Shader/MatVecMultVert.h"
+  std::shared_ptr<Program> transformFeedbackProgram=Program::findProgram("LowDimensional");
+  if(!transformFeedbackProgram) {
+    Shader::registerShader("LowDimensional",MatVecMultVert);
+    Program::registerProgram("LowDimensional",[&](GLuint program) {
+      const char* varyings[]= {"VertexOut"};
+      glTransformFeedbackVaryings(program,1,varyings,GL_INTERLEAVED_ATTRIBS);
+    },"LowDimensional");
+    transformFeedbackProgram=Program::findProgram("LowDimensional");
+  }
+  return transformFeedbackProgram;
 }
 }

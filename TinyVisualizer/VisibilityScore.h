@@ -22,11 +22,12 @@ class VisibilityScore {
        bool debugOutput=false);
   void debugVisibility();
   void debugVisibility(Drawer& drawer);
+  std::shared_ptr<Program> getXORProg() const;
+  std::shared_ptr<Program> getTexCopyProg() const;
  private:
   void beginXOR();
   void endXOR();
   void texCopy(int i);
-  static std::shared_ptr<Program> _XORProg,_texCopyProg;
   FBOPingPong _fboPP;
   FBO _fboRef;
 };

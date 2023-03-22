@@ -7,6 +7,7 @@
 namespace DRAWER {
 class Shader {
  public:
+  static void clearShader();
   static std::shared_ptr<Shader> findShader(const std::string& name);
   static void registerShader(const std::string& name,const std::string& vert="",const std::string& geom="",const std::string& frag="",const std::string& compute="");
   virtual ~Shader();
@@ -32,6 +33,7 @@ class Shader {
 };
 class Program {
  public:
+  static void clearProgram();
   static std::shared_ptr<Program> currentProgram();
   static std::shared_ptr<Program> findProgram(const std::string& name);
   static void registerProgram(const std::string& name,const std::string& vert="",const std::string& geom="",const std::string& frag="",const std::string& compute="");

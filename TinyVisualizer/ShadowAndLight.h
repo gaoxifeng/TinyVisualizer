@@ -44,6 +44,11 @@ class ShadowLight {
   Eigen::Matrix<GLfloat,3,1> getLightDiffuse(int i) const;
   void setLightSpecular(int i,const Eigen::Matrix<GLfloat,3,1>& specular);
   Eigen::Matrix<GLfloat,3,1> getLightSpecular(int i) const;
+  std::shared_ptr<Program> getLightProg() const;
+  std::shared_ptr<Program> getLightNormalProg() const;
+  std::shared_ptr<Program> getShadowLightProg() const;
+  std::shared_ptr<Program> getShadowLightNormalProg() const;
+  std::shared_ptr<Program> getShadowProg() const;
   void clear();
   int softShadow() const;
   void softShadow(int softPass);

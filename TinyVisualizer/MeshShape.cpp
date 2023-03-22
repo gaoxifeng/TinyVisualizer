@@ -4,6 +4,7 @@
 #include "MakeTexture.h"
 #include "DefaultLight.h"
 #include <fstream>
+#include <iostream>
 
 namespace DRAWER {
 //MeshShape
@@ -24,6 +25,11 @@ MeshShape::MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLui
   }
   setMode(mode);
   initMaterial();
+}
+MeshShape::~MeshShape() {
+  _mat._tex=NULL;
+  if(_texWhite.use_count()==1)
+    _texWhite=NULL;
 }
 void MeshShape::addIndexSingle(int i) {
   _indices.push_back(i);

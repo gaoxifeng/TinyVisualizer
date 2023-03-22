@@ -22,6 +22,7 @@ class LowDimensionalMeshShape : public Shape {
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
   void setLowToHighDimensionalMapping(const Eigen::Matrix<GLfloat,-1,-1>& DHDL);
   void updateHighDimensionalMapping(const Eigen::Matrix<GLfloat,-1,1>& L);
+  std::shared_ptr<Program> getTransformFeedbackProg() const;
  protected:
   std::shared_ptr<VBO> _transformFeedbackVBO;
   std::shared_ptr<Texture> _HMap,_LCoord;

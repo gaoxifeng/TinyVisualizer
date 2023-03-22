@@ -2,7 +2,10 @@
 #define BULLET3D_SHAPE_H
 
 #include "Drawer.h"
+#include "MeshShape.h"
 #include "CompositeShape.h"
+#include <unordered_map>
+#include <unordered_set>
 
 class btCollisionObject;
 class btDiscreteDynamicsWorld;
@@ -28,6 +31,9 @@ class Bullet3DShape : public CompositeShape {
  private:
 #ifdef BULLET_SUPPORT
   void createShape(const btCollisionObject* b,std::shared_ptr<Texture> tex=NULL,int RES=8);
+  std::shared_ptr<MeshShape> _fillBox,_borderBox;
+  std::shared_ptr<MeshShape> _fillSphere,_borderSphere;
+  std::unordered_map<GLfloat,std::shared_ptr<MeshShape>> _fillCapsule,_borderCapsule;
 #endif
   const btCollisionObject* _body;
   std::shared_ptr<Shape> _child;

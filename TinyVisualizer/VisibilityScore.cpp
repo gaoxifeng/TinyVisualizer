@@ -7,22 +7,9 @@
 #include <iostream>
 
 namespace DRAWER {
-#include "Shader/XORFrag.h"
-#include "Shader/TexCopyFrag.h"
 VisibilityScore::VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDepth)
   :_fboPP(0,levelMax,formatColor,formatDepth),
-   _fboRef(1<<levelMax,1<<levelMax,formatColor,formatDepth) {
-  if(!_XORProg) {
-    getDefaultProg();
-    Shader::registerShader("XOR","","",XORFrag);
-    Program::registerProgram("XOR","Default","","XOR");
-    _XORProg=Program::findProgram("XOR");
-
-    Shader::registerShader("TexCopy","","",TexCopyFrag);
-    Program::registerProgram("TexCopy","Default","","TexCopy");
-    _texCopyProg=Program::findProgram("TexCopy");
-  }
-}
+   _fboRef(1<<levelMax,1<<levelMax,formatColor,formatDepth) {}
 Eigen::Matrix<GLfloat,2,1> VisibilityScore::compute
 (std::function<void(const FBO&)>* ref,
  std::function<void(const FBO&)>* curr,
@@ -126,16 +113,38 @@ void VisibilityScore::debugVisibility(Drawer& drawer) {
   std::shared_ptr<MeshShape> shapeB=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(.8,.8,.8));
   compute(drawer,up, {eye}, {dir},shapeA,shapeB,true);
 }
+std::shared_ptr<Program> VisibilityScore::getXORProg() const {
+#include "Shader/XORFrag.h"
+  std::shared_ptr<Program> XORProg=Program::findProgram("XOR");
+  if(!XORProg) {
+    getDefaultProg();
+    Shader::registerShader("XOR","","",XORFrag);
+    Program::registerProgram("XOR","Default","","XOR");
+    XORProg=Program::findProgram("XOR");
+  }
+  return XORProg;
+}
+std::shared_ptr<Program> VisibilityScore::getTexCopyProg() const {
+#include "Shader/TexCopyFrag.h"
+  std::shared_ptr<Program> texCopyProg=Program::findProgram("TexCopy");
+  if(!texCopyProg) {
+    Shader::registerShader("TexCopy","","",TexCopyFrag);
+    Program::registerProgram("TexCopy","Default","","TexCopy");
+    texCopyProg=Program::findProgram("TexCopy");
+  }
+  return texCopyProg;
+}
+//helper
 void VisibilityScore::beginXOR() {
   const FBO& A=_fboRef;
   const FBO& B=_fboPP.getFBO(_fboPP.nrFBO()-1);
-  _XORProg->begin();
+  getXORProg()->begin();
   glActiveTexture(GL_TEXTURE0);
   A.getRBO().begin();
-  _XORProg->setTexUnit("tex[0]",0);
+  getXORProg()->setTexUnit("tex[0]",0);
   glActiveTexture(GL_TEXTURE1);
   B.getRBO().begin();
-  _XORProg->setTexUnit("tex[1]",1);
+  getXORProg()->setTexUnit("tex[1]",1);
   glActiveTexture(GL_TEXTURE2);
 }
 void VisibilityScore::endXOR() {
@@ -149,10 +158,10 @@ void VisibilityScore::endXOR() {
 void VisibilityScore::texCopy(int i) {
   const FBO& from=_fboPP.getFBO(i+1);
   const FBO& to=_fboPP.getFBO(i);
-  _texCopyProg->begin();
+  getTexCopyProg()->begin();
   glActiveTexture(GL_TEXTURE0);
   from.getRBO().begin();
-  _texCopyProg->setTexUnit("tex",0);
+  getTexCopyProg()->setTexUnit("tex",0);
   glActiveTexture(GL_TEXTURE1);
   to.begin();
   to.drawScreenQuad([&]() {
@@ -164,6 +173,4 @@ void VisibilityScore::texCopy(int i) {
   Program::currentProgram()->end();
   glActiveTexture(GL_TEXTURE0);
 }
-std::shared_ptr<Program> VisibilityScore::_XORProg;
-std::shared_ptr<Program> VisibilityScore::_texCopyProg;
 }

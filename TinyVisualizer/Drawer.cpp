@@ -3,6 +3,7 @@
 #include "Camera3D.h"
 #include "MeshShape.h"
 #include "DefaultLight.h"
+#include "DrawerUtility.h"
 #include "ShadowAndLight.h"
 #include "SceneStructure.h"
 #include "FirstPersonCameraManipulator.h"
@@ -431,5 +432,7 @@ void Drawer::clear() {
   }
   _plugins.clear();
   clearScene();
+  clearVBO();
+  Program::clearProgram();
 }
 }

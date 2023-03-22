@@ -2,6 +2,7 @@
 #define BOX2D_SHAPE_H
 
 #include "Drawer.h"
+#include "MeshShape.h"
 #include "CompositeShape.h"
 
 class b2Body;
@@ -25,6 +26,7 @@ class Box2DShape : public CompositeShape {
  private:
 #ifdef BOX2D_SUPPORT
   void createShape(const b2Body* b,int RES);
+  std::shared_ptr<MeshShape> _fill,_border;
 #endif
   const b2Body* _body;
   GLfloat _posx,_posy,_scale;

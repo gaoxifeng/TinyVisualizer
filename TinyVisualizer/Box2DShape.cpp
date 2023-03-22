@@ -129,17 +129,16 @@ void Box2DShape::createShape(const b2Body* b,int RES) {
       border->setMode(GL_LINES);
       addShape(border);
     } else if(dynamic_cast<const b2CircleShape*>(s)) {
-      static std::shared_ptr<MeshShape> fill,border;
-      if(!fill) {
-        fill=makeCircle(RES,true,Eigen::Matrix<GLfloat,2,1>(0,0),1);
-        border=makeCircle(RES,false,Eigen::Matrix<GLfloat,2,1>(0,0),1);
+      if(!_fill) {
+        _fill=makeCircle(RES,true,Eigen::Matrix<GLfloat,2,1>(0,0),1);
+        _border=makeCircle(RES,false,Eigen::Matrix<GLfloat,2,1>(0,0),1);
       }
       const b2CircleShape* sc=dynamic_cast<const b2CircleShape*>(s);
       _posx=sc->m_p.x;
       _posy=sc->m_p.y;
       _scale=sc->m_radius;
-      addShape(fill);
-      addShape(border);
+      addShape(_fill);
+      addShape(_border);
     } else if(dynamic_cast<const b2PolygonShape*>(s)) {
       const b2PolygonShape* sp=dynamic_cast<const b2PolygonShape*>(s);
       std::shared_ptr<MeshShape> interior(new MeshShape);

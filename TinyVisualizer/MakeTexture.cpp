@@ -77,7 +77,7 @@ std::shared_ptr<Texture> drawGrid
   },levelMin,levelMax,formatColor);
 }
 std::shared_ptr<Texture> getWhiteTexture() {
-  static std::shared_ptr<Texture> tex=drawTexture([&]() {
+  std::shared_ptr<Texture> tex=drawTexture([&]() {
     getDefaultProg()->begin();
     setupMatrixInShader();
     setupMaterial(NULL);

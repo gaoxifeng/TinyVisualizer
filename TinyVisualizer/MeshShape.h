@@ -12,6 +12,7 @@ class MeshShape : public Shape {
  public:
   MeshShape();
   MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLuint>& indices,GLenum mode);
+  virtual ~MeshShape();
   template <typename VEC,typename VECTC=Eigen::Matrix<GLfloat,2,1>>
   void addVertex(const VEC& v,const VECTC* tc=NULL) {
     _vertices.reserve(_vertices.size()+v.size());
