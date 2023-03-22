@@ -131,12 +131,12 @@ void FBO::reset(int width,int height) {
   glBindFramebuffer(GL_FRAMEBUFFER,0);
 }
 void FBO::clear() {
-  if(_fbo!=(GLuint)-1) {
+  if(_fbo!=GL_INVALID_INDEX) {
     glDeleteFramebuffers(1,&_fbo);
     if(_formatDepth!=GL_NONE)
       glDeleteRenderbuffers(1,&_dbo);
   }
-  _fbo=_dbo=(GLuint)-1;
+  _fbo=_dbo=GL_INVALID_INDEX;
 }
 //FBOShadow
 FBOShadow::FBOShadow(int res,GLenum formatDepth):_formatDepth(formatDepth) {
@@ -222,11 +222,11 @@ void FBOShadow::reset(int res) {
   glBindFramebuffer(GL_FRAMEBUFFER,0);
 }
 void FBOShadow::clear() {
-  if(_fbo!=(GLuint)-1) {
+  if(_fbo!=GL_INVALID_INDEX) {
     glDeleteFramebuffers(1,&_fbo);
     glDeleteTextures(1,&_dbo);
   }
-  _fbo=_dbo=(GLuint)-1;
+  _fbo=_dbo=GL_INVALID_INDEX;
 }
 //FBOPingPong
 FBOPingPong::FBOPingPong(int levelMin,int levelMax,GLenum formatColor,GLenum formatDepth) {

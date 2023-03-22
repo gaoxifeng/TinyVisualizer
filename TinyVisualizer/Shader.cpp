@@ -93,7 +93,7 @@ void Shader::clear() {
   if(!_compute.empty())
     glDeleteShader(_computeS);
   _vert=_geom=_frag=_compute="";
-  _vertS=_geomS=_fragS=_computeS=-1;
+  _vertS=_geomS=_fragS=_computeS=GL_INVALID_INDEX;
 }
 std::map<std::string,std::shared_ptr<Shader>> Shader::_shaders;
 //program
@@ -262,7 +262,7 @@ void Program::clear() {
   if(!_name.empty())
     glDeleteProgram(_prog);
   _name="";
-  _prog=-1;
+  _prog=GL_INVALID_INDEX;
 }
 std::shared_ptr<Program> Program::_currentProgram;
 std::map<std::string,std::shared_ptr<Program>> Program::_programs;

@@ -431,6 +431,7 @@ void Drawer::clear() {
     pi->finalize();
   }
   _plugins.clear();
+  clearLight();
   clearScene();
   clearVBO();
   Program::clearProgram();
