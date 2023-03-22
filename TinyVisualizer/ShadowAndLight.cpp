@@ -121,6 +121,7 @@ std::shared_ptr<Program> ShadowLight::getShadowLightNormalProg() const {
   std::shared_ptr<Program> shadowLightNormalProg=Program::findProgram("ShadowLightNormal");
   if(!shadowLightNormalProg) {
     getShadowLightProg();
+    getLightNormalProg();
     Program::registerProgram("ShadowLightNormal","LightNormal","LightNormal","ShadowLight");
     shadowLightNormalProg=Program::findProgram("ShadowLightNormal");
   }

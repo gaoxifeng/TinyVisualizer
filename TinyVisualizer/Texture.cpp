@@ -132,6 +132,8 @@ void Texture::reset(int width,int height) {
   _data=TextureCPUData();
 }
 void Texture::clear() {
-  glDeleteTextures(1,&_id);
+  if(_id!=(GLuint)-1)
+    glDeleteTextures(1,&_id);
+  _id=-1;
 }
 }
