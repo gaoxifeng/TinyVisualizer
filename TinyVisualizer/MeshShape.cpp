@@ -31,6 +31,29 @@ MeshShape::~MeshShape() {
   if(_texWhite.use_count()==1)
     _texWhite=NULL;
 }
+void MeshShape::addVertex(const Eigen::Matrix<GLfloat,-1,1>& v,const Eigen::Matrix<GLfloat,-1,1>* tc) {
+  _vertices.reserve(_vertices.size()+v.size());
+  if(tc) {
+    _texcoords.reserve(_texcoords.size()+tc->size());
+    ASSERT_MSG(_texcoords.size()/2==_vertices.size()/3,"_texcoords.size() != vertices.size()!")
+  }
+  for(int i=0,j=0; i<v.size(); i+=3,j+=2) {
+    _vertices.push_back(v[i+0]);
+    _vertices.push_back(v[i+1]);
+    _vertices.push_back(v[i+2]);
+    if(tc) {
+      _texcoords.push_back((*tc)[j+0]);
+      _texcoords.push_back((*tc)[j+1]);
+    }
+  }
+  _VBO=NULL;
+  _dirty=true;
+}
+void MeshShape::addIndex(const Eigen::Matrix<GLuint,-1,1>& I) {
+  for(int i=0; i<I.size(); i++)
+    _indices.push_back(I[i]);
+  _VBO=NULL;
+}
 void MeshShape::addIndexSingle(int i) {
   _indices.push_back(i);
   _VBO=NULL;

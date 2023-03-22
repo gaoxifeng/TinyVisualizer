@@ -12,12 +12,12 @@ TerrainShape::TerrainShape(const Eigen::Matrix<GLfloat,-1,-1>& height,int upAxis
   ASSERT_MSG(height.size()>0,"Empty terrain!")
   for(int x=0; x<height.rows(); x++)
     for(int y=0; y<height.cols(); y++) {
-      Eigen::Matrix<GLfloat,3,1> pos(x,y,height(x,y));
-      Eigen::Matrix<GLfloat,2,1> tc(x*tcMult[0],y*tcMult[1]);
+      Eigen::Matrix<GLfloat,-1,1> pos=Eigen::Matrix<GLfloat,3,1>(x,y,height(x,y));
+      Eigen::Matrix<GLfloat,-1,1> tc=Eigen::Matrix<GLfloat,2,1>(x*tcMult[0],y*tcMult[1]);
       addVertex(((rotate*pos).array()*scale.array()).matrix(),&tc);
       if(x<height.rows()-1 && y<height.cols()-1) {
-        addIndex(Eigen::Matrix<int,3,1>(ID(x,y),ID(x+1,y),ID(x+1,y+1)));
-        addIndex(Eigen::Matrix<int,3,1>(ID(x,y),ID(x+1,y+1),ID(x,y+1)));
+        addIndex(Eigen::Matrix<GLuint,3,1>(ID(x,y),ID(x+1,y),ID(x+1,y+1)));
+        addIndex(Eigen::Matrix<GLuint,3,1>(ID(x,y),ID(x+1,y+1),ID(x,y+1)));
       }
     }
   setMode(GL_TRIANGLES);
@@ -43,11 +43,11 @@ TerrainShape::TerrainShape(std::function<GLfloat(GLfloat,GLfloat)> height,int up
       pos=height(xP,yP)*Eigen::Matrix<GLfloat,3,1>::Unit(upAxis);
       pos+=xP*Eigen::Matrix<GLfloat,3,1>::Unit(axisA);
       pos+=yP*Eigen::Matrix<GLfloat,3,1>::Unit(axisB);
-      Eigen::Matrix<GLfloat,2,1> tc(x*tcMult[0],y*tcMult[1]);
+      Eigen::Matrix<GLfloat,-1,1> tc=Eigen::Matrix<GLfloat,2,1>(x*tcMult[0],y*tcMult[1]);
       addVertex(pos,&tc);
       if(x<nrSegA && y<nrSegB) {
-        addIndex(Eigen::Matrix<int,3,1>(ID(x,y),ID(x+1,y),ID(x+1,y+1)));
-        addIndex(Eigen::Matrix<int,3,1>(ID(x,y),ID(x+1,y+1),ID(x,y+1)));
+        addIndex(Eigen::Matrix<GLuint,3,1>(ID(x,y),ID(x+1,y),ID(x+1,y+1)));
+        addIndex(Eigen::Matrix<GLuint,3,1>(ID(x,y),ID(x+1,y+1),ID(x,y+1)));
       }
     }
   setMode(GL_TRIANGLES);

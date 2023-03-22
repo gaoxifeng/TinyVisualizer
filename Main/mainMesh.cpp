@@ -12,7 +12,7 @@ int main(int argc,char** argv) {
   std::ifstream newfile;
   std::string t,a,b,c;
   std::vector<GLfloat> vertices;
-  std::vector<int> indices,indicesE;
+  std::vector<GLuint> indices,indicesE;
   newfile.open("bunny.obj",std::ios::in);
   if(newfile.is_open()) {
     std::string tp;
@@ -43,8 +43,8 @@ int main(int argc,char** argv) {
     newfile.close();
   }
   Eigen::Matrix<GLfloat,-1,3,Eigen::RowMajor> DV=Eigen::Map<Eigen::Matrix<GLfloat,-1,3,Eigen::RowMajor>>(vertices.data(),vertices.size()/3,3);
-  Eigen::Matrix<int,-1,3,Eigen::RowMajor> DF=Eigen::Map<Eigen::Matrix<int,-1,3,Eigen::RowMajor>>(indices.data(),indices.size()/3,3);
-  Eigen::Matrix<int,-1,2,Eigen::RowMajor> DE=Eigen::Map<Eigen::Matrix<int,-1,2,Eigen::RowMajor>>(indicesE.data(),indicesE.size()/2,2);
+  Eigen::Matrix<GLuint,-1,3,Eigen::RowMajor> DF=Eigen::Map<Eigen::Matrix<GLuint,-1,3,Eigen::RowMajor>>(indices.data(),indices.size()/3,3);
+  Eigen::Matrix<GLuint,-1,2,Eigen::RowMajor> DE=Eigen::Map<Eigen::Matrix<GLuint,-1,2,Eigen::RowMajor>>(indicesE.data(),indicesE.size()/2,2);
   std::cout << "Read " << vertices.size()/3 << " vertices, " << indices.size()/3 << " triangles!" << std::endl;
 
   //fill

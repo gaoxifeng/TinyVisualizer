@@ -13,31 +13,8 @@ class MeshShape : public Shape {
   MeshShape();
   MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLuint>& indices,GLenum mode);
   virtual ~MeshShape();
-  template <typename VEC,typename VECTC=Eigen::Matrix<GLfloat,2,1>>
-  void addVertex(const VEC& v,const VECTC* tc=NULL) {
-    _vertices.reserve(_vertices.size()+v.size());
-    if(tc) {
-      _texcoords.reserve(_texcoords.size()+tc->size());
-      ASSERT_MSG(_texcoords.size()/2==_vertices.size()/3,"_texcoords.size() != vertices.size()!")
-    }
-    for(int i=0,j=0; i<v.size(); i+=3,j+=2) {
-      _vertices.push_back(v[i+0]);
-      _vertices.push_back(v[i+1]);
-      _vertices.push_back(v[i+2]);
-      if(tc) {
-        _texcoords.push_back((*tc)[j+0]);
-        _texcoords.push_back((*tc)[j+1]);
-      }
-    }
-    _VBO=NULL;
-    _dirty=true;
-  }
-  template <typename VEC>
-  void addIndex(const VEC& I) {
-    for(int i=0; i<I.size(); i++)
-      _indices.push_back(I[i]);
-    _VBO=NULL;
-  }
+  void addVertex(const Eigen::Matrix<GLfloat,-1,1>& v,const Eigen::Matrix<GLfloat,-1,1>* tc=NULL);
+  void addIndex(const Eigen::Matrix<GLuint,-1,1>& I);
   void addIndexSingle(int i);
   void setMode(GLenum mode);
   int nrVertex() const;

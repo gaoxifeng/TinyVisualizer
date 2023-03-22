@@ -91,7 +91,7 @@ void BezierCurveShape::subdivide() {
   computeNormals();
   if(_RES==0)
     for(int i=0; i<nrVertex()-1; i++)
-      addIndex(Eigen::Matrix<GLfloat,2,1>(i,i+1));
+      addIndex(Eigen::Matrix<GLuint,2,1>(i,i+1));
   else tessellate();
 }
 Eigen::Matrix<GLfloat,6,1> BezierCurveShape::getBB() const {
@@ -137,8 +137,8 @@ void BezierCurveShape::tessellate() {
       normals.push_back(n[1]);
       normals.push_back(n[2]);
       Eigen::Matrix<GLfloat,3,1> v=(v0+n*_thickness);
-      addIndex(Eigen::Matrix<int,3,1>(off+r,off+r+_RES,off+(r+1)%_RES+_RES));
-      addIndex(Eigen::Matrix<int,3,1>(off+r,off+(r+1)%_RES+_RES,off+(r+1)%_RES));
+      addIndex(Eigen::Matrix<GLuint,3,1>(off+r,off+r+_RES,off+(r+1)%_RES+_RES));
+      addIndex(Eigen::Matrix<GLuint,3,1>(off+r,off+(r+1)%_RES+_RES,off+(r+1)%_RES));
       vertices.push_back(v[0]);
       vertices.push_back(v[1]);
       vertices.push_back(v[2]);

@@ -59,8 +59,8 @@ void CellShape::reset(const std::vector<Eigen::Matrix<int,3,1>>& idsV,GLfloat re
     for(const Eigen::Matrix<int,4,1>& q:quads) {
       for(int d=0; d<4; d++)
         addVertex(vertsInv.find(q[d])->second.template cast<GLfloat>()*res-Eigen::Matrix<GLfloat,3,1>::Constant(res/2));
-      addIndex(Eigen::Matrix<int,3,1>(off+0,off+1,off+2));
-      addIndex(Eigen::Matrix<int,3,1>(off+0,off+2,off+3));
+      addIndex(Eigen::Matrix<GLuint,3,1>(off+0,off+1,off+2));
+      addIndex(Eigen::Matrix<GLuint,3,1>(off+0,off+2,off+3));
       off+=4;
     }
   } else {
@@ -69,8 +69,8 @@ void CellShape::reset(const std::vector<Eigen::Matrix<int,3,1>>& idsV,GLfloat re
       addVertex(vInv.second.template cast<GLfloat>()*res-Eigen::Matrix<GLfloat,3,1>::Constant(res/2));
     //insert face
     for(const Eigen::Matrix<int,4,1>& q:quads) {
-      addIndex(Eigen::Matrix<int,3,1>(q[0],q[1],q[2]));
-      addIndex(Eigen::Matrix<int,3,1>(q[0],q[2],q[3]));
+      addIndex(Eigen::Matrix<GLuint,3,1>(q[0],q[1],q[2]));
+      addIndex(Eigen::Matrix<GLuint,3,1>(q[0],q[2],q[3]));
     }
   }
   setMode(GL_TRIANGLES);

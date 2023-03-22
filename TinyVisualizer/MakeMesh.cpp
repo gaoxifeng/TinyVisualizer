@@ -3,7 +3,7 @@
 namespace DRAWER {
 std::shared_ptr<MeshShape> makeSquare(bool fill,const Eigen::Matrix<GLfloat,2,1>& halfExt,GLfloat depth) {
   std::shared_ptr<MeshShape> shape(new MeshShape);
-  Eigen::Matrix<GLfloat,2,1> tc;
+  Eigen::Matrix<GLfloat,-1,1> tc;
   tc=Eigen::Matrix<GLfloat,2,1>(0,0);
   shape->addVertex(Eigen::Matrix<GLfloat,3,1>(-halfExt[0],-halfExt[1],depth),&tc);
   tc=Eigen::Matrix<GLfloat,2,1>(1,0);
@@ -12,7 +12,7 @@ std::shared_ptr<MeshShape> makeSquare(bool fill,const Eigen::Matrix<GLfloat,2,1>
   shape->addVertex(Eigen::Matrix<GLfloat,3,1>( halfExt[0], halfExt[1],depth),&tc);
   tc=Eigen::Matrix<GLfloat,2,1>(0,1);
   shape->addVertex(Eigen::Matrix<GLfloat,3,1>(-halfExt[0], halfExt[1],depth),&tc);
-  shape->addIndex(Eigen::Matrix<int,4,1>(0,1,2,3));
+  shape->addIndex(Eigen::Matrix<GLuint,4,1>(0,1,2,3));
   shape->setMode(fill?GL_QUADS:GL_LINE_LOOP);
   return shape;
 }
@@ -35,7 +35,7 @@ void makeGridLine(MeshShape& mesh,int RES,const Eigen::Matrix<GLfloat,3,1>& ctr,
   for(int y=0; y<=RES; y++) {
     mesh.addVertex(ctr+d*(2*y/(GLfloat)RES-1));
     if(y<RES)
-      mesh.addIndex(Eigen::Matrix<int,2,1>(ID(x,y),ID(x,y+1)));
+      mesh.addIndex(Eigen::Matrix<GLuint,2,1>(ID(x,y),ID(x,y+1)));
   }
 #undef ID
 }
@@ -49,11 +49,11 @@ void makeGrid(MeshShape& mesh,int RESX,int RESY,bool fill,const Eigen::Matrix<GL
     int off=mesh.nrVertex();
     for(int x=0; x<=RESX; x++)
       for(int y=0; y<=RESY; y++) {
-        Eigen::Matrix<GLfloat,2,1> tc(x*coefTC,y*coefTC);
+        Eigen::Matrix<GLfloat,-1,1> tc=Eigen::Matrix<GLfloat,2,1>(x*coefTC,y*coefTC);
         mesh.addVertex(ctr+d0*(2*x/(GLfloat)RESX-1)+d1*(2*y/(GLfloat)RESY-1),&tc);
         if(x<RESX && y<RESY) {
-          mesh.addIndex(Eigen::Matrix<int,3,1>(ID(x,y),ID(x+1,y),ID(x+1,y+1)));
-          mesh.addIndex(Eigen::Matrix<int,3,1>(ID(x,y),ID(x+1,y+1),ID(x,y+1)));
+          mesh.addIndex(Eigen::Matrix<GLuint,3,1>(ID(x,y),ID(x+1,y),ID(x+1,y+1)));
+          mesh.addIndex(Eigen::Matrix<GLuint,3,1>(ID(x,y),ID(x+1,y+1),ID(x,y+1)));
         }
       }
 #undef ID
@@ -167,14 +167,14 @@ std::shared_ptr<MeshShape> makeCapsule(int RES,bool fill,GLfloat rad,GLfloat hei
 std::shared_ptr<MeshShape> makeSphere(int RES,bool fill,GLfloat rad) {
   return makeSphericalBox(RES,fill,rad,Eigen::Matrix<GLfloat,3,1>(0,0,0));
 }
-std::shared_ptr<MeshShape> makeTriMesh(bool fill,const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& F,bool faceBased) {
+std::shared_ptr<MeshShape> makeTriMesh(bool fill,const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<GLuint,-1,-1>& F,bool faceBased) {
   std::shared_ptr<MeshShape> shape(new MeshShape);
   if(fill && faceBased) {
     for(int i=0; i<F.rows(); i++) {
       shape->addVertex(V.row(F(i,0)));
       shape->addVertex(V.row(F(i,1)));
       shape->addVertex(V.row(F(i,2)));
-      shape->addIndex(Eigen::Matrix<int,3,1>(i*3+0,i*3+1,i*3+2));
+      shape->addIndex(Eigen::Matrix<GLuint,3,1>(i*3+0,i*3+1,i*3+2));
     }
   } else {
     for(int i=0; i<V.rows(); i++)
@@ -187,7 +187,7 @@ std::shared_ptr<MeshShape> makeTriMesh(bool fill,const Eigen::Matrix<GLfloat,-1,
     shape->computeNormals();
   return shape;
 }
-std::shared_ptr<MeshShape> makeWires(const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<int,-1,-1>& E) {
+std::shared_ptr<MeshShape> makeWires(const Eigen::Matrix<GLfloat,-1,-1>& V,const Eigen::Matrix<GLuint,-1,-1>& E) {
   std::shared_ptr<MeshShape> shape(new MeshShape);
   for(int i=0; i<V.rows(); i++)
     shape->addVertex(V.row(i));
