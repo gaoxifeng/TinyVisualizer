@@ -1,3 +1,4 @@
+import sys
 import pyTinyVisualizer as vis
 import numpy as np
 import math
