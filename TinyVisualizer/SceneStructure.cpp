@@ -139,20 +139,22 @@ void SceneNode::tryAssign(std::shared_ptr<SceneNode> s) {
 }
 bool SceneNode::tryAssign(std::shared_ptr<Shape> s,const Eigen::Matrix<GLfloat,6,1>& bb) {
   if(contain(*this,bb)) {
-    for(int i=0; i<8; i++) {
-      Eigen::Matrix<int,3,1> loc=_loc;
-      if(i&1)
-        loc[0]+=_sz>>1;
-      if(i&2)
-        loc[1]+=_sz>>1;
-      if(i&4)
-        loc[2]+=_sz>>1;
-      if(contain(loc,_sz>>1,bb)) {
-        if(!_children[i])
-          _children[i].reset(new SceneNode(loc,_sz>>1));
-        ASSERT(_children[i]->tryAssign(s,bb))
-        _nrShape++;
-        return true;
+    if((_sz>>1)>0) {
+      for(int i=0; i<8; i++) {
+        Eigen::Matrix<int,3,1> loc=_loc;
+        if(i&1)
+          loc[0]+=_sz>>1;
+        if(i&2)
+          loc[1]+=_sz>>1;
+        if(i&4)
+          loc[2]+=_sz>>1;
+        if(contain(loc,_sz>>1,bb)) {
+          if(!_children[i])
+            _children[i].reset(new SceneNode(loc,_sz>>1));
+          ASSERT(_children[i]->tryAssign(s,bb))
+          _nrShape++;
+          return true;
+        }
       }
     }
     _shapes=insertList(_shapes,s);
