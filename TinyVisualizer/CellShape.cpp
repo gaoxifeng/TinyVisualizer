@@ -65,7 +65,7 @@ void CellShape::reset(const std::vector<Eigen::Matrix<int,3,1>>& idsV,GLfloat re
     }
   } else {
     //insert vert
-    for(const std::pair<int,Eigen::Matrix<int,3,1>>& vInv:vertsInv)
+    for(const std::pair<const int,Eigen::Matrix<int,3,1>>& vInv:vertsInv)
       addVertex(vInv.second.template cast<GLfloat>()*res-Eigen::Matrix<GLfloat,3,1>::Constant(res/2));
     //insert face
     for(const Eigen::Matrix<int,4,1>& q:quads) {

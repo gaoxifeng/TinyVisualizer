@@ -387,6 +387,16 @@ void Drawer::addPlugin(std::shared_ptr<Plugin> pi) {
   pi->setDrawer(this);
   pi->init(_window);
 }
+bool Drawer::contain(std::shared_ptr<Shape> s) const {
+  bool ret=false;
+  if(_root)
+    _root->visit([&](std::shared_ptr<Shape> sRef)->bool{
+    if(sRef==s)
+      ret=true;
+    return true;
+  });
+  return ret;
+}
 void Drawer::removeShape(std::shared_ptr<Shape> s) {
   bool alreadyAdded=false;
   if(_root)

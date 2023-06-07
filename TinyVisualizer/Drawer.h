@@ -146,6 +146,7 @@ class Drawer {
   int FPS();
   //getter/setter
   void addPlugin(std::shared_ptr<Plugin> pi);
+  bool contain(std::shared_ptr<Shape> s) const;
   void removeShape(std::shared_ptr<Shape> s);
   void addShape(std::shared_ptr<Shape> s);
   void focusOn(std::shared_ptr<Shape> s);
