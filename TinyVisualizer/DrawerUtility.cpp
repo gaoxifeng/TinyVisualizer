@@ -10,6 +10,9 @@ Eigen::Matrix<GLfloat,6,1> resetBB() {
   ret.segment<3>(3).setConstant(-std::numeric_limits<GLfloat>::max());
   return ret;
 }
+bool isEmptyBB(const Eigen::Matrix<GLfloat,6,1>& bb) {
+  return bb[0]>=bb[3] || bb[1]>=bb[4] || bb[2]>=bb[5];
+}
 void drawBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,4,1>& color) {
 #define VERT(X,Y,Z) Eigen::Matrix<GLfloat,3,1>(X==0?a[0]:a[3],Y==0?a[1]:a[4],Z==0?a[2]:a[5])
   getDefaultProg()->begin();

@@ -1,9 +1,10 @@
 #include "SceneStructure.h"
 #include "Drawer.h"
+#include <iostream>
 
 namespace DRAWER {
 SceneNode::SceneNode():_nrShape(0) {}
-SceneNode::SceneNode(const Eigen::Matrix<int,3,1>& loc,int sz):_sz(sz),_nrShape(0),_loc(loc) {}
+SceneNode::SceneNode(const Eigen::Matrix<int,3,1>& loc,int sz):_sz(std::max<int>(sz,1)),_nrShape(0),_loc(loc) {}
 std::shared_ptr<SceneNode> SceneNode::update(std::shared_ptr<SceneNode> root,std::shared_ptr<Shape> s) {
   std::shared_ptr<Shape> toBeAdjusted;
   if(root && !s) {
@@ -27,9 +28,15 @@ std::shared_ptr<SceneNode> SceneNode::update(std::shared_ptr<SceneNode> root,std
   } else {
     sz=1;
     ASSERT(s!=NULL || toBeAdjusted!=NULL)
-    if(s)
-      loc=s->getBB().segment<3>(0).cast<int>();
-    else loc=toBeAdjusted->getBB().segment<3>(0).cast<int>();
+    if(s) {
+      if(isEmptyBB(s->getBB()))
+        loc.setZero();
+      else loc=s->getBB().segment<3>(0).cast<int>();
+    } else {
+      if(isEmptyBB(toBeAdjusted->getBB()))
+        loc.setZero();
+      else loc=toBeAdjusted->getBB().segment<3>(0).cast<int>();
+    }
   }
   for(std::shared_ptr<Shape> sAdj=toBeAdjusted; sAdj; sAdj=sAdj->_next) {
     Eigen::Matrix<GLfloat,6,1> bb=sAdj->getBB();

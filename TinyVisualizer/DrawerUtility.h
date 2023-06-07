@@ -37,6 +37,7 @@ enum class CameraType {
   cameraThirdPerson
 };
 extern Eigen::Matrix<GLfloat,6,1> resetBB();
+extern bool isEmptyBB(const Eigen::Matrix<GLfloat,6,1>& bb);
 extern void drawBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,4,1>& color);
 extern Eigen::Matrix<GLfloat,6,1> unionBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,6,1>& b);
 extern Eigen::Matrix<GLfloat,6,1> unionBB(const Eigen::Matrix<GLfloat,6,1>& a,const Eigen::Matrix<GLfloat,3,1>& b);
