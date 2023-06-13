@@ -66,7 +66,7 @@ void translatef(GLfloat x,GLfloat y,GLfloat z) {
 void rotatef(GLfloat angle,GLfloat x,GLfloat y,GLfloat z) {
   Eigen::Matrix<GLfloat,4,4> m;
   m.setIdentity();
-  m.block<3,3>(0,0)=Eigen::AngleAxisf(angle*M_PI/180.0f,Eigen::Matrix<GLfloat,3,1>(x,y,z).normalized()).toRotationMatrix();
+  m.block<3,3>(0,0)=Eigen::AngleAxisf(angle*(GLfloat)M_PI/180.0f,Eigen::Matrix<GLfloat,3,1>(x,y,z).normalized()).toRotationMatrix();
   multMatrixf(m);
 }
 void scalef(GLfloat x,GLfloat y,GLfloat z) {
@@ -198,29 +198,29 @@ void orthof(GLfloat left,GLfloat right,
     return;
   }
 
-  _1over_rml=1.0/rml;
-  _1over_fmn=1.0/fmn;
-  _1over_tmb=1.0/tmb;
+  _1over_rml=1.0f/rml;
+  _1over_fmn=1.0f/fmn;
+  _1over_tmb=1.0f/tmb;
 
-  m[0]=2.0*_1over_rml;
-  m[1]=0.0;
-  m[2]=0.0;
-  m[3]=0.0;
+  m[0]=2.0f*_1over_rml;
+  m[1]=0.0f;
+  m[2]=0.0f;
+  m[3]=0.0f;
 
-  m[4]=0.0;
-  m[5]=2.0*_1over_tmb;
-  m[6]=0.0;
-  m[7]=0.0;
+  m[4]=0.0f;
+  m[5]=2.0f*_1over_tmb;
+  m[6]=0.0f;
+  m[7]=0.0f;
 
-  m[8]=0.0;
-  m[9]=0.0;
-  m[10]=-2.0*_1over_fmn;
-  m[11]=0.0;
+  m[8]=0.0f;
+  m[9]=0.0f;
+  m[10]=-2.0f*_1over_fmn;
+  m[11]=0.0f;
 
   m[12]=-(right+left)*_1over_rml;
   m[13]=-(top+bottom)*_1over_tmb;
   m[14]=-(far+near)*_1over_fmn;
-  m[15]=1.0;
+  m[15]=1.0f;
 
   multMatrixf(m);
 }
@@ -245,7 +245,7 @@ void makeIdentityf(GLfloat m[16]) {
 void perspectivef(GLfloat fovy,GLfloat aspect,GLfloat zNear,GLfloat zFar) {
   GLfloat m[4][4];
   GLfloat sine,cotangent,deltaZ;
-  GLfloat radians=fovy/2*3.14/180;
+  GLfloat radians=fovy/2*3.14f/180;
   deltaZ=zFar-zNear;
   sine=std::sin(radians);
   if((deltaZ==0) || (sine==0) || (aspect==0))
@@ -288,7 +288,7 @@ Eigen::Matrix<GLfloat,24,1> constructViewFrustum3D() {
   for(int z=-1,i=0; z<=1; z+=2)
     for(int y=-1; y<=1; y+=2)
       for(int x=-1; x<=1; x+=2,i+=3) {
-        Eigen::Matrix<GLfloat,4,1> V=invMVP*Eigen::Matrix<GLfloat,4,1>(x,y,z,1);
+        Eigen::Matrix<GLfloat,4,1> V=invMVP*Eigen::Matrix<GLfloat,4,1>((GLfloat)x,(GLfloat)y,(GLfloat)z,(GLfloat)1);
         ret.segment<3>(i)=V.segment<3>(0)/V[3];
       }
   return ret;
@@ -302,7 +302,7 @@ Eigen::Matrix<GLfloat,8,1> constructViewFrustum2D() {
   Eigen::Matrix<GLfloat,8,1> ret;
   for(int y=-1,i=0; y<=1; y+=2)
     for(int x=-1; x<=1; x+=2,i+=2) {
-      Eigen::Matrix<GLfloat,4,1> V=invMVP*Eigen::Matrix<GLfloat,4,1>(x,y,0,1);
+      Eigen::Matrix<GLfloat,4,1> V=invMVP*Eigen::Matrix<GLfloat,4,1>((GLfloat)x,(GLfloat)y,(GLfloat)0,(GLfloat)1);
       ret.segment<2>(i)=(V.segment<3>(0)/V[3]).segment<2>(0);
     }
   return ret;

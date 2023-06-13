@@ -29,7 +29,7 @@ void Camera2D::mouse(GLFWwindow* wnd,int button,int action,int,bool captured) {
 void Camera2D::wheel(GLFWwindow*,double,double yoffset,bool captured) {
   if(captured)
     return;
-  else _scale*=std::pow(1.1,-yoffset);
+  else _scale*=(GLfloat)std::pow(1.1,-yoffset);
 }
 void Camera2D::motion(GLFWwindow* wnd,double x,double y,bool captured) {
   if(captured)
@@ -38,8 +38,8 @@ void Camera2D::motion(GLFWwindow* wnd,double x,double y,bool captured) {
     int w=0,h=0;
     glfwGetWindowSize(wnd,&w,&h);
     GLfloat coef=_xExt*_scale/(GLfloat)w;
-    _xCtr=_xCtrLast-(x-_xLast)*coef;
-    _yCtr=_yCtrLast+(y-_yLast)*coef;
+    _xCtr=_xCtrLast-(GLfloat)(x-_xLast)*coef;
+    _yCtr=_yCtrLast+(GLfloat)(y-_yLast)*coef;
   }
 }
 void Camera2D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
@@ -133,8 +133,8 @@ Eigen::Matrix<GLfloat,-1,1> Camera2D::getCameraRay(GLFWwindow* wnd,double x,doub
   Eigen::Matrix<GLfloat,2,1> ret;
   int w=0,h=0;
   glfwGetWindowSize(wnd,&w,&h);
-  ret[0]=interp1D<GLfloat,GLfloat>(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,x/(GLfloat)w);
-  ret[1]=interp1D<GLfloat,GLfloat>(_yCtr-_yExt*_scale,_yCtr+_yExt*_scale,1-y/(GLfloat)h);
+  ret[0]=interp1D<GLfloat,GLfloat>(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,(GLfloat)x/(GLfloat)w);
+  ret[1]=interp1D<GLfloat,GLfloat>(_yCtr-_yExt*_scale,_yCtr+_yExt*_scale,1-(GLfloat)y/(GLfloat)h);
   return ret;
 }
 Eigen::Matrix<GLfloat,-1,1> Camera2D::getViewFrustum() const {

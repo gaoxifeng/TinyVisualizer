@@ -4,16 +4,16 @@
 
 namespace DRAWER {
 Eigen::Matrix<GLfloat,4,1> CPStencil(GLfloat s) {
-  return Eigen::Matrix<GLfloat,4,1>(std::pow(1-s,3),
-                                    3*std::pow(1-s,2)*s,
-                                    3*(1-s)*std::pow(s,2),
-                                    std::pow(s,3));
+  return Eigen::Matrix<GLfloat,4,1>((GLfloat)std::pow(1-s,3),
+                                    3*(GLfloat)std::pow(1-s,2)*s,
+                                    3*(1-s)*(GLfloat)std::pow(s,2),
+                                    (GLfloat)std::pow(s,3));
 }
 Eigen::Matrix<GLfloat,4,1> PTStencil(GLfloat s) {
-  return Eigen::Matrix<GLfloat,4,1>(2*std::pow(s,3)-3*std::pow(s,2)+1,
-                                    std::pow(s,3)-2*std::pow(s,2)+s,
-                                    -2*std::pow(s,3)+3*std::pow(s,2),
-                                    std::pow(s,3)-std::pow(s,2));
+  return Eigen::Matrix<GLfloat,4,1>(2*(GLfloat)std::pow(s,3)-3*(GLfloat)std::pow(s,2)+1,
+                                    (GLfloat)std::pow(s,3)-2*(GLfloat)std::pow(s,2)+s,
+                                    -2*(GLfloat)std::pow(s,3)+3*(GLfloat)std::pow(s,2),
+                                    (GLfloat)std::pow(s,3)-(GLfloat)std::pow(s,2));
 }
 BezierCurveShape::BezierCurveShape(GLfloat thickness,bool isHermite,int RES)
   :_isHermite(isHermite),_thickness(thickness),_RES(RES) {
@@ -131,7 +131,7 @@ void BezierCurveShape::tessellate() {
     Eigen::Map<const Eigen::Matrix<GLfloat,3,1>> n0(&_normals[i]);
     Eigen::Matrix<GLfloat,3,1> n1=(v1-v0).cross(n0).normalized();
     for(int r=0; r<_RES; r++) {
-      GLfloat theta=r*M_PI*2/_RES;
+      GLfloat theta=r*(GLfloat)M_PI*2/_RES;
       Eigen::Matrix<GLfloat,3,1> n=n0*std::cos(theta)+n1*std::sin(theta);
       normals.push_back(n[0]);
       normals.push_back(n[1]);
@@ -146,7 +146,7 @@ void BezierCurveShape::tessellate() {
     off+=_RES;
     if(i+6==(int)_vertices.size()) {
       for(int r=0; r<_RES; r++) {
-        GLfloat theta=r*M_PI*2/_RES;
+        GLfloat theta=r*(GLfloat)M_PI*2/_RES;
         Eigen::Matrix<GLfloat,3,1> n=n0*std::cos(theta)+n1*std::sin(theta);
         normals.push_back(n[0]);
         normals.push_back(n[1]);

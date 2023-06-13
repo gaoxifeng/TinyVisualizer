@@ -111,9 +111,9 @@ Drawer::Drawer(int argc,char** argv)
   }
   //add default camera
   if(argparseRange(argc,argv,"defaultCamera2D",0,Eigen::Matrix<int,2,1>(0,2)))
-    addCamera2D(argparseRange(argc,argv,"defaultCamera2DExt",10,Eigen::Matrix<int,2,1>(0,11)));
+    addCamera2D((GLfloat)argparseRange(argc,argv,"defaultCamera2DExt",10,Eigen::Matrix<int,2,1>(0,11)));
   else if(argparseRange(argc,argv,"defaultCamera3D",1,Eigen::Matrix<int,2,1>(0,2))) {
-    addCamera3D(argparseRange(argc,argv,"defaultCamera3DFovy",90,Eigen::Matrix<int,2,1>(0,271)),
+    addCamera3D((GLfloat)argparseRange(argc,argv,"defaultCamera3DFovy",90,Eigen::Matrix<int,2,1>(0,271)),
                 Eigen::Matrix<GLfloat,3,1>::Unit(argparseRange(argc,argv,"defaultCamera3DUp",2,Eigen::Matrix<int,2,1>(0,3))));
     std::string manipulatorType=argparseChoice(argc,argv,"defaultCamera3DManipulator","Trackball", {"FPS","Trackball","None"});
     if(manipulatorType=="FPS")

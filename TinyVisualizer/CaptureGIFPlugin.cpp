@@ -32,7 +32,7 @@ void CaptureGIFPlugin::startRecording() {
     _height=viewport[3];
 
     _recordFile=new GifWriter;
-    GifBegin((GifWriter*)_recordFile,_recordFileName.c_str(),_width,_height,100.0/_recordFPS,8,_dither);
+    GifBegin((GifWriter*)_recordFile,_recordFileName.c_str(),(uint32_t)_width,(uint32_t)_height,(uint32_t)(100.0/_recordFPS),8,_dither);
     std::cout << "Starting recording to " << _recordFileName << std::endl;
   }
 }
@@ -59,7 +59,7 @@ void CaptureGIFPlugin::addFrame() {
       memcpy(&_recordFrame[off],&_recordFrame[off2],viewport[2]*4);
       memcpy(&_recordFrame[off2],&_tmpFrameLine[0],viewport[2]*4);
     } else break;
-  GifWriteFrame((GifWriter*)_recordFile,&_recordFrame[0],viewport[2],viewport[3],100.0/_recordFPS,8,_dither);
+  GifWriteFrame((GifWriter*)_recordFile,&_recordFrame[0],(GLuint)viewport[2],(GLuint)viewport[3],(GLuint)(100.0f/_recordFPS),8,_dither);
 }
 void CaptureGIFPlugin::stopRecording() {
   if(_recordFile) {

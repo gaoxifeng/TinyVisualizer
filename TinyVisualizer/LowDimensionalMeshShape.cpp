@@ -59,35 +59,35 @@ void LowDimensionalMeshShape::setLowToHighDimensionalMapping(const Eigen::Matrix
   _inner->initVBO();
   ASSERT_MSG(DHDL.rows()==(int)_inner->_vertices.size(),"Vertex size mismatch!")
   //HMap
-  _HMap.reset(new Texture(DHDL.rows(),DHDL.cols(),GL_R32F));
+  _HMap.reset(new Texture((int)DHDL.rows(),(int)DHDL.cols(),GL_R32F));
   _HMap->begin();
-  glTexSubImage2D(GL_TEXTURE_2D,0,0,0,DHDL.rows(),DHDL.cols(),GL_RED,GL_FLOAT,DHDL.data());
+  glTexSubImage2D(GL_TEXTURE_2D,0,0,0,(int)DHDL.rows(),(int)DHDL.cols(),GL_RED,GL_FLOAT,DHDL.data());
   _HMap->end();
   //LCoord
-  _LCoord.reset(new Texture(DHDL.cols(),1,GL_R32F));
+  _LCoord.reset(new Texture((int)DHDL.cols(),1,GL_R32F));
   //transform feedback
   std::vector<GLuint> id;
   for(int i=0; i<DHDL.rows()/3; i++)
     id.push_back(i);
-  _transformFeedbackVBO.reset(new VBO(DHDL.rows()/3,0,true,false,false,true));
+  _transformFeedbackVBO.reset(new VBO((int)DHDL.rows()/3,0,true,false,false,true));
   _transformFeedbackVBO->setVertexPosition(_inner->_vertices);
   _transformFeedbackVBO->setVertexId(id);
   //bounding box
   _BBBase=_inner->getBB();
-  _DHDLMax.setZero(3,DHDL.cols());
-  for(int i=0; i<DHDL.rows()/3; i++)
-    _DHDLMax=_DHDLMax.cwiseMax(DHDL.block(i*3,0,3,DHDL.cols()).cwiseAbs());
+  _DHDLMax.setZero(3,(int)DHDL.cols());
+  for(int i=0; i<(int)DHDL.rows()/3; i++)
+    _DHDLMax=_DHDLMax.cwiseMax(DHDL.block(i*3,0,3,(int)DHDL.cols()).cwiseAbs());
 }
 void LowDimensionalMeshShape::updateHighDimensionalMapping(const Eigen::Matrix<GLfloat,-1,1>& L) {
   ASSERT_MSG(L.size()==_LCoord->width(),"Low dimensional coordinate size mismatch!")
   _L=L;
   //fillin LCoord
   _LCoord->begin();
-  glTexSubImage2D(GL_TEXTURE_2D,0,0,0,L.size(),1,GL_RED,GL_FLOAT,L.data());
+  glTexSubImage2D(GL_TEXTURE_2D,0,0,0,(int)L.size(),1,GL_RED,GL_FLOAT,L.data());
   _LCoord->end();
   //setup program
   getTransformFeedbackProg()->begin();
-  getTransformFeedbackProg()->setUniformInt("nL",L.size());
+  getTransformFeedbackProg()->setUniformInt("nL",(int)L.size());
   glActiveTexture(GL_TEXTURE0);
   _HMap->begin();
   getTransformFeedbackProg()->setTexUnit("DHDL",0);
