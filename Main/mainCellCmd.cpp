@@ -100,9 +100,9 @@ int main(int argc,char** argv) {
   for(int x=-1; x<=1; x+=2)
     for(int y=-1; y<=1; y+=2)
       for(int z=-1; z<=1; z+=2)
-        drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>((GLfloat)x,(GLfloat)y,(GLfloat)z)*2,
-                                    Eigen::Matrix<GLfloat,3,1>(.2f,.2f,.2f),
-                                    Eigen::Matrix<GLfloat,3,1>(.7f,.7f,.7f),
+        drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(x,y,z)*2,
+                                    Eigen::Matrix<GLfloat,3,1>(.2,.2,.2),
+                                    Eigen::Matrix<GLfloat,3,1>(.7,.7,.7),
                                     Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
   drawer.mainLoop();

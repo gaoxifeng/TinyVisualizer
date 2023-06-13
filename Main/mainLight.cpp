@@ -36,11 +36,11 @@ int main(int argc,char** argv) {
   for(int x=0,off=0; x<5; x++)
     for(int y=0; y<5; y++)
       for(int z=0; z<5; z++) {
-        points->addVertex(Eigen::Matrix<GLfloat,3,1>((GLfloat)x,(GLfloat)y,(GLfloat)z)*0.1f);
+        points->addVertex(Eigen::Matrix<GLfloat,3,1>(x,y,z)*0.1f);
         points->addIndexSingle(off++);
       }
   points->setMode(GL_POINTS);
-  points->setColor(GL_POINTS,.6f,.3f,.3f);
+  points->setColor(GL_POINTS,.6,.3,.3);
   points->setPointSize(5);
   drawer.addShape(points);
 
@@ -51,11 +51,11 @@ int main(int argc,char** argv) {
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(0,0,0));
-  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0, .2f,0),
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0, .2,0),
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(0,0,1),
                               Eigen::Matrix<GLfloat,3,1>(0,0,0));
-  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0,-.2f,0),
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(0,-.2,0),
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(1,0,0),
                               Eigen::Matrix<GLfloat,3,1>(0,0,0));
@@ -70,18 +70,18 @@ int main(int argc,char** argv) {
     T(1,1)=std::cos(theta);
     T.block<3,1>(0,3)=T.block<3,3>(0,0)*Eigen::Matrix<GLfloat,3,1>(-0.5f,0,0);
     shapeTA->setLocalTransform(T);
-    shapeTA->setColorAmbient(GL_TRIANGLES,0,.05f,0);
-    shapeTA->setColor(GL_TRIANGLES,.2f,.2f,.2f);
-    shapeTA->setColorSpecular(GL_TRIANGLES,.5f,.5f,.5f);
+    shapeTA->setColorAmbient(GL_TRIANGLES,0,.05,0);
+    shapeTA->setColor(GL_TRIANGLES,.2,.2,.2);
+    shapeTA->setColorSpecular(GL_TRIANGLES,.5,.5,.5);
     shapeTA->setShininess(GL_TRIANGLES,10.);
     T.block<3,1>(0,3)=T.block<3,3>(0,0)*Eigen::Matrix<GLfloat,3,1>(-2.0f,0,0);
     shapeTB->setLocalTransform(T);
-    shapeTB->setColorAmbient(GL_TRIANGLES,0,.05f,0);
-    shapeTB->setColor(GL_TRIANGLES,.2f,.2f,.2f);
-    shapeTB->setColorSpecular(GL_TRIANGLES,.5f,.5f,.5f);
+    shapeTB->setColorAmbient(GL_TRIANGLES,0,.05,0);
+    shapeTB->setColor(GL_TRIANGLES,.2,.2,.2);
+    shapeTB->setColorSpecular(GL_TRIANGLES,.5,.5,.5);
     shapeTB->setShininess(GL_TRIANGLES,10.);
     if(sim)
-      theta=std::fmod(theta+(GLfloat)M_PI*2/360.0f,(GLfloat)M_PI*2);
+      theta=std::fmod(theta+M_PI*2/360.0f,M_PI*2);
   });
   drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
     if(captured)

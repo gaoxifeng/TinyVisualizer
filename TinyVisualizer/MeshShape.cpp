@@ -8,9 +8,9 @@
 
 namespace DRAWER {
 //MeshShape
-#define DEFAULT_R 200/255.f
-#define DEFAULT_G 143/255.f
-#define DEFAULT_B 29/255.f
+#define DEFAULT_R 200/255.
+#define DEFAULT_G 143/255.
+#define DEFAULT_B 29/255.
 #define DEFAULT_S 10.
 MeshShape::MeshShape():_bb(resetBB()),_dirty(true) {
   initMaterial();

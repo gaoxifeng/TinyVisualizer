@@ -20,9 +20,9 @@ int main(int argc,char** argv) {
       if(tp.length()>=2 && tp.substr(0,2)=="v ") {
         std::istringstream os(tp);
         os >> t >> a >> b >> c;
-        vertices.push_back((GLfloat)atof(a.c_str()));
-        vertices.push_back((GLfloat)atof(b.c_str()));
-        vertices.push_back((GLfloat)atof(c.c_str()));
+        vertices.push_back(atof(a.c_str()));
+        vertices.push_back(atof(b.c_str()));
+        vertices.push_back(atof(c.c_str()));
       } else if(tp.length()>=2 && tp.substr(0,2)=="f ") {
         std::istringstream os(tp);
         os >> t >> a >> b >> c;
