@@ -25,16 +25,16 @@ int main(int argc,char** argv) {
     std::shared_ptr<Bullet3DShape> shapeTA(new Bullet3DShape);
     std::shared_ptr<MeshShape> sphereA=makeSphericalBox(8,true,param[3],param.segment<3>(0));
     sphereA->setTexture(checker);
-    shapeTA->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>(off,0,0));
+    shapeTA->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>((GLfloat)off,0,0));
     shapeTA->addShape(sphereA);
     drawer.addShape(shapeTA);
     off++;
 
     std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
     std::shared_ptr<MeshShape> sphereB=makeSphericalBox(8,false,param[3],param.segment<3>(0));
-    shapeTB->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>(off,0,0));
+    shapeTB->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>((GLfloat)off,0,0));
     shapeTB->addShape(sphereB);
-    shapeTB->setColor(GL_LINES,.7,.7,.7);
+    shapeTB->setColor(GL_LINES,.7f,.7f,.7f);
     shapeTB->setLineWidth(5);
     drawer.addShape(shapeTB);
     off++;
@@ -47,7 +47,7 @@ int main(int argc,char** argv) {
   points->setUseLight(false);
   points->setColor(GL_POINTS,1,0,0);
   for(int i=0; i<256; i++) {
-    GLfloat theta=M_PI*2*i/256;
+    GLfloat theta=(GLfloat)M_PI*2*i/256;
     points->addVertex(Eigen::Matrix<GLfloat,3,1>(R*std::cos(theta)+params.size()/2,R*std::sin(theta),0));
     points->addIndexSingle(i);
   }
@@ -57,11 +57,11 @@ int main(int argc,char** argv) {
 #ifdef USE_LIGHT
   drawer.addLightSystem(0);
   drawer.getLight()->lightSz(10);
-  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(off/2,3, 0.2f),
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>((GLfloat)off/2,3, 0.2f),
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(0,0,0));
-  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(off/2,3,-0.2f),
+  drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>((GLfloat)off/2,3,-0.2f),
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(0,0,0));

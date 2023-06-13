@@ -12,8 +12,8 @@ using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
-  std::shared_ptr<ArrowShape> arrow(new ArrowShape(60,0.1,0.2));
-  arrow->setArrow(Eigen::Matrix<GLfloat,3,1>(-0.5,-0.5,-0.5),Eigen::Matrix<GLfloat,3,1>(0.5,0.5,0.5));
+  std::shared_ptr<ArrowShape> arrow(new ArrowShape(60,0.1f,0.2f));
+  arrow->setArrow(Eigen::Matrix<GLfloat,3,1>(-0.5f,-0.5f,-0.5f),Eigen::Matrix<GLfloat,3,1>(0.5f,0.5f,0.5f));
   arrow->setColorAmbient(GL_TRIANGLES,1,1,1);
   drawer.addShape(arrow);
 
@@ -24,9 +24,9 @@ int main(int argc,char** argv) {
   for(int x=-1; x<=1; x+=2)
     for(int y=-1; y<=1; y+=2)
       for(int z=-1; z<=1; z+=2)
-        drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(x,y,z),
-                                    Eigen::Matrix<GLfloat,3,1>(.05,.05,.05),
-                                    Eigen::Matrix<GLfloat,3,1>(.2,.2,.2),
+        drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>((GLfloat)x,(GLfloat)y,(GLfloat)z),
+                                    Eigen::Matrix<GLfloat,3,1>(.05f,.05f,.05f),
+                                    Eigen::Matrix<GLfloat,3,1>(.2f,.2f,.2f),
                                     Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
   float from[3]= {-.5,-.5,-.5},to[3]= {.5,.5,.5};
@@ -42,8 +42,8 @@ int main(int argc,char** argv) {
       ImGui::EndMainMenuBar();
     }
     ImGui::Begin("Arrow Direction");
-    ImGui::DragFloat3("from",from,.01,-1,1);
-    ImGui::DragFloat3("to",to,.01,-1,1);
+    ImGui::DragFloat3("from",from,.01f,-1,1);
+    ImGui::DragFloat3("to",to,.01f,-1,1);
     ImGui::End();
   })));
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>& root) {
