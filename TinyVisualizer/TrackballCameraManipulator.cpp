@@ -1,6 +1,8 @@
 #include "TrackballCameraManipulator.h"
+#include "ImGuiPlugin.h"
 #include "Camera3D.h"
 #include "Matrix.h"
+#include <imgui.h>
 
 namespace DRAWER {
 TrackballCameraManipulator::TrackballCameraManipulator(std::shared_ptr<Camera3D> camera)
@@ -22,7 +24,10 @@ void TrackballCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
   }
 }
 void TrackballCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int,bool captured) {
-  if(button==GLFW_MOUSE_BUTTON_1) {
+  if(captured) {
+    _inMotion=false;
+    return;
+  } else if(button==GLFW_MOUSE_BUTTON_1) {
     if(action==GLFW_PRESS) {
       _inMotion=true;
       glfwGetCursorPos(wnd,&_posX,&_posY);
@@ -37,14 +42,20 @@ void TrackballCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int
   }
 }
 void TrackballCameraManipulator::wheel(GLFWwindow*,double,double yoffset,bool captured) {
-  if(_scaleMode) {
+  if(captured) {
+    _inMotion=false;
+    return;
+  } else if(_scaleMode) {
     Eigen::Matrix<GLfloat,3,1> ctr=(_bb.template segment<3>(0)+_bb.template segment<3>(3))/2;
     Eigen::Matrix<GLfloat,3,1> dir=_camera->position()-ctr;
     _camera->setPosition(ctr+dir*std::pow(_scaleCoef,-yoffset));
   } else _sensitive*=std::pow(1.1f,yoffset);
 }
 void TrackballCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool captured) {
-  if(_inMotion) {
+  if(captured) {
+    _inMotion=false;
+    return;
+  } else if(_inMotion) {
     _xCurr=x;
     _yCurr=y;
   }
@@ -65,5 +76,22 @@ void TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloa
   mv*=r;
   loadIdentity();
   multMatrixf(mv);
+}
+void TrackballCameraManipulator::imGuiCallback() {
+  Eigen::Matrix<GLfloat,3,1> ctr=(_bb.template segment<3>(0)+_bb.template segment<3>(3))/2;
+  GLfloat range=std::max<GLfloat>(1e-5,(_bb.template segment<3>(0)-_bb.template segment<3>(3)).norm());
+  GLfloat dist=std::log((_camera->position()-ctr).norm());
+  GLfloat sensitivity=std::log(_sensitive);
+  ImGui::Begin("Trackball Camera Manipulator");
+  ImGui::Text("Usage: left button to change view direction, wheel to zoom");
+  ImGui::Text("Mouse mode: %s, middle button to switch",_scaleMode?"distance":"sensitivity");
+  ImGui::SliderFloat("Camera distance",&dist,std::log(range*0.01),std::log(range*100));
+  ImGui::SliderFloat("Angle sensitivity",&sensitivity,std::log(1e-4f),std::log(10.f));
+  ImGui::End();
+  //update distance
+  Eigen::Matrix<GLfloat,3,1> dir=_camera->position()-ctr;
+  _camera->setPosition(ctr+dir.normalized()*std::exp(dist));
+  //update sensitivity
+  _sensitive=std::exp(sensitivity);
 }
 }

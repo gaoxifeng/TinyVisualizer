@@ -12,6 +12,7 @@ class FirstPersonCameraManipulator : public CameraManipulator {
   void wheel(GLFWwindow*,double,double yoffset,bool captured) override;
   void motion(GLFWwindow* wnd,double x,double y,bool captured) override;
   void key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) override;
+  void imGuiCallback() override;
   bool isSpeedMode() const;
  protected:
   void begin(GLfloat& theta,GLfloat& phi) const;

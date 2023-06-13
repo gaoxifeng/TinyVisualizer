@@ -8,6 +8,8 @@
 #include <TinyVisualizer/Bullet3DShape.h>
 #include <TinyVisualizer/CameraExportPlugin.h>
 #include <TinyVisualizer/CaptureGIFPlugin.h>
+#include <TinyVisualizer/ImGuiPlugin.h>
+#include <TinyVisualizer/Camera3D.h>
 #include <iostream>
 
 using namespace DRAWER;
@@ -56,6 +58,9 @@ int main(int argc,char** argv) {
 
   drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
   drawer.getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(drawer.getCamera3D())));
+  drawer.addPlugin(std::shared_ptr<Plugin>(new ImGuiPlugin([&]() {
+    drawer.getCamera3D()->getManipulator()->imGuiCallback();
+  })));
   drawer.mainLoop();
   return 0;
 }

@@ -15,6 +15,7 @@ class CameraManipulator {
   virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {}
   virtual void preDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {}
   virtual void postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {}
+  virtual void imGuiCallback() {}
   virtual void init(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb);
  protected:
   std::shared_ptr<Camera3D> _camera;

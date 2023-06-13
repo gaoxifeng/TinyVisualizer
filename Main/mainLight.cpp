@@ -5,6 +5,8 @@
 #include <TinyVisualizer/ShadowAndLight.h>
 #include <TinyVisualizer/CaptureMPEG2Plugin.h>
 #include <TinyVisualizer/BezierCurveShape.h>
+#include <TinyVisualizer/ImGuiPlugin.h>
+#include <TinyVisualizer/Camera3D.h>
 
 using namespace DRAWER;
 
@@ -87,6 +89,9 @@ int main(int argc,char** argv) {
     else if(key==GLFW_KEY_R && action==GLFW_PRESS)
       sim=!sim;
   });
+  drawer.addPlugin(std::shared_ptr<Plugin>(new ImGuiPlugin([&]() {
+    drawer.getCamera3D()->getManipulator()->imGuiCallback();
+  })));
   drawer.mainLoop();
   return 0;
 }
