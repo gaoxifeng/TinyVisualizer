@@ -97,8 +97,8 @@ void FirstPersonCameraManipulator::imGuiCallback() {
   ImGui::Begin("First Person Camera Manipulator");
   ImGui::Text("Usage: w/s/a/d to move, left button to change view");
   ImGui::Text("Mouse mode: %s, middle button to switch",_speedMode?"motion speed":"sensitivity");
-  ImGui::SliderFloat("Camera speed",&speed,std::log(0.01),std::log(100));
-  ImGui::SliderFloat("Angle sensitivity",&sensitivity,std::log(1e-4f),std::log(10.f));
+  ImGui::SliderFloat("Camera speed",&speed,(GLfloat)std::log(0.01),(GLfloat)std::log(100));
+  ImGui::SliderFloat("Angle sensitivity",&sensitivity,(GLfloat)std::log(1e-4f),(GLfloat)std::log(10.f));
   ImGui::End();
   //update speed
   _speed=std::exp(speed);

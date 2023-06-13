@@ -79,14 +79,14 @@ void TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloa
 }
 void TrackballCameraManipulator::imGuiCallback() {
   Eigen::Matrix<GLfloat,3,1> ctr=(_bb.template segment<3>(0)+_bb.template segment<3>(3))/2;
-  GLfloat range=std::max<GLfloat>(1e-5,(_bb.template segment<3>(0)-_bb.template segment<3>(3)).norm());
-  GLfloat dist=std::log((_camera->position()-ctr).norm());
-  GLfloat sensitivity=std::log(_sensitive);
+  GLfloat range=std::max<GLfloat>(1e-5f,(_bb.template segment<3>(0)-_bb.template segment<3>(3)).norm());
+  GLfloat dist=(GLfloat)std::log((_camera->position()-ctr).norm());
+  GLfloat sensitivity=(GLfloat)std::log(_sensitive);
   ImGui::Begin("Trackball Camera Manipulator");
   ImGui::Text("Usage: left button to change view direction, wheel to zoom");
   ImGui::Text("Mouse mode: %s, middle button to switch",_scaleMode?"distance":"sensitivity");
-  ImGui::SliderFloat("Camera distance",&dist,std::log(range*0.01),std::log(range*100));
-  ImGui::SliderFloat("Angle sensitivity",&sensitivity,std::log(1e-4f),std::log(10.f));
+  ImGui::SliderFloat("Camera distance",&dist,(GLfloat)std::log(range*0.01),(GLfloat)std::log(range*100));
+  ImGui::SliderFloat("Angle sensitivity",&sensitivity,(GLfloat)std::log(1e-4f),(GLfloat)std::log(10.f));
   ImGui::End();
   //update distance
   Eigen::Matrix<GLfloat,3,1> dir=_camera->position()-ctr;
