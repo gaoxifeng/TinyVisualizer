@@ -25,7 +25,11 @@ void CaptureMPEG2Plugin::startRecording() {
     std::cout << "Alreading started recording, cannot accept duplicate calls!" << std::endl;
     return;
   } else {
+#if defined(WIN32)
+    fopen_s(&_recordFile,_recordFileName.c_str(),"wb");
+#else
     _recordFile=fopen(_recordFileName.c_str(),"wb");
+#endif
     std::cout << "Starting recording to " << _recordFileName << std::endl;
 
     //size

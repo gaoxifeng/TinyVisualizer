@@ -333,11 +333,11 @@ void MeshShape::initMaterial() {
   if(!_texWhite)
     _texWhite=getWhiteTexture();
   _mat._ambient=Eigen::Matrix<GLfloat,4,1>(0,0,0,1);
-  _mat._diffuse=_mat._specular=Eigen::Matrix<GLfloat,4,1>(DEFAULT_R,DEFAULT_G,DEFAULT_B,1);
+  _mat._diffuse=_mat._specular=Eigen::Matrix<GLfloat,4,1>((GLfloat)DEFAULT_R,(GLfloat)DEFAULT_G,(GLfloat)DEFAULT_B,(GLfloat)1);
   _mat._shininess=DEFAULT_S;
   _mat._pointSize=1;
   _mat._lineWidth=0;
-  _mat._tex=_texWhite;
+  _mat._tex=_texWhite; 
   _mat._drawer=NULL;
 }
 std::shared_ptr<Texture> MeshShape::_texWhite;

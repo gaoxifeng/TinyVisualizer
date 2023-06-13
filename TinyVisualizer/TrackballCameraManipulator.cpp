@@ -10,9 +10,9 @@ TrackballCameraManipulator::TrackballCameraManipulator(std::shared_ptr<Camera3D>
 void TrackballCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
   if(_inMotion) {
     Eigen::AngleAxis<GLfloat> rotUp,rotRight;
-    rotUp.angle()=(_xCurr-_posX)*_sensitive;
+    rotUp.angle()=(GLfloat)(_xCurr-_posX)*_sensitive;
     rotUp.axis()=_camera->up();
-    rotRight.angle()=(_yCurr-_posY)*_sensitive;
+    rotRight.angle()=(GLfloat)(_yCurr-_posY)*_sensitive;
     rotRight.axis()=_camera->direction().cross(_camera->up()).normalized();
     _rot=rotUp.toRotationMatrix()*rotRight.toRotationMatrix()*_rot0;
     //renormalize
@@ -41,7 +41,7 @@ void TrackballCameraManipulator::wheel(GLFWwindow*,double,double yoffset,bool ca
     Eigen::Matrix<GLfloat,3,1> ctr=(_bb.template segment<3>(0)+_bb.template segment<3>(3))/2;
     Eigen::Matrix<GLfloat,3,1> dir=_camera->position()-ctr;
     _camera->setPosition(ctr+dir*std::pow(_scaleCoef,-yoffset));
-  } else _sensitive*=std::pow(1.1f,yoffset);
+  } else _sensitive*=(GLfloat)std::pow(1.1f,yoffset);
 }
 void TrackballCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool captured) {
   if(_inMotion) {

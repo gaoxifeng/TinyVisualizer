@@ -122,8 +122,8 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
 Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindow* wnd,double x,double y) const {
   int w=0,h=0;
   glfwGetWindowSize(wnd,&w,&h);
-  GLfloat ratioX=(x-w/2)/(GLfloat)(w/2);
-  GLfloat ratioY=(y-h/2)/(GLfloat)(h/2);
+  GLfloat ratioX=((GLfloat)x-(GLfloat)w/2)/(GLfloat)(w/2);
+  GLfloat ratioY=((GLfloat)y-(GLfloat)h/2)/(GLfloat)(h/2);
 
   Eigen::Matrix<GLfloat,4,1> dir(ratioX,-ratioY,0,1);
   Eigen::Matrix<GLfloat,4,4> mv,p;

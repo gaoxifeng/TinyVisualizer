@@ -7,42 +7,42 @@ ArrowShape::ArrowShape(GLfloat angle,GLfloat thickness,GLfloat thicknessOuter,in
   int off=-1;
   //bottom
   for(int i=0; i<RES; i++) {
-    GLfloat angle=M_PI*2*-i/RES;
+    GLfloat angle=(GLfloat)M_PI*2*-i/RES;
     addVertex(Eigen::Matrix<GLfloat,3,1>(std::cos(angle)*thickness,std::sin(angle)*thickness,-1));
     addIndex(Eigen::Matrix<GLuint,3,1>(0,i,(i+1)%RES));
   }
   //side
   addVertex(Eigen::Matrix<GLfloat,3,1>(0,0,-1));
   for(int i=0; i<RES; i++) {
-    GLfloat angle=M_PI*2*i/RES;
+    GLfloat angle=(GLfloat)M_PI*2*i/RES;
     addVertex(Eigen::Matrix<GLfloat,3,1>(std::cos(angle)*thickness,std::sin(angle)*thickness,-1));
   }
   off=(int)_vertices.size()/3;
   for(int i=0; i<RES; i++) {
-    GLfloat angle=M_PI*2*i/RES;
+    GLfloat angle=(GLfloat)M_PI*2*i/RES;
     addVertex(Eigen::Matrix<GLfloat,3,1>(std::cos(angle)*thickness,std::sin(angle)*thickness,1));
     addIndex(Eigen::Matrix<GLuint,3,1>(i-RES+off,((i+1)%RES)-RES+off,((i+1)%RES)+off));
     addIndex(Eigen::Matrix<GLuint,3,1>(i-RES+off,((i+1)%RES)+off,i+off));
   }
   //arrow side
   for(int i=0; i<RES; i++) {
-    GLfloat angle=M_PI*2*i/RES;
+    GLfloat angle=(GLfloat)M_PI*2*i/RES;
     addVertex(Eigen::Matrix<GLfloat,3,1>(std::cos(angle)*thickness,std::sin(angle)*thickness,1));
   }
   off=(int)_vertices.size()/3;
   for(int i=0; i<RES; i++) {
-    GLfloat angle=M_PI*2*i/RES;
+    GLfloat angle=(GLfloat)M_PI*2*i/RES;
     addVertex(Eigen::Matrix<GLfloat,3,1>(std::cos(angle)*thicknessOuter,std::sin(angle)*thicknessOuter,1));
     addIndex(Eigen::Matrix<GLuint,3,1>(i-RES+off,((i+1)%RES)-RES+off,((i+1)%RES)+off));
     addIndex(Eigen::Matrix<GLuint,3,1>(i-RES+off,((i+1)%RES)+off,i+off));
   }
   //arrow top
   for(int i=0; i<RES; i++) {
-    GLfloat angle=M_PI*2*i/RES;
+    GLfloat angle=(GLfloat)M_PI*2*i/RES;
     addVertex(Eigen::Matrix<GLfloat,3,1>(std::cos(angle)*thicknessOuter,std::sin(angle)*thicknessOuter,1));
   }
   off=(int)_vertices.size()/3;
-  _tipLen=std::tan(angle*M_PI/180)*thicknessOuter;
+  _tipLen=(GLfloat)std::tan(angle*M_PI/180)*thicknessOuter;
   addVertex(Eigen::Matrix<GLfloat,3,1>(0,0,1+_tipLen));
   for(int i=0; i<RES; i++)
     addIndex(Eigen::Matrix<GLuint,3,1>(i-RES+off,((i+1)%RES)-RES+off,off));

@@ -249,7 +249,7 @@ void FBOPingPong::begin() {
 }
 void FBOPingPong::end() {
   _fbos.back().end();
-  for(int i=_fbos.size()-2; i>=0; i--) {
+  for(int i=(int)_fbos.size()-2; i>=0; i--) {
     glActiveTexture(GL_TEXTURE0);
     _fbos[i+1].getRBO().begin();
     glActiveTexture(GL_TEXTURE1);

@@ -209,7 +209,7 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
 void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNormal) {
   if(_lightSz>0) {
     getRoundPointProg()->begin();
-    setRoundPointSize(_lightSz);
+    setRoundPointSize((GLfloat)_lightSz);
     setupMaterial(NULL,0,0,0);
     setupMatrixInShader();
     for(const Light& l:_lights)
@@ -223,13 +223,13 @@ void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNorma
   else prog=recomputeNormal?getLightNormalProg():getLightProg();
 
   prog->begin();
-  prog->setUniformInt("MAX_LIGHTS",_lights.size());
+  prog->setUniformInt("MAX_LIGHTS",(int)_lights.size());
   prog->setTexUnit("diffuseMap",0,false);
   getFloatv(GL_MODELVIEW_MATRIX,_MVShadow);
   _invMVShadow=_MVShadow.inverse();
   if(_shadow>0) {
     prog->setUniformFloat("invModelViewMatrixShadow",_invMVShadow);
-    prog->setUniformFloat("invShadowMapSize",1.0/_shadow);
+    prog->setUniformFloat("invShadowMapSize",1.0f/(GLfloat)_shadow);
     prog->setUniformInt("softShadowPass",_softShadow);
     prog->setUniformFloat("far_plane",calculateFarPlane(bb));
     prog->setUniformFloat("bias",_bias);

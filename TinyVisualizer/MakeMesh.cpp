@@ -19,7 +19,7 @@ std::shared_ptr<MeshShape> makeSquare(bool fill,const Eigen::Matrix<GLfloat,2,1>
 std::shared_ptr<MeshShape> makeCircle(int RES,bool fill,const Eigen::Matrix<GLfloat,2,1>& pos,GLfloat rad) {
   std::shared_ptr<MeshShape> shape(new MeshShape);
   for(int i=0; i<RES; i++) {
-    GLfloat angle=M_PI*2*i/RES;
+    GLfloat angle=(GLfloat)M_PI*2*i/RES;
     shape->addVertex(Eigen::Matrix<GLfloat,3,1>(cos(angle)*rad+pos[0],sin(angle)*rad+pos[1],0));
     shape->addIndexSingle(i);
   }
@@ -97,39 +97,39 @@ std::shared_ptr<MeshShape> makeSphericalBox(int RES,bool fill,GLfloat rad,const 
           //-x
           if(x==-1)
             makeGrid(*shape,RES*(2-std::abs(z))/2,RES*(2-std::abs(y))/2,fill,
-                     Eigen::Matrix<GLfloat,3,1>(x,y/2.,z/2.),
-                     Eigen::Matrix<GLfloat,3,1>(0,0,z==0?halfExt[2]:1/2.),
-                     Eigen::Matrix<GLfloat,3,1>(0,y==0?halfExt[1]:1/2.,0));
+                     Eigen::Matrix<GLfloat,3,1>((GLfloat)x,(GLfloat)y/2.f,(GLfloat)z/2.f),
+                     Eigen::Matrix<GLfloat,3,1>(0,0,z==0?halfExt[2]:1/2.f),
+                     Eigen::Matrix<GLfloat,3,1>(0,y==0?halfExt[1]:1/2.f,0));
           //+x
           if(x==1)
             makeGrid(*shape,RES*(2-std::abs(y))/2,RES*(2-std::abs(z))/2,fill,
-                     Eigen::Matrix<GLfloat,3,1>(x,y/2.,z/2.),
-                     Eigen::Matrix<GLfloat,3,1>(0,y==0?halfExt[1]:1/2.,0),
-                     Eigen::Matrix<GLfloat,3,1>(0,0,z==0?halfExt[2]:1/2.));
+                     Eigen::Matrix<GLfloat,3,1>((GLfloat)x,(GLfloat)y/2.f,(GLfloat)z/2.f),
+                     Eigen::Matrix<GLfloat,3,1>(0,y==0?halfExt[1]:1/2.f,0),
+                     Eigen::Matrix<GLfloat,3,1>(0,0,z==0?halfExt[2]:1/2.f));
           //-y
           if(y==-1)
             makeGrid(*shape,RES*(2-std::abs(x))/2,RES*(2-std::abs(z))/2,fill,
-                     Eigen::Matrix<GLfloat,3,1>(x/2.,y,z/2.),
-                     Eigen::Matrix<GLfloat,3,1>(x==0?halfExt[0]:1/2.,0,0),
-                     Eigen::Matrix<GLfloat,3,1>(0,0,z==0?halfExt[2]:1/2.));
+                     Eigen::Matrix<GLfloat,3,1>((GLfloat)x/2.f,(GLfloat)y,(GLfloat)z/2.f),
+                     Eigen::Matrix<GLfloat,3,1>(x==0?halfExt[0]:1/2.f,0,0),
+                     Eigen::Matrix<GLfloat,3,1>(0,0,z==0?halfExt[2]:1/2.f));
           //+y
           if(y==1)
             makeGrid(*shape,RES*(2-std::abs(z))/2,RES*(2-std::abs(x))/2,fill,
-                     Eigen::Matrix<GLfloat,3,1>(x/2.,y,z/2.),
-                     Eigen::Matrix<GLfloat,3,1>(0,0,z==0?halfExt[2]:1/2.),
-                     Eigen::Matrix<GLfloat,3,1>(x==0?halfExt[0]:1/2.,0,0));
+                     Eigen::Matrix<GLfloat,3,1>((GLfloat)x/2.f,(GLfloat)y,(GLfloat)z/2.f),
+                     Eigen::Matrix<GLfloat,3,1>(0,0,z==0?halfExt[2]:1/2.f),
+                     Eigen::Matrix<GLfloat,3,1>(x==0?halfExt[0]:1/2.f,0,0));
           //-z
           if(z==-1)
             makeGrid(*shape,RES*(2-std::abs(y))/2,RES*(2-std::abs(x))/2,fill,
-                     Eigen::Matrix<GLfloat,3,1>(x/2.,y/2.,z),
-                     Eigen::Matrix<GLfloat,3,1>(0,y==0?halfExt[1]:1/2.,0),
-                     Eigen::Matrix<GLfloat,3,1>(x==0?halfExt[0]:1/2.,0,0));
+                     Eigen::Matrix<GLfloat,3,1>((GLfloat)x/2.f,(GLfloat)y/2.f,(GLfloat)z),
+                     Eigen::Matrix<GLfloat,3,1>(0,y==0?halfExt[1]:1/2.f,0),
+                     Eigen::Matrix<GLfloat,3,1>(x==0?halfExt[0]:1/2.f,0,0));
           //+z
           if(z==1)
             makeGrid(*shape,RES*(2-std::abs(x))/2,RES*(2-std::abs(y))/2,fill,
-                     Eigen::Matrix<GLfloat,3,1>(x/2.,y/2.,z),
-                     Eigen::Matrix<GLfloat,3,1>(x==0?halfExt[0]:1/2.,0,0),
-                     Eigen::Matrix<GLfloat,3,1>(0,y==0?halfExt[1]:1/2.,0));
+                     Eigen::Matrix<GLfloat,3,1>((GLfloat)x/2.f,(GLfloat)y/2.f,(GLfloat)z),
+                     Eigen::Matrix<GLfloat,3,1>(x==0?halfExt[0]:1/2.f,0,0),
+                     Eigen::Matrix<GLfloat,3,1>(0,y==0?halfExt[1]:1/2.f,0));
         }
         //assemble
         off2=shape->nrVertex();

@@ -61,16 +61,16 @@ void FirstPersonCameraManipulator::wheel(GLFWwindow*,double,double yoffset,bool 
     _inMotion=false;
     return;
   } else if(_speedMode)
-    _speed*=std::pow(1.1f,yoffset);
-  else _sensitive*=std::pow(1.1f,yoffset);
+    _speed*=(GLfloat)std::pow(1.1f,yoffset);
+  else _sensitive*=(GLfloat)std::pow(1.1f,yoffset);
 }
 void FirstPersonCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool captured) {
   if(captured) {
     _inMotion=false;
     return;
   } else if(_inMotion) {
-    _xCurr=x;
-    _yCurr=y;
+    _xCurr=(GLfloat)x;
+    _yCurr=(GLfloat)y;
   }
 }
 void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
@@ -98,10 +98,10 @@ void FirstPersonCameraManipulator::begin(GLfloat& theta,GLfloat& phi) const {
   GLfloat y=_camera->direction().dot(_t2);
   GLfloat z=_camera->direction().dot(_camera->up());
   theta=atan2(y,x);
-  phi=std::min<GLfloat>(M_PI/2*0.99,std::max<GLfloat>(-M_PI/2*0.99,atan2(z,std::sqrt(x*x+y*y))));
+  phi=std::min<GLfloat>((GLfloat)M_PI/2*0.99f,std::max<GLfloat>(-(GLfloat)M_PI/2*0.99f,atan2(z,std::sqrt(x*x+y*y))));
 }
 void FirstPersonCameraManipulator::end(GLfloat theta,GLfloat phi) {
-  phi=std::min<GLfloat>(M_PI/2*0.99,std::max<GLfloat>(-M_PI/2*0.99,phi));
+  phi=std::min<GLfloat>((GLfloat)M_PI/2*0.99f,std::max<GLfloat>(-(GLfloat)M_PI/2*0.99f,phi));
   GLfloat x=std::cos(theta)*std::cos(phi);
   GLfloat y=std::sin(theta)*std::cos(phi);
   GLfloat z=std::sin(phi);

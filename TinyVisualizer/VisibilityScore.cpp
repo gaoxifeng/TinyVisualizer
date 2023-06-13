@@ -91,7 +91,7 @@ bool debugOutput) {
     maxS=maxS.cwiseMax(ret);
     avgS+=ret;
   }
-  avgS/=(int)eyes.size();
+  avgS/=(GLfloat)eyes.size();
   if(debugOutput)
     std::cout << "Visibility score: ave=" << avgS.transpose() << " max=" << maxS.transpose() << "!" << std::endl;
   return std::make_pair(avgS,maxS);
@@ -110,7 +110,7 @@ void VisibilityScore::debugVisibility(Drawer& drawer) {
   Eigen::Matrix<GLfloat,3,1> eye(2,2,2);
   Eigen::Matrix<GLfloat,3,1> dir(-1,-1,-1);
   std::shared_ptr<MeshShape> shapeA=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(1,1,1));
-  std::shared_ptr<MeshShape> shapeB=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(.8,.8,.8));
+  std::shared_ptr<MeshShape> shapeB=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(.8f,.8f,.8f));
   compute(drawer,up, {eye}, {dir},shapeA,shapeB,true);
 }
 std::shared_ptr<Program> VisibilityScore::getXORProg() const {

@@ -100,12 +100,12 @@ Eigen::Matrix<T,4,1> Texture::getData(int w,int h) const {
 }
 template <typename T>
 Eigen::Matrix<T,4,1> Texture::getData(const Eigen::Matrix<T,2,1>& tc) const {
-  T w=tc[0]*_data._width-0.5;
-  int wf=std::floor(w);
+  T w=tc[0]*_data._width-0.5f;
+  int wf=(int)std::floor(w);
   T walpha=w-wf;
 
-  T h=tc[1]*_data._height-0.5;
-  int hf=std::floor(h);
+  T h=tc[1]*_data._height-0.5f;
+  int hf=(int)std::floor(h);
   T halpha=h-hf;
 
   return (getData<T>(wf,hf)*(1-walpha)+getData<T>(wf+1,hf)*walpha)*(1-halpha)+
