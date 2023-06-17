@@ -8,6 +8,8 @@ class CameraExportPlugin : public Plugin {
  public:
   CameraExportPlugin(int keySave,int keyLoad,const std::string& name);
   virtual bool key(GLFWwindow* wnd,int key,int scan,int action,int mods) override;
+  bool saveCamera();
+  bool loadCamera();
  private:
   int _keySave,_keyLoad;
   std::string _fileName;

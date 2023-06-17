@@ -71,4 +71,7 @@ void CaptureMPEG2Plugin::stopRecording() {
     _recordFile=NULL;
   }
 }
+bool CaptureMPEG2Plugin::recording() const {
+  return _recordFile!=NULL;
+}
 }
