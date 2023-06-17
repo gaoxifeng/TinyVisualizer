@@ -68,4 +68,7 @@ void CaptureGIFPlugin::stopRecording() {
     _recordFile=NULL;
   }
 }
+bool CaptureGIFPlugin::recording() const {
+  return _recordFile!=NULL;
+}
 }
