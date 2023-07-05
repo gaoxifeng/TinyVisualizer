@@ -30,7 +30,6 @@ FIND_LIBRARY(TinyVisualizer_LIBRARY NAMES TinyVisualizer PATHS
   C:/TinyVisualizer/lib/${CMAKE_BUILD_TYPE}
   )
   
-
 FIND_LIBRARY(glfw_LIBRARY NAMES glfw3 PATHS 
   ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}
   ${PROJECT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}
@@ -42,11 +41,13 @@ FIND_LIBRARY(glfw_LIBRARY NAMES glfw3 PATHS
   )
 
 IF(TinyVisualizer_INCLUDE_DIR AND TinyVisualizer_LIBRARY AND glfw_LIBRARY)
-  set(TinyVisualizer_FOUND TRUE)
-  set(TinyVisualizer_LIBRARIES ${TinyVisualizer_LIBRARY} ${glfw_LIBRARY})
-  set(TinyVisualizer_INCLUDE_DIRS ${TinyVisualizer_INCLUDE_DIR} ${ImGui_INCLUDE_DIR})
+  SET(TinyVisualizer_FOUND TRUE)
+  SET(TinyVisualizer_LIBRARIES ${TinyVisualizer_LIBRARY} ${glfw_LIBRARY})
+  SET(TinyVisualizer_INCLUDE_DIRS ${TinyVisualizer_INCLUDE_DIR} ${ImGui_INCLUDE_DIR})
 ENDIF(TinyVisualizer_INCLUDE_DIR AND TinyVisualizer_LIBRARY AND glfw_LIBRARY)
 
-MARK_AS_ADVANCED(TinyVisualizer_INCLUDE_DIR TinyVisualizer_INCLUDE_DIRS TinyVisualizer_LIBRARIES)
+MARK_AS_ADVANCED(TinyVisualizer_FOUND)
+MARK_AS_ADVANCED(TinyVisualizer_INCLUDE_DIR TinyVisualizer_INCLUDE_DIRS)
+MARK_AS_ADVANCED(TinyVisualizer_LIBRARY glfw_LIBRARY TinyVisualizer_LIBRARIES)
 
 ENDIF(NOT TinyVisualizer_FOUND)
