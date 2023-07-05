@@ -28,7 +28,7 @@ FIND_LIBRARY(TinyVisualizer_LIBRARY NAMES TinyVisualizer PATHS
   /usr/lib/${CMAKE_BUILD_TYPE}
   /usr/local/lib/${CMAKE_BUILD_TYPE}
   C:/TinyVisualizer/lib/${CMAKE_BUILD_TYPE}
-  )
+  NO_CACHE)
   
 FIND_LIBRARY(glfw_LIBRARY NAMES glfw3 PATHS 
   ${PROJECT_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}
@@ -38,7 +38,7 @@ FIND_LIBRARY(glfw_LIBRARY NAMES glfw3 PATHS
   /usr/lib/${CMAKE_BUILD_TYPE}
   /usr/local/lib/${CMAKE_BUILD_TYPE}
   C:/TinyVisualizer/lib/${CMAKE_BUILD_TYPE}
-  )
+  NO_CACHE)
 
 IF(TinyVisualizer_INCLUDE_DIR AND TinyVisualizer_LIBRARY AND glfw_LIBRARY)
   SET(TinyVisualizer_FOUND TRUE)
