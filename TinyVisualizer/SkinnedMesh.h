@@ -14,13 +14,19 @@ class SkinnedMeshShape : public Bullet3DShape {
   };
   SkinnedMeshShape(const std::string& filename);
   void setAnimatedFrame(GLuint index,GLfloat time);
+  GLuint nrAnimation() const;
+  GLfloat duration(GLuint index) const;
  private:
+  GLuint getBoneId(const aiBone* bone);
   GLfloat calcAnimationTimeTicks(GLfloat time,GLint index) const;
-  void readNodeHierarchy(GLfloat animationTimeTicks,const aiNode* pNode,const Eigen::Matrix<GLfloat,4,4>& parentTransform,const aiAnimation& Animation);
+  Eigen::Matrix<GLfloat,3,1> calcInterpolatedScaling(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const;
+  Eigen::Matrix<GLfloat,3,3> calcInterpolatedRotation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const;
+  Eigen::Matrix<GLfloat,3,1> calcInterpolatedTranslation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const;
+  void readNodeHierarchy(GLfloat animationTimeTicks,const aiNode* pNode,const Eigen::Matrix<GLfloat,4,4>& parentTransform,const aiAnimation& animation);
   const aiScene* _scene;
   Assimp::Importer _importer;
   std::vector<BoneInfo> _bones;
-
+  std::unordered_map<std::string,GLuint> _boneNameToIndexMap;
 };
 }
 

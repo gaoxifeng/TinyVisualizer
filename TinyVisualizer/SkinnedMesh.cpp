@@ -5,6 +5,7 @@
 #define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate|aiProcess_GenNormals|aiProcess_JoinIdenticalVertices)
 
 namespace DRAWER {
+//assimp helper
 Eigen::Matrix<GLfloat,4,4> toEigen(const aiMatrix4x4& m) {
   Eigen::Matrix<GLfloat,4,4> ret;
   ret(0,0)=m.a1;
@@ -26,6 +27,31 @@ Eigen::Matrix<GLfloat,4,4> toEigen(const aiMatrix4x4& m) {
   ret(3,1)=m.d2;
   ret(3,2)=m.d3;
   ret(3,3)=m.d4;
+  return ret;
+}
+Eigen::Matrix<GLfloat,3,3> toEigen(const aiMatrix3x3& m) {
+  Eigen::Matrix<GLfloat,3,3> ret;
+  ret(0,0)=m.a1;
+  ret(0,1)=m.a2;
+  ret(0,2)=m.a3;
+
+  ret(1,0)=m.b1;
+  ret(1,1)=m.b2;
+  ret(1,2)=m.b3;
+
+  ret(2,0)=m.c1;
+  ret(2,1)=m.c2;
+  ret(2,2)=m.c3;
+  return ret;
+}
+Eigen::Matrix<GLfloat,3,3> toEigen(const aiQuaternion& q) {
+  return toEigen(q.GetMatrix());
+}
+Eigen::Matrix<GLfloat,3,1> toEigen(const aiVector3D& m) {
+  Eigen::Matrix<GLfloat,3,1> ret;
+  ret[0]=m.x;
+  ret[1]=m.y;
+  ret[2]=m.z;
   return ret;
 }
 std::string getDirFromFilename(const std::string& filename) {
@@ -115,6 +141,40 @@ void loadMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,const aiM
   //tex->save(std::to_string(id++)+".png");
   mesh->setTexture(tex);
 }
+const aiNodeAnim* findNodeAnim(const aiAnimation& animation,const std::string& NodeName) {
+  for(GLuint i=0; i<animation.mNumChannels; i++) {
+    const aiNodeAnim* pNodeAnim=animation.mChannels[i];
+    if(std::string(pNodeAnim->mNodeName.data) == NodeName)
+      return pNodeAnim;
+  }
+  return NULL;
+}
+GLuint findScaling(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) {
+  ASSERT(pNodeAnim->mNumScalingKeys>0)
+  for(GLuint i=0; i<pNodeAnim->mNumScalingKeys-1; i++) {
+    GLfloat t=(GLfloat)pNodeAnim->mScalingKeys[i+1].mTime;
+    if(animationTimeTicks<t)
+      return i;
+  }
+  return 0;
+}
+GLuint findRotation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) {
+  ASSERT(pNodeAnim->mNumRotationKeys>0)
+  for(GLuint i=0; i<pNodeAnim->mNumRotationKeys-1; i++) {
+    GLfloat t=(GLfloat)pNodeAnim->mRotationKeys[i+1].mTime;
+    if(animationTimeTicks<t)
+      return i;
+  }
+  return 0;
+}
+GLuint findPosition(GLfloat animationTimeTicks, const aiNodeAnim* pNodeAnim) {
+  for(uint i=0; i<pNodeAnim->mNumPositionKeys-1; i++) {
+    GLfloat t=(GLfloat)pNodeAnim->mPositionKeys[i+1].mTime;
+    if(animationTimeTicks<t)
+      return i;
+  }
+  return 0;
+}
 //SkinnedMeshShape
 SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
   _scene=_importer.ReadFile(filename.c_str(),ASSIMP_LOAD_FLAGS);
@@ -152,7 +212,7 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
       for(unsigned int i=0; i<bone->mNumWeights; i++) {
         const aiVertexWeight& w=bone->mWeights[i];
         if(w.mWeight!=0) {
-          boneInfo[w.mVertexId][bid]=w.mWeight;
+          boneInfo[w.mVertexId][getBoneId(bone)]=w.mWeight;
           boneData._maxNrBone=std::max<GLint>(boneData._maxNrBone,boneInfo[w.mVertexId].size());
         }
       }
@@ -181,16 +241,126 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time) {
   const aiAnimation& animation=*_scene->mAnimations[index];
   readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
 }
-void SkinnedMeshShape::readNodeHierarchy(GLfloat animationTimeTicks,const aiNode* pNode,const Eigen::Matrix<GLfloat,4,4>& parentTransform,const aiAnimation& Animation) {
-
+GLuint SkinnedMeshShape::nrAnimation() const {
+  return _scene->mNumAnimations;
+}
+GLfloat SkinnedMeshShape::duration(GLuint index) const {
+  GLfloat duration=0.0f;
+  std::modf((GLfloat)_scene->mAnimations[index]->mDuration,&duration);
+  return duration;
+}
+//helper
+GLuint SkinnedMeshShape::getBoneId(const aiBone* bone) {
+  std::string name(bone->mName.C_Str());
+  auto it=_boneNameToIndexMap.find(name);
+  if(it==_boneNameToIndexMap.end()) {
+    GLuint bid=(GLuint)_boneNameToIndexMap.size();
+    _bones.push_back(BoneInfo());
+    _bones[bid]._offsetTrans=toEigen(bone->mOffsetMatrix);
+    _boneNameToIndexMap[name]=bid;
+    return bid;
+  } else return it->second;
 }
 GLfloat SkinnedMeshShape::calcAnimationTimeTicks(GLfloat time,GLint index) const {
   GLfloat ticksPerSecond=(GLfloat)(_scene->mAnimations[index]->mTicksPerSecond!=0?_scene->mAnimations[index]->mTicksPerSecond:25.0f);
   GLfloat timeInTicks=time*ticksPerSecond;
   //we need to use the integral part of mDuration for the total length of the animation
   GLfloat duration=0.0f;
-  //GLfloat fraction=std::modf((GLfloat)_scene->mAnimations[index]->mDuration,&duration);
+  std::modf((GLfloat)_scene->mAnimations[index]->mDuration,&duration);
   GLfloat animationTimeTicks=fmod(timeInTicks,duration);
   return animationTimeTicks;
+}
+Eigen::Matrix<GLfloat,3,1> SkinnedMeshShape::calcInterpolatedScaling(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const {
+  //we need at least two values to interpolate...
+  if(pNodeAnim->mNumScalingKeys==1)
+    return toEigen(pNodeAnim->mScalingKeys[0].mValue);
+  GLuint scalingIndex=findScaling(animationTimeTicks,pNodeAnim);
+  GLuint nextScalingIndex=scalingIndex+1;
+  ASSERT(nextScalingIndex<pNodeAnim->mNumScalingKeys);
+  GLfloat t1=(GLfloat)pNodeAnim->mScalingKeys[scalingIndex].mTime;
+  if(t1>animationTimeTicks)
+    return toEigen(pNodeAnim->mScalingKeys[scalingIndex].mValue);
+  else {
+    GLfloat t2=(GLfloat)pNodeAnim->mScalingKeys[nextScalingIndex].mTime;
+    GLfloat deltaTime=t2-t1;
+    GLfloat factor=(animationTimeTicks-(GLfloat)t1)/deltaTime;
+    ASSERT(factor>=0.0f && factor<=1.0f);
+    Eigen::Matrix<GLfloat,3,1> start=toEigen(pNodeAnim->mScalingKeys[scalingIndex].mValue);
+    Eigen::Matrix<GLfloat,3,1> end=toEigen(pNodeAnim->mScalingKeys[nextScalingIndex].mValue);
+    Eigen::Matrix<GLfloat,3,1> delta=end-start;
+    return start+factor*delta;
+  }
+}
+Eigen::Matrix<GLfloat,3,3> SkinnedMeshShape::calcInterpolatedRotation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const {
+  //we need at least two values to interpolate...
+  aiQuaternion out;
+  if(pNodeAnim->mNumRotationKeys==1)
+    return toEigen(pNodeAnim->mRotationKeys[0].mValue);
+  GLuint rotationIndex=findRotation(animationTimeTicks,pNodeAnim);
+  GLuint nextRotationIndex=rotationIndex+1;
+  ASSERT(nextRotationIndex<pNodeAnim->mNumRotationKeys);
+  GLfloat t1=(GLfloat)pNodeAnim->mRotationKeys[rotationIndex].mTime;
+  if(t1>animationTimeTicks) {
+    return toEigen(pNodeAnim->mRotationKeys[rotationIndex].mValue);
+  } else {
+    GLfloat t2=(GLfloat)pNodeAnim->mRotationKeys[nextRotationIndex].mTime;
+    GLfloat deltaTime=t2-t1;
+    GLfloat factor=(animationTimeTicks-t1)/deltaTime;
+    ASSERT(factor>=0.0f && factor<=1.0f);
+    const aiQuaternion& startRotationQ=pNodeAnim->mRotationKeys[rotationIndex].mValue;
+    const aiQuaternion& endRotationQ  =pNodeAnim->mRotationKeys[nextRotationIndex].mValue;
+    aiQuaternion::Interpolate(out,startRotationQ,endRotationQ,factor);
+  }
+  out.Normalize();
+  return toEigen(out);
+}
+Eigen::Matrix<GLfloat,3,1> SkinnedMeshShape::calcInterpolatedTranslation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const {
+  //we need at least two values to interpolate...
+  if(pNodeAnim->mNumPositionKeys==1)
+    return toEigen(pNodeAnim->mPositionKeys[0].mValue);
+  GLuint positionIndex=findPosition(animationTimeTicks,pNodeAnim);
+  GLuint nextPositionIndex=positionIndex+1;
+  ASSERT(nextPositionIndex<pNodeAnim->mNumPositionKeys)
+  GLfloat t1=(GLfloat)pNodeAnim->mPositionKeys[positionIndex].mTime;
+  if(t1>animationTimeTicks)
+    return toEigen(pNodeAnim->mPositionKeys[positionIndex].mValue);
+  else {
+    GLfloat t2=(GLfloat)pNodeAnim->mPositionKeys[nextPositionIndex].mTime;
+    GLfloat deltaTime=t2-t1;
+    GLfloat factor=(animationTimeTicks-t1)/deltaTime;
+    ASSERT(factor>=0.0f && factor<=1.0f);
+    Eigen::Matrix<GLfloat,3,1> start=toEigen(pNodeAnim->mPositionKeys[positionIndex].mValue);
+    Eigen::Matrix<GLfloat,3,1> end=toEigen(pNodeAnim->mPositionKeys[nextPositionIndex].mValue);
+    Eigen::Matrix<GLfloat,3,1> delta=end-start;
+    return start+factor*delta;
+  }
+}
+void SkinnedMeshShape::readNodeHierarchy(GLfloat animationTimeTicks,const aiNode* pNode,const Eigen::Matrix<GLfloat,4,4>& parentTrans,const aiAnimation& animation) {
+  std::string nodeName(pNode->mName.data);
+  Eigen::Matrix<GLfloat,4,4> nodeTrans=toEigen(pNode->mTransformation);
+  const aiNodeAnim* pNodeAnim=findNodeAnim(animation,nodeName);
+  if(pNodeAnim) {
+    //scale
+    Eigen::Matrix<GLfloat,4,4> scale=Eigen::Matrix<GLfloat,4,4>::Identity();
+    scale.diagonal().template segment<3>(0)=calcInterpolatedScaling(animationTimeTicks,pNodeAnim);
+    //rotate
+    Eigen::Matrix<GLfloat,4,4> rotate=Eigen::Matrix<GLfloat,4,4>::Identity();
+    scale.template block<3,3>(0,0)=calcInterpolatedRotation(animationTimeTicks,pNodeAnim);
+    //translate
+    Eigen::Matrix<GLfloat,4,4> translate=Eigen::Matrix<GLfloat,4,4>::Identity();
+    translate.col(3).template segment<3>(0)=calcInterpolatedTranslation(animationTimeTicks,pNodeAnim);
+    nodeTrans=translate*rotate*scale;
+  }
+  //record transform
+  Eigen::Matrix<GLfloat,4,4> globalTrans=parentTrans*nodeTrans;
+  if(_boneNameToIndexMap.find(nodeName)!=_boneNameToIndexMap.end()) {
+    GLuint boneIndex=_boneNameToIndexMap[nodeName];
+    _bones[boneIndex]._finalTrans=globalTrans*_bones[boneIndex]._offsetTrans;
+  }
+  //descend
+  for(GLuint i=0; i<pNode->mNumChildren; i++) {
+    std::string childName(pNode->mChildren[i]->mName.data);
+    readNodeHierarchy(animationTimeTicks,pNode->mChildren[i],globalTrans,animation);
+  }
 }
 }
