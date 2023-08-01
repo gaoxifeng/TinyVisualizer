@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include "DrawerUtility.h"
+#include <assimp/texture.h>
 #include <memory>
 
 namespace DRAWER {
@@ -27,6 +28,7 @@ class Texture {
   void syncGPUData();
   void save(const std::string& path) const;
   static std::shared_ptr<Texture> load(const std::string& path);
+  static std::shared_ptr<Texture> load(const aiTexture& tex);
   template <typename T>
   Eigen::Matrix<T,4,1> getData(int w,int h) const;
   template <typename T>

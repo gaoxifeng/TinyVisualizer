@@ -111,6 +111,9 @@ void Bullet3DShape::setLocalTranslate(const Eigen::Matrix<GLfloat,3,1>& localTra
 void Bullet3DShape::setLocalRotate(const Eigen::Matrix<GLfloat,3,3>& localTrans) {
   _localTrans.block<3,3>(0,0)=localTrans;
 }
+Eigen::Matrix<GLfloat,4,4> Bullet3DShape::getLocalTransform() const {
+  return _localTrans;
+}
 const btCollisionObject* Bullet3DShape::getBody() const {
   return _body;
 }

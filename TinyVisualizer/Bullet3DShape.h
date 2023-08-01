@@ -27,6 +27,7 @@ class Bullet3DShape : public CompositeShape {
   void setLocalTransform(const Eigen::Matrix<GLfloat,4,4>& localTrans);
   void setLocalTranslate(const Eigen::Matrix<GLfloat,3,1>& localTrans);
   void setLocalRotate(const Eigen::Matrix<GLfloat,3,3>& localTrans);
+  Eigen::Matrix<GLfloat,4,4> getLocalTransform() const;
   const btCollisionObject* getBody() const;
  private:
 #ifdef BULLET_SUPPORT
