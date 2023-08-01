@@ -210,9 +210,6 @@ const ShadowLight::Material& MeshShape::getMaterial() const {
 void MeshShape::setMaterial(const ShadowLight::Material& mat) {
   _mat=mat;
 }
-void MeshShape::setBoneData(const BoneData& boneData) {
-  _boneData=boneData;
-}
 void MeshShape::setPointSize(GLfloat pointSize) {
   _mat._pointSize=pointSize;
 }

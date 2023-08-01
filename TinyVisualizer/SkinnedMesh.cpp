@@ -1,6 +1,7 @@
 #include "SkinnedMesh.h"
 #include "MeshShape.h"
 #include <assimp/postprocess.h>
+#include <iostream>
 
 #define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate|aiProcess_GenNormals|aiProcess_JoinIdenticalVertices)
 
@@ -203,8 +204,8 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
       meshShape->addIndex(Eigen::Matrix<GLuint,3,1>(face.mIndices[0],face.mIndices[1],face.mIndices[2]));
     }
     meshShape->setMode(GL_TRIANGLES);
-    //bones
-    MeshShape::BoneData boneData;
+    //bone
+    BoneData boneData;
     boneData._maxNrBone=0;
     std::vector<std::unordered_map<GLint,GLfloat>> boneInfo(mesh->mNumVertices);
     for(unsigned int bid=0; bid<mesh->mNumBones; bid++) {
@@ -228,26 +229,30 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
         off++;
       }
     }
-    meshShape->setBoneData(boneData);
     //material
     loadMaterial(meshShape,_scene,_scene->mMaterials[mesh->mMaterialIndex],getDirFromFilename(filename).c_str());
+    _refMeshes.push_back(std::shared_ptr<MeshShape>(new MeshShape(*meshShape)));
+    _boneDatas.push_back(boneData);
     addShape(meshShape);
   }
 }
-void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time) {
+void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh) {
   ASSERT_MSGV(index<_scene->mNumAnimations,"Invalid animation index, maxId=%d!",index)
   Eigen::Matrix<GLfloat,4,4> identity=Eigen::Matrix<GLfloat,4,4>::Identity();
   GLfloat animationTimeTicks=calcAnimationTimeTicks(time,index);
   const aiAnimation& animation=*_scene->mAnimations[index];
   readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
-}
-GLuint SkinnedMeshShape::nrAnimation() const {
-  return _scene->mNumAnimations;
+  //calc vertices
+  for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
+    updateMeshVertices(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_boneDatas[i]);
 }
 GLfloat SkinnedMeshShape::duration(GLuint index) const {
   GLfloat duration=0.0f;
   std::modf((GLfloat)_scene->mAnimations[index]->mDuration,&duration);
   return duration;
+}
+GLuint SkinnedMeshShape::nrAnimation() const {
+  return _scene->mNumAnimations;
 }
 //helper
 GLuint SkinnedMeshShape::getBoneId(const aiBone* bone) {
@@ -337,6 +342,7 @@ Eigen::Matrix<GLfloat,3,1> SkinnedMeshShape::calcInterpolatedTranslation(GLfloat
 }
 void SkinnedMeshShape::readNodeHierarchy(GLfloat animationTimeTicks,const aiNode* pNode,const Eigen::Matrix<GLfloat,4,4>& parentTrans,const aiAnimation& animation) {
   std::string nodeName(pNode->mName.data);
+  //std::cout << "Computing bone:" << nodeName << std::endl;
   Eigen::Matrix<GLfloat,4,4> nodeTrans=toEigen(pNode->mTransformation);
   const aiNodeAnim* pNodeAnim=findNodeAnim(animation,nodeName);
   if(pNodeAnim) {
@@ -361,6 +367,20 @@ void SkinnedMeshShape::readNodeHierarchy(GLfloat animationTimeTicks,const aiNode
   for(GLuint i=0; i<pNode->mNumChildren; i++) {
     std::string childName(pNode->mChildren[i]->mName.data);
     readNodeHierarchy(animationTimeTicks,pNode->mChildren[i],globalTrans,animation);
+  }
+}
+void SkinnedMeshShape::updateMeshVertices(std::shared_ptr<MeshShape> out,std::shared_ptr<MeshShape> in,const BoneData& boneData) const {
+  ASSERT(out->nrVertex()==in->nrVertex())
+  for(GLuint i=0; i<(GLuint)in->nrVertex(); i++) {
+    Eigen::Matrix<GLfloat,3,1> pos=in->getVertex(i);
+    Eigen::Matrix<GLfloat,4,4> trans=Eigen::Matrix<GLfloat,4,4>::Zero();
+    for(GLuint j=0; j<boneData._maxNrBone; j++) {
+      GLint bid=boneData._boneId[i*boneData._maxNrBone+j];
+      GLfloat bw=boneData._boneWeight[i*boneData._maxNrBone+j];
+      if(bid>=0)
+        trans+=_bones[bid]._finalTrans*bw;
+    }
+    out->setVertex(i,trans.template block<3,3>(0,0)*pos+trans.template block<3,1>(0,3));
   }
 }
 }

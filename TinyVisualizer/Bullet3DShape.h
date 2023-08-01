@@ -37,7 +37,7 @@ class Bullet3DShape : public CompositeShape {
   std::unordered_map<GLfloat,std::shared_ptr<MeshShape>> _fillCapsule,_borderCapsule;
 #endif
   const btCollisionObject* _body;
-  std::shared_ptr<Shape> _child;
+  //std::shared_ptr<Shape> _child;
   Eigen::Matrix<GLfloat,4,4> _localTrans;
 };
 }

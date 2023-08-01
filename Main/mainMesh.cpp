@@ -2,7 +2,9 @@
 #include <TinyVisualizer/MakeMesh.h>
 #include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/SkinnedMesh.h>
-#include <TinyVisualizer/FirstPersonCameraManipulator.h>
+#include <TinyVisualizer/TrackballCameraManipulator.h>
+#include <TinyVisualizer/ImGuiPlugin.h>
+#include <imgui.h>
 #include <iostream>
 #include <fstream>
 #include <ctime>
@@ -12,6 +14,12 @@ int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
   Eigen::Matrix<GLfloat,4,4> scale=Eigen::Matrix<GLfloat,4,4>::Identity();
   std::shared_ptr<SkinnedMeshShape> shapeM(new SkinnedMeshShape(argv[1]));
+  std::cout << "#animation=" << shapeM->nrAnimation() << " duration=";
+  for(GLuint i=0; i<shapeM->nrAnimation(); i++)
+    std::cout << shapeM->duration(i) << " ";
+  std::cout << std::endl;
+
+  //mesh
   Eigen::Matrix<GLfloat,6,1> bb=shapeM->getBB();
   scale.diagonal().segment<3>(0).array()=1/(bb.segment<3>(3)-bb.segment<3>(0)).norm();
   shapeM->setLocalTransform(scale*shapeM->getLocalTransform());
@@ -42,7 +50,7 @@ int main(int argc,char** argv) {
 
   //camera
   drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
-  drawer.getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(drawer.getCamera3D())));
+  drawer.getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new TrackballCameraManipulator(drawer.getCamera3D())));
   drawer.setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
     if(captured)
       return;
@@ -58,6 +66,22 @@ int main(int argc,char** argv) {
       } else std::cout << "No intersection!" << std::endl;
     }
   });
+  GLint index=0;
+  GLfloat time=0.;
+  bool play=false;
+  if(shapeM->nrAnimation()>0) {
+    drawer.addPlugin(std::shared_ptr<Plugin>(new ImGuiPlugin([&]() {
+      ImGui::Begin("Skinned Animation");
+      bool changedIndex=ImGui::SliderInt("animation index",&index,0,shapeM->nrAnimation()-1);
+      bool changedTime=ImGui::SliderFloat("time",&time,0,shapeM->duration(index));
+      ImGui::Checkbox("play",&play);
+      if(play)
+        time+=1.0f/drawer.FPS();
+      if(changedIndex || changedTime || play)
+        shapeM->setAnimatedFrame(index,time);
+      ImGui::End();
+    })));
+  }
   drawer.mainLoop();
   return 0;
 }
