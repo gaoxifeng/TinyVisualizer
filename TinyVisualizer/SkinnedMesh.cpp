@@ -112,9 +112,9 @@ void loadMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,const aiM
     mesh->setColorSpecular(GL_TRIANGLES,specularColor.r,specularColor.g,specularColor.b);
   else mesh->setColorSpecular(GL_TRIANGLES,0,0,0);
 
-  static int id=0;
+  //static int id=0;
   std::shared_ptr<Texture> tex=loadTexture(scene,mat,dir);
-  tex->save(std::to_string(id++)+".png");
+  //tex->save(std::to_string(id++)+".png");
   mesh->setTexture(tex);
 }
 SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
@@ -145,6 +145,17 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
       meshShape->addIndex(Eigen::Matrix<GLuint,3,1>(face.mIndices[0],face.mIndices[1],face.mIndices[2]));
     }
     meshShape->setMode(GL_TRIANGLES);
+    //bones
+    std::vector<std::vector<GLint>> boneId(mesh->mNumVertices);
+    std::vector<std::vector<GLfloat>> boneWeight(mesh->mNumVertices);
+    for(unsigned int bid=0; bid<mesh->mNumBones; bid++) {
+      const aiBone* bone=mesh->mBones[bid];
+      for(unsigned int i=0; i<bone->mNumWeights; i++) {
+        const aiVertexWeight& w=bone->mWeights[i];
+        boneId[w.mVertexId].push_back(bid);
+        boneWeight[w.mVertexId].push_back(w.mWeight);
+      }
+    }
     //material
     loadMaterial(meshShape,scene,scene->mMaterials[mesh->mMaterialIndex],getDirFromFilename(filename).c_str());
     addShape(meshShape);
