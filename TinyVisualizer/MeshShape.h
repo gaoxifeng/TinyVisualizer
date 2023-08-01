@@ -10,6 +10,11 @@ class Texture;
 class MeshShape : public Shape {
   friend class LowDimensionalMeshShape;
  public:
+  struct BoneData {
+    GLuint _maxNrBone;
+    std::vector<GLint> _boneId;
+    std::vector<GLfloat> _boneWeight;
+  };
   MeshShape();
   MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLuint>& indices,GLenum mode);
   virtual ~MeshShape();
@@ -32,6 +37,7 @@ class MeshShape : public Shape {
   void debugWriteObj(const std::string& path);
   const ShadowLight::Material& getMaterial() const;
   void setMaterial(const ShadowLight::Material& mat);
+  void setBoneData(const BoneData& boneData);
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
   virtual void setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;
@@ -54,6 +60,7 @@ class MeshShape : public Shape {
   Eigen::Matrix<GLfloat,6,1> _bb;
   std::vector<GLuint> _indices;
   ShadowLight::Material _mat;
+  BoneData _boneData;
   GLenum _mode;
   bool _dirty;
 };

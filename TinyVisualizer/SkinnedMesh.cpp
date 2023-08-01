@@ -1,7 +1,5 @@
 #include "SkinnedMesh.h"
 #include "MeshShape.h"
-#include <assimp/scene.h>
-#include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
 #define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate|aiProcess_GenNormals|aiProcess_JoinIdenticalVertices)
@@ -117,17 +115,17 @@ void loadMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,const aiM
   //tex->save(std::to_string(id++)+".png");
   mesh->setTexture(tex);
 }
+//SkinnedMeshShape
 SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
-  Assimp::Importer importer;
-  const aiScene* scene=importer.ReadFile(filename.c_str(),ASSIMP_LOAD_FLAGS);
-  aiMatrix4x4 inverseTrans=scene->mRootNode->mTransformation;
+  _scene=_importer.ReadFile(filename.c_str(),ASSIMP_LOAD_FLAGS);
+  aiMatrix4x4 inverseTrans=_scene->mRootNode->mTransformation;
   inverseTrans=inverseTrans.Inverse();
   setLocalTransform(toEigen(inverseTrans));
   //init mesh
   const aiVector3D zero3D(0.0f,0.0f,0.0f);
-  for(unsigned int mid=0; mid<scene->mNumMeshes; mid++) {
+  for(unsigned int mid=0; mid<_scene->mNumMeshes; mid++) {
     std::shared_ptr<MeshShape> meshShape(new MeshShape);
-    const aiMesh* mesh=scene->mMeshes[mid];
+    const aiMesh* mesh=_scene->mMeshes[mid];
     //vertex
     for(unsigned int i=0; i<mesh->mNumVertices; i++) {
       const aiVector3D& pPos=mesh->mVertices[i];
@@ -146,19 +144,53 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
     }
     meshShape->setMode(GL_TRIANGLES);
     //bones
-    std::vector<std::vector<GLint>> boneId(mesh->mNumVertices);
-    std::vector<std::vector<GLfloat>> boneWeight(mesh->mNumVertices);
+    MeshShape::BoneData boneData;
+    boneData._maxNrBone=0;
+    std::vector<std::unordered_map<GLint,GLfloat>> boneInfo(mesh->mNumVertices);
     for(unsigned int bid=0; bid<mesh->mNumBones; bid++) {
       const aiBone* bone=mesh->mBones[bid];
       for(unsigned int i=0; i<bone->mNumWeights; i++) {
         const aiVertexWeight& w=bone->mWeights[i];
-        boneId[w.mVertexId].push_back(bid);
-        boneWeight[w.mVertexId].push_back(w.mWeight);
+        if(w.mWeight!=0) {
+          boneInfo[w.mVertexId][bid]=w.mWeight;
+          boneData._maxNrBone=std::max<GLint>(boneData._maxNrBone,boneInfo[w.mVertexId].size());
+        }
       }
     }
+    boneData._boneId.assign(mesh->mNumVertices*boneData._maxNrBone,-1);
+    boneData._boneWeight.assign(mesh->mNumVertices*boneData._maxNrBone,0);
+    for(unsigned int i=0; i<mesh->mNumVertices; i++) {
+      GLint off=0;
+      const auto& info=boneInfo[i];
+      for(const auto& item:info) {
+        boneData._boneId[i*boneData._maxNrBone+off]=item.first;
+        boneData._boneWeight[i*boneData._maxNrBone+off]=item.second;
+        off++;
+      }
+    }
+    meshShape->setBoneData(boneData);
     //material
-    loadMaterial(meshShape,scene,scene->mMaterials[mesh->mMaterialIndex],getDirFromFilename(filename).c_str());
+    loadMaterial(meshShape,_scene,_scene->mMaterials[mesh->mMaterialIndex],getDirFromFilename(filename).c_str());
     addShape(meshShape);
   }
+}
+void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time) {
+  ASSERT_MSGV(index<_scene->mNumAnimations,"Invalid animation index, maxId=%d!",index)
+  Eigen::Matrix<GLfloat,4,4> identity=Eigen::Matrix<GLfloat,4,4>::Identity();
+  GLfloat animationTimeTicks=calcAnimationTimeTicks(time,index);
+  const aiAnimation& animation=*_scene->mAnimations[index];
+  readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
+}
+void SkinnedMeshShape::readNodeHierarchy(GLfloat animationTimeTicks,const aiNode* pNode,const Eigen::Matrix<GLfloat,4,4>& parentTransform,const aiAnimation& Animation) {
+
+}
+GLfloat SkinnedMeshShape::calcAnimationTimeTicks(GLfloat time,GLint index) const {
+  GLfloat ticksPerSecond=(GLfloat)(_scene->mAnimations[index]->mTicksPerSecond!=0?_scene->mAnimations[index]->mTicksPerSecond:25.0f);
+  GLfloat timeInTicks=time*ticksPerSecond;
+  //we need to use the integral part of mDuration for the total length of the animation
+  GLfloat duration=0.0f;
+  //GLfloat fraction=std::modf((GLfloat)_scene->mAnimations[index]->mDuration,&duration);
+  GLfloat animationTimeTicks=fmod(timeInTicks,duration);
+  return animationTimeTicks;
 }
 }

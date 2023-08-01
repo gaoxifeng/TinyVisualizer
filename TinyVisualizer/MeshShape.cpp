@@ -210,6 +210,9 @@ const ShadowLight::Material& MeshShape::getMaterial() const {
 void MeshShape::setMaterial(const ShadowLight::Material& mat) {
   _mat=mat;
 }
+void MeshShape::setBoneData(const BoneData& boneData) {
+  _boneData=boneData;
+}
 void MeshShape::setPointSize(GLfloat pointSize) {
   _mat._pointSize=pointSize;
 }
@@ -337,7 +340,7 @@ void MeshShape::initMaterial() {
   _mat._shininess=DEFAULT_S;
   _mat._pointSize=1;
   _mat._lineWidth=0;
-  _mat._tex=_texWhite; 
+  _mat._tex=_texWhite;
   _mat._drawer=NULL;
 }
 std::shared_ptr<Texture> MeshShape::_texWhite;
