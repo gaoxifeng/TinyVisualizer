@@ -169,7 +169,7 @@ GLuint findRotation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) {
   return 0;
 }
 GLuint findPosition(GLfloat animationTimeTicks, const aiNodeAnim* pNodeAnim) {
-  for(uint i=0; i<pNodeAnim->mNumPositionKeys-1; i++) {
+  for(GLuint i=0; i<pNodeAnim->mNumPositionKeys-1; i++) {
     GLfloat t=(GLfloat)pNodeAnim->mPositionKeys[i+1].mTime;
     if(animationTimeTicks<t)
       return i;
