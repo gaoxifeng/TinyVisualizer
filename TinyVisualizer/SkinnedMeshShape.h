@@ -19,6 +19,8 @@ class SkinnedMeshShape : public Bullet3DShape {
   };
   SkinnedMeshShape(const std::string& filename);
   void setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh=true);
+  const std::vector<BoneInfo>& getBoneInfo() const;
+  const std::vector<BoneData>& getBoneData() const;
   GLfloat duration(GLuint index) const;
   GLuint nrAnimation() const;
  private:

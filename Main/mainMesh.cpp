@@ -1,7 +1,7 @@
 #include <TinyVisualizer/Drawer.h>
 #include <TinyVisualizer/MakeMesh.h>
 #include <TinyVisualizer/Camera3D.h>
-#include <TinyVisualizer/SkinnedMesh.h>
+#include <TinyVisualizer/SkinnedMeshShape.h>
 #include <TinyVisualizer/TrackballCameraManipulator.h>
 #include <TinyVisualizer/ImGuiPlugin.h>
 #include <imgui.h>
@@ -37,6 +37,7 @@ int main(int argc,char** argv) {
   //light
 #define USE_LIGHT
 #ifdef USE_LIGHT
+  drawer.setBackground(0,0,0);
   drawer.addLightSystem(0);
   drawer.getLight()->lightSz(10);
   for(int x=-1; x<=1; x+=2)

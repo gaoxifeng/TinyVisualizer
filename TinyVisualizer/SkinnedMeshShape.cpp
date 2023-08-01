@@ -1,4 +1,4 @@
-#include "SkinnedMesh.h"
+#include "SkinnedMeshShape.h"
 #include "MeshShape.h"
 #include <assimp/postprocess.h>
 #include <iostream>
@@ -245,6 +245,12 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMes
   //calc vertices
   for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
     updateMeshVertices(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_boneDatas[i]);
+}
+const std::vector<SkinnedMeshShape::BoneInfo>& SkinnedMeshShape::getBoneInfo() const {
+  return _bones;
+}
+const std::vector<SkinnedMeshShape::BoneData>& SkinnedMeshShape::getBoneData() const {
+  return _boneDatas;
 }
 GLfloat SkinnedMeshShape::duration(GLuint index) const {
   GLfloat duration=0.0f;
