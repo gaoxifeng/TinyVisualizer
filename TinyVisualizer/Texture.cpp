@@ -4,7 +4,7 @@
 #include <stb/stb_image_write.h>
 
 namespace DRAWER {
-void flipY(int w,int h,int c,void* data) {
+void flipY(int w,int h,int c,unsigned char* data) {
   unsigned sz=w*c;
   std::vector<unsigned char> buffer(sz);
   for(int i=0; i<h/2; i++) {
@@ -98,7 +98,7 @@ std::shared_ptr<Texture> Texture::load(const std::string& path) {
 std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
   int width,height,BPP;
   void* data=stbi_load_from_memory((const stbi_uc*)tex.pcData,tex.mWidth,&width,&height,&BPP,0);
-  flipY(width,height,BPP,data);
+  flipY(width,height,BPP,(unsigned char*)data);
   std::shared_ptr<Texture> ret(new Texture(width,height,GL_RGB));
   ret->reset(width,height);
   ret->begin();
