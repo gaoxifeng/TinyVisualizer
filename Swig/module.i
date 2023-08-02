@@ -6,6 +6,7 @@
 %apply int *INOUT { int* v };
 %apply bool *INOUT { bool* v };
 %apply float *INOUT { float* v };
+%eigen_typemaps(Eigen::Matrix<GLint,-1,-1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,-1,-1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,-1,1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,2,1>)
@@ -46,6 +47,7 @@
 #include <TinyVisualizer/VisibilityScore.h>
 %}
 %typedef float GLfloat;
+%typedef int GLint;
 %ignore ImGui::TextV;
 %ignore ImGui::TextColoredV;
 %ignore ImGui::TextDisabledV;

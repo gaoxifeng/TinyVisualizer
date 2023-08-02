@@ -246,14 +246,23 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMes
   for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
     updateMeshVertices(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_boneDatas[i]);
 }
+Eigen::Matrix<GLfloat,-1,-1> SkinnedMeshShape::getBoneTransforms() const {
+  Eigen::Matrix<GLfloat,-1,-1> ret;
+  ret.resize(4,4*_bones.size());
+  for(int i=0; i<(int)_bones.size(); i++)
+    ret.template block<4,4>(0,i*4)=_bones[i]._finalTrans;
+  return ret;
+}
+Eigen::Matrix<GLint,-1,-1> SkinnedMeshShape::getBoneId(int id) const {
+  const BoneData& bd=_boneDatas[id];
+  return Eigen::Map<const Eigen::Matrix<GLint,-1,-1>>(bd._boneId.data(),bd._maxNrBone,bd._boneId.size()/bd._maxNrBone);
+}
+Eigen::Matrix<GLfloat,-1,-1> SkinnedMeshShape::getBoneWeight(int id) const {
+  const BoneData& bd=_boneDatas[id];
+  return Eigen::Map<const Eigen::Matrix<GLfloat,-1,-1>>(bd._boneWeight.data(),bd._maxNrBone,bd._boneWeight.size()/bd._maxNrBone);
+}
 std::shared_ptr<MeshShape> SkinnedMeshShape::getMeshRef(int id) const {
   return _refMeshes[id];
-}
-const std::vector<SkinnedMeshShape::BoneInfo>& SkinnedMeshShape::getBoneInfo() const {
-  return _bones;
-}
-const std::vector<SkinnedMeshShape::BoneData>& SkinnedMeshShape::getBoneData() const {
-  return _boneDatas;
 }
 GLfloat SkinnedMeshShape::duration(GLuint index) const {
   GLfloat duration=0.0f;
@@ -391,5 +400,18 @@ void SkinnedMeshShape::updateMeshVertices(std::shared_ptr<MeshShape> out,std::sh
     }
     out->setVertex(i,trans.template block<3,3>(0,0)*pos+trans.template block<3,1>(0,3));
   }
+}
+std::shared_ptr<Program> SkinnedMeshShape::getTransformFeedbackProg() const {
+#include "Shader/BoneTransformVert.h"
+  std::shared_ptr<Program> transformFeedbackProgram=Program::findProgram("BoneTransform");
+  if(!transformFeedbackProgram) {
+    Shader::registerShader("BoneTransform",BoneTransformVert);
+    Program::registerProgram("BoneTransform",[&](GLuint program) {
+      const char* varyings[]= {"VertexOut","NormalOut"};
+      glTransformFeedbackVaryings(program,2,varyings,GL_SEPARATE_ATTRIBS);
+    },"BoneTransform");
+    transformFeedbackProgram=Program::findProgram("BoneTransform");
+  }
+  return transformFeedbackProgram;
 }
 }

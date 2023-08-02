@@ -19,9 +19,10 @@ class SkinnedMeshShape : public Bullet3DShape {
   };
   SkinnedMeshShape(const std::string& filename);
   void setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh=true);
+  Eigen::Matrix<GLfloat,-1,-1> getBoneTransforms() const;
+  Eigen::Matrix<GLint,-1,-1> getBoneId(int id) const;
+  Eigen::Matrix<GLfloat,-1,-1> getBoneWeight(int id) const;
   std::shared_ptr<MeshShape> getMeshRef(int id) const;
-  const std::vector<BoneInfo>& getBoneInfo() const;
-  const std::vector<BoneData>& getBoneData() const;
   GLfloat duration(GLuint index) const;
   GLuint nrAnimation() const;
  private:
@@ -32,6 +33,7 @@ class SkinnedMeshShape : public Bullet3DShape {
   Eigen::Matrix<GLfloat,3,1> calcInterpolatedTranslation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const;
   void readNodeHierarchy(GLfloat animationTimeTicks,const aiNode* pNode,const Eigen::Matrix<GLfloat,4,4>& parentTransform,const aiAnimation& animation);
   void updateMeshVertices(std::shared_ptr<MeshShape> out,std::shared_ptr<MeshShape> in,const BoneData& boneData) const;
+  std::shared_ptr<Program> getTransformFeedbackProg() const;
   //data
   const aiScene* _scene;
   Assimp::Importer _importer;
