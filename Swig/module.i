@@ -25,6 +25,7 @@
 #include <TinyVisualizer/Texture.h>
 #include <TinyVisualizer/MakeTexture.h>
 #include <TinyVisualizer/FBO.h>
+#include <TinyVisualizer/VBO.h>
 #include <TinyVisualizer/Drawer.h>
 #include <TinyVisualizer/ShadowAndLight.h>
 #include <TinyVisualizer/CameraManipulator.h>
@@ -73,6 +74,8 @@
 %include <TinyVisualizer/MakeTexture.h>
 %shared_ptr(DRAWER::FBO);
 %include <TinyVisualizer/FBO.h>
+%shared_ptr(DRAWER::VBO);
+%include <TinyVisualizer/VBO.h>
 %shared_ptr(DRAWER::Shape);
 %shared_ptr(DRAWER::Camera);
 %shared_ptr(DRAWER::Plugin);
