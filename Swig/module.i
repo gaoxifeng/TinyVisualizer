@@ -10,6 +10,7 @@
 %eigen_typemaps(Eigen::Matrix<GLfloat,-1,1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,2,1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,3,1>)
+%eigen_typemaps(Eigen::Matrix<GLfloat,4,1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,3,3>)
 %{
 #include <glad/gl.h>
