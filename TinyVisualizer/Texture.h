@@ -29,7 +29,10 @@ class Texture {
   void save(const std::string& path) const;
   static std::shared_ptr<Texture> load(const std::string& path);
   static std::shared_ptr<Texture> load(const aiTexture& tex);
-  Eigen::Matrix<GLfloat,4,1> getDataRGBA(int w,int h) const;
+  Eigen::Matrix<GLfloat,-1,-1> getDataChannel(int cid) const;
+  Eigen::Matrix<GLfloat,4,1> getData(int w,int h) const;
+  template <typename T>
+  Eigen::Matrix<T,-1,-1> getDataChannel(int cid) const;
   template <typename T>
   Eigen::Matrix<T,4,1> getData(int w,int h) const;
   template <typename T>

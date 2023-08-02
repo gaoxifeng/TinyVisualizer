@@ -119,8 +119,15 @@ std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
   stbi_image_free(data);
   return ret;
 }
-Eigen::Matrix<GLfloat,4,1> Texture::getDataRGBA(int w,int h) const {
-  return getData<GLubyte>(w,h).template cast<GLfloat>()/255.f;
+Eigen::Matrix<GLfloat,-1,-1> Texture::getDataChannel(int cid) const {
+  return getDataChannel<GLfloat>(cid);
+}
+Eigen::Matrix<GLfloat,4,1> Texture::getData(int w,int h) const {
+  return getData<GLfloat>(w,h);
+}
+template <typename T>
+Eigen::Matrix<T,-1,-1> Texture::getDataChannel(int cid) const {
+  return Eigen::Map<const Eigen::Matrix<unsigned char,-1,-1>,0,Eigen::InnerStride<4>>(_data._data+cid,_data._width,_data._height).cast<T>()/255;
 }
 template <typename T>
 Eigen::Matrix<T,4,1> Texture::getData(int w,int h) const {

@@ -12,10 +12,12 @@
 %eigen_typemaps(Eigen::Matrix<GLfloat,3,1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,4,1>)
 %eigen_typemaps(Eigen::Matrix<GLfloat,3,3>)
+%eigen_typemaps(Eigen::Matrix<GLfloat,4,4>)
 %{
 #include <glad/gl.h>
 #include <imgui.h>
 #include <TinyVisualizer/DrawerUtility.h>
+#include <TinyVisualizer/Matrix.h>
 #include <TinyVisualizer/Shader.h>
 #include <TinyVisualizer/Texture.h>
 #include <TinyVisualizer/MakeTexture.h>
@@ -59,6 +61,7 @@
 %include <GLFW/glfw3.h>
 %include <imgui.h>
 %include <TinyVisualizer/DrawerUtility.h>
+%include <TinyVisualizer/Matrix.h>
 %shared_ptr(DRAWER::Shader);
 %include <TinyVisualizer/Shader.h>
 %shared_ptr(DRAWER::Texture);

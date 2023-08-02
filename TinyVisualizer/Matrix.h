@@ -15,6 +15,8 @@ extern void loadIdentity();
 extern void matrixMode(GLuint mode);
 extern void getFloatv(GLuint mode,Eigen::Matrix<GLfloat,3,3>& m);
 extern void getFloatv(GLuint mode,Eigen::Matrix<GLfloat,4,4>& m);
+extern Eigen::Matrix<GLfloat,3,3> getFloatv3(GLuint mode);
+extern Eigen::Matrix<GLfloat,4,4> getFloatv4(GLuint mode);
 extern void multMatrixf(const Eigen::Matrix<GLfloat,4,4>& m);
 extern void multMatrixf(const GLfloat* const m);
 extern void translatef(GLfloat x,GLfloat y,GLfloat z);

@@ -49,6 +49,16 @@ void getFloatv(GLuint mode,Eigen::Matrix<GLfloat,4,4>& m) {
     ASSERT_MSGV(false,"unsupported mode %d for getFloatv!",mode)
   }
 }
+Eigen::Matrix<GLfloat,3,3> getFloatv3(GLuint mode) {
+  Eigen::Matrix<GLfloat,3,3> ret;
+  getFloatv(mode,ret);
+  return ret;
+}
+Eigen::Matrix<GLfloat,4,4> getFloatv4(GLuint mode) {
+  Eigen::Matrix<GLfloat,4,4> ret;
+  getFloatv(mode,ret);
+  return ret;
+}
 void multMatrixf(const Eigen::Matrix<GLfloat,4,4>& m) {
   *currentMatrix*=m;
 }
