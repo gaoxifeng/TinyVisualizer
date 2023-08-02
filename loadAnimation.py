@@ -1,5 +1,5 @@
 from utils import *
-import math
+import math,random
 
 def load_texture(tex):
     tex.loadCPUData()
@@ -13,9 +13,11 @@ def load_animation(path):
     uvs = []
     idxs = []
     texs = []
+    bids = []
+    bws = []
     shape = vis.SkinnedMeshShape(path)
     for id in range(shape.numChildren()):
-        mesh = shape.getMeshRef(id)
+        mesh = shape.getMesh(id)
         #read vertex
         pos = []
         uv = []
@@ -23,7 +25,7 @@ def load_animation(path):
             pos.append(mesh.getVertex(vid).T)
             uv.append(mesh.getTexcoord(vid).T)
         poss.append(torch.tensor(np.vstack(pos),dtype=torch.float32).cuda())
-        uv.append(torch.tensor(np.vstack(uv),dtype=torch.float32).cuda())
+        uvs.append(torch.tensor(np.vstack(uv),dtype=torch.float32).cuda())
         #read index
         idx = []
         for fid in range(mesh.nrIndex()//3):
@@ -32,7 +34,9 @@ def load_animation(path):
         #read texture
         texs.append(load_texture(mesh.getTexture()))
         #read bone
-    return poss, uvs, idxs, texs
+        bids.append(shape.getBoneId(id))
+        bws.append(shape.getBoneWeight(id))
+    return shape, poss, uvs, idxs, texs, bids, bws
 
 def get_bounding_box(pos):
     minC = np.min(pos,0)
@@ -68,12 +72,39 @@ def sample_camera(pos):
     p = projection(fov, 1., max(.001, np.min(x)), np.max(x))
     return np.matmul(p, mv)
 
+def sample_camera_multi(poss):
+    poss = [pos.cpu().numpy() for pos in poss]
+    return sample_camera(np.vstack(poss))
+
+def sample_animation(shape):
+    index = random.randint(0,shape.nrAnimation())
+    time = random.uniform(0,shape.duration(index))
+    shape.setAnimatedFrame(index, time, False)
+    return shape.getBoneTransforms()
+
+def calc_animated_pos(posRef, bid, bw, boneTrans):
+    #bid: [#maxBone,#vertex]
+    #bw:  [#maxBone,#vertex]
+    #boneTrans: [#bone,4,4]
+    pos = torch.zero(posRef.shape)
+    for id in range(bid.shape[0]):
+        t = torch.index_select(boneTrans,0,bid[id,:])
+        pos += torch.bmm(t, posRef) * bw[id,:]
+    return pos
+
 if __name__=='__main__':
     drawer = vis.Drawer(0,None)
-    poss,uvs,idxs,texs = load_animation('gargoyle_model/Internal.OBJ')
-    #mvp = sample_camera(pos.cpu().numpy())
+    shape,poss,uvs,idxs,texs,bids,bws = load_animation('char10.glb')
+    #poss = [poss[0], poss[0].clone() + torch.tensor([100.,100.,100.]).cuda()]
+    #uvs = uvs + uvs
+    #idxs = idxs + idxs
+    #texs = texs + texs
+    #bids = bids + bids
+    #bws = bws + bws
+    mvp = sample_camera_multi(poss)
     
     use_opengl = False
     glctx = dr.RasterizeGLContext() if use_opengl else dr.RasterizeCudaContext()
-    color = render_multi(glctx, mvp, pos, idx, uv, idx, tex[0], 1024, False, 0)
+    color, depth = render_multi(glctx, mvp, poss, idxs, uvs, texs, 1024, False, 0)
     save_image('color.png', color[0,:].cpu().numpy())
+    save_image('depth.png', depth[0,:,:,2].cpu().numpy())
