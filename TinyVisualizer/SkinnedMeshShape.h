@@ -19,6 +19,7 @@ class SkinnedMeshShape : public Bullet3DShape {
   Eigen::Matrix<GLint,4,-1> getBoneId(int id) const;
   Eigen::Matrix<GLfloat,4,-1> getBoneWeight(int id) const;
   std::shared_ptr<MeshShape> getMeshRef(int id) const;
+  std::shared_ptr<MeshShape> getMesh(int id) const;
   GLfloat duration(GLuint index) const;
   GLuint nrAnimation() const;
  private:

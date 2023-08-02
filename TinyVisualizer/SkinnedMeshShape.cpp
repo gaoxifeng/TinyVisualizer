@@ -269,6 +269,9 @@ Eigen::Matrix<GLfloat,4,-1> SkinnedMeshShape::getBoneWeight(int id) const {
 std::shared_ptr<MeshShape> SkinnedMeshShape::getMeshRef(int id) const {
   return _refMeshes[id];
 }
+std::shared_ptr<MeshShape> SkinnedMeshShape::getMesh(int id) const {
+  return std::dynamic_pointer_cast<MeshShape>(_shapes[id]);
+}
 GLfloat SkinnedMeshShape::duration(GLuint index) const {
   GLfloat duration=0.0f;
   std::modf((GLfloat)_scene->mAnimations[index]->mDuration,&duration);
