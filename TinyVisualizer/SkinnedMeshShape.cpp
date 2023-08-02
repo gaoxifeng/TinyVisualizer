@@ -246,6 +246,15 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMes
   for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
     updateMeshVertices(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_boneDatas[i]);
 }
+std::vector<std::shared_ptr<MeshShape>> SkinnedMeshShape::getMeshRef() const {
+  return _refMeshes;
+}
+std::vector<std::shared_ptr<MeshShape>> SkinnedMeshShape::getMesh() const {
+  std::vector<std::shared_ptr<MeshShape>> ret;
+  for(const auto& s:_shapes)
+    ret.push_back(std::dynamic_pointer_cast<MeshShape>(s));
+  return ret;
+}
 const std::vector<SkinnedMeshShape::BoneInfo>& SkinnedMeshShape::getBoneInfo() const {
   return _bones;
 }
