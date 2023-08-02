@@ -206,7 +206,7 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
     meshShape->setMode(GL_TRIANGLES);
     //bone
     BoneData boneData;
-    boneData._maxNrBone=0;
+    boneData._maxNrBone=4;  //we only support 4 bones
     std::vector<std::unordered_map<GLint,GLfloat>> boneInfo(mesh->mNumVertices);
     for(unsigned int bid=0; bid<mesh->mNumBones; bid++) {
       const aiBone* bone=mesh->mBones[bid];
@@ -232,7 +232,7 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
     //material
     loadMaterial(meshShape,_scene,_scene->mMaterials[mesh->mMaterialIndex],getDirFromFilename(filename).c_str());
     _refMeshes.push_back(std::shared_ptr<MeshShape>(new MeshShape(*meshShape)));
-    _boneDatas.push_back(boneData);
+    _refMeshes.back()->setBoneData(boneData);
     addShape(meshShape);
   }
 }
@@ -244,7 +244,7 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMes
   readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
   //calc vertices
   for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
-    updateMeshVertices(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_boneDatas[i]);
+    updateMeshVertices(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
 }
 Eigen::Matrix<GLfloat,-1,-1> SkinnedMeshShape::getBoneTransforms() const {
   Eigen::Matrix<GLfloat,-1,-1> ret;
@@ -254,11 +254,11 @@ Eigen::Matrix<GLfloat,-1,-1> SkinnedMeshShape::getBoneTransforms() const {
   return ret;
 }
 Eigen::Matrix<GLint,-1,-1> SkinnedMeshShape::getBoneId(int id) const {
-  const BoneData& bd=_boneDatas[id];
+  const BoneData& bd=_refMeshes[id]->getBoneData();
   return Eigen::Map<const Eigen::Matrix<GLint,-1,-1>>(bd._boneId.data(),bd._maxNrBone,bd._boneId.size()/bd._maxNrBone);
 }
 Eigen::Matrix<GLfloat,-1,-1> SkinnedMeshShape::getBoneWeight(int id) const {
-  const BoneData& bd=_boneDatas[id];
+  const BoneData& bd=_refMeshes[id]->getBoneData();
   return Eigen::Map<const Eigen::Matrix<GLfloat,-1,-1>>(bd._boneWeight.data(),bd._maxNrBone,bd._boneWeight.size()/bd._maxNrBone);
 }
 std::shared_ptr<MeshShape> SkinnedMeshShape::getMeshRef(int id) const {

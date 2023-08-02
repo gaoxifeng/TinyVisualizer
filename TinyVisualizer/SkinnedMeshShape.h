@@ -12,11 +12,7 @@ class SkinnedMeshShape : public Bullet3DShape {
     Eigen::Matrix<GLfloat,4,4> _offsetTrans;
     Eigen::Matrix<GLfloat,4,4> _finalTrans;
   };
-  struct BoneData {
-    GLuint _maxNrBone;
-    std::vector<GLint> _boneId;
-    std::vector<GLfloat> _boneWeight;
-  };
+  typedef MeshShape::BoneData BoneData;
   SkinnedMeshShape(const std::string& filename);
   void setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh=true);
   Eigen::Matrix<GLfloat,-1,-1> getBoneTransforms() const;
@@ -40,7 +36,6 @@ class SkinnedMeshShape : public Bullet3DShape {
   std::vector<BoneInfo> _bones;
   std::unordered_map<std::string,GLuint> _boneNameToIndexMap;
   std::vector<std::shared_ptr<MeshShape>> _refMeshes;
-  std::vector<BoneData> _boneDatas;
 };
 }
 

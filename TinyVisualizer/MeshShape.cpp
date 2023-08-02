@@ -7,6 +7,9 @@
 #include <iostream>
 
 namespace DRAWER {
+bool MeshShape::BoneData::empty() const {
+  return _maxNrBone>0;
+}
 //MeshShape
 #define DEFAULT_R 200/255.
 #define DEFAULT_G 143/255.
@@ -213,6 +216,14 @@ const ShadowLight::Material& MeshShape::getMaterial() const {
 void MeshShape::setMaterial(const ShadowLight::Material& mat) {
   _mat=mat;
 }
+const MeshShape::BoneData& MeshShape::getBoneData() const {
+  return _bone;
+}
+void MeshShape::setBoneData(const BoneData& bone) {
+  _dirty=true;
+  _bone=bone;
+  _VBO=NULL;
+}
 void MeshShape::setPointSize(GLfloat pointSize) {
   _mat._pointSize=pointSize;
 }
@@ -318,12 +329,17 @@ bool MeshShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alph
 }
 void MeshShape::initVBO() {
   if(!_VBO) {
-    const_cast<MeshShape*>(this)->_VBO.reset(new VBO(nrVertex(),nrIndex()));
+    const_cast<MeshShape*>(this)->_VBO.reset(new VBO(nrVertex(),nrIndex(),true,true,true,false,!_bone.empty(),!_bone.empty()));
     _VBO->setVertexPosition(_vertices);
     if(!_normals.empty())
       _VBO->setVertexNormal(_normals);
     if(!_texcoords.empty())
       _VBO->setVertexTexCoord(_texcoords);
+    if(!_bone.empty()) {
+      ASSERT_MSG(_bone._maxNrBone==4,"Our system only support skinned mesh with 4 bones!")
+      _VBO->setVertexBoneId(_bone._boneId);
+      _VBO->setVertexBoneWeight(_bone._boneWeight);
+    }
     _VBO->setIndex(_indices);
   }
 }
