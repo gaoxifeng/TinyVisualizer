@@ -32,7 +32,6 @@
 #include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/CompositeShape.h>
 #include <TinyVisualizer/MeshShape.h>
-#include <TinyVisualizer/SkinnedMeshShape.h>
 #include <TinyVisualizer/LowDimensionalMeshShape.h>
 #include <TinyVisualizer/MakeMesh.h>
 #include <TinyVisualizer/CellShape.h>
@@ -40,6 +39,7 @@
 #include <TinyVisualizer/TerrainShape.h>
 #include <TinyVisualizer/Box2DShape.h>
 #include <TinyVisualizer/Bullet3DShape.h>
+#include <TinyVisualizer/SkinnedMeshShape.h>
 #include <TinyVisualizer/VisibilityScore.h>
 %}
 %typedef float GLfloat;
@@ -95,8 +95,6 @@
 %include <TinyVisualizer/CompositeShape.h>
 %shared_ptr(DRAWER::MeshShape);
 %include <TinyVisualizer/MeshShape.h>
-%shared_ptr(DRAWER::SkinnedMeshShape);
-%include <TinyVisualizer/SkinnedMeshShape.h>
 %shared_ptr(DRAWER::LowDimensionalMeshShape);
 %include <TinyVisualizer/LowDimensionalMeshShape.h>
 %include <TinyVisualizer/MakeMesh.h>
@@ -110,5 +108,7 @@
 %include <TinyVisualizer/Box2DShape.h>
 %shared_ptr(DRAWER::Bullet3DShape);
 %include <TinyVisualizer/Bullet3DShape.h>
+%shared_ptr(DRAWER::SkinnedMeshShape);
+%include <TinyVisualizer/SkinnedMeshShape.h>
 %include <TinyVisualizer/VisibilityScore.h>
 
