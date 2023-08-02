@@ -204,6 +204,14 @@ void Program::setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloa
   ASSERT_MSGV(loc>=0,"Cannot find location for float: %s!",name.c_str())
   glUniformMatrix3fv(loc,1,false,f.data());
 }
+void Program::setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,3,-1>& f,bool mustHave) {
+  ASSERT_MSGV(_begin,"%s must be called after binding!",__FUNCTION__)
+  int loc=glGetUniformLocation(_prog,name.c_str());
+  if(!mustHave && loc<0)
+    return;
+  ASSERT_MSGV(loc>=0,"Cannot find location for float: %s!",name.c_str())
+  glUniformMatrix3fv(loc,f.cols()/3,false,f.data());
+}
 void Program::setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,4,4>& f,bool mustHave) {
   ASSERT_MSGV(_begin,"%s must be called after binding!",__FUNCTION__)
   int loc=glGetUniformLocation(_prog,name.c_str());
@@ -211,6 +219,14 @@ void Program::setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloa
     return;
   ASSERT_MSGV(loc>=0,"Cannot find location for float: %s!",name.c_str())
   glUniformMatrix4fv(loc,1,false,f.data());
+}
+void Program::setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,4,-1>& f,bool mustHave) {
+  ASSERT_MSGV(_begin,"%s must be called after binding!",__FUNCTION__)
+  int loc=glGetUniformLocation(_prog,name.c_str());
+  if(!mustHave && loc<0)
+    return;
+  ASSERT_MSGV(loc>=0,"Cannot find location for float: %s!",name.c_str())
+  glUniformMatrix4fv(loc,f.cols()/4,false,f.data());
 }
 Program::Program(const std::string& name,std::function<void(GLuint)> callback,const std::string& vert,const std::string& geom,const std::string& frag,const std::string& compute) {
   if(!vert.empty())

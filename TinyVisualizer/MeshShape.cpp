@@ -77,6 +77,10 @@ void MeshShape::clear() {
   _indices.clear();
   _VBO=NULL;
 }
+void MeshShape::clearIndex() {
+  _indices.clear();
+  _VBO=NULL;
+}
 void MeshShape::computeNormals() {
   ASSERT_MSGV(_mode==GL_TRIANGLES,"Compute normals is only available when mode(%d)=GL_TRIANGLES!",_mode)
   _normals.assign(_vertices.size(),0);
@@ -223,6 +227,11 @@ void MeshShape::setBoneData(const BoneData& bone) {
   _dirty=true;
   _bone=bone;
   _VBO=NULL;
+}
+std::shared_ptr<VBO> MeshShape::getVBO() {
+  _dirty=true;
+  initVBO();
+  return _VBO;
 }
 void MeshShape::setPointSize(GLfloat pointSize) {
   _mat._pointSize=pointSize;

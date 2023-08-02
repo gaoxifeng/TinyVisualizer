@@ -26,6 +26,7 @@ class MeshShape : public Shape {
   int nrVertex() const;
   int nrIndex() const;
   void clear();
+  void clearIndex();
   virtual void computeNormals();
   void setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal);
   Eigen::Matrix<GLfloat,3,1> getNormal(int i) const;
@@ -41,6 +42,7 @@ class MeshShape : public Shape {
   void setMaterial(const ShadowLight::Material& mat);
   const BoneData& getBoneData() const;
   void setBoneData(const BoneData& bone);
+  std::shared_ptr<VBO> getVBO();    //a dangerous method, we will flag mesh as dirty when this is called
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
   virtual void setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;

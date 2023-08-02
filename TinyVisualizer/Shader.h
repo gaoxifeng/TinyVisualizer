@@ -50,7 +50,9 @@ class Program {
   void setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,3,1>& f,bool mustHave=true);
   void setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,4,1>& f,bool mustHave=true);
   void setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,3,3>& f,bool mustHave=true);
+  void setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,3,-1>& f,bool mustHave=true);
   void setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,4,4>& f,bool mustHave=true);
+  void setUniformFloat(const std::string& name,const Eigen::Matrix<GLfloat,4,-1>& f,bool mustHave=true);
  protected:
   Program(const std::string& name,std::function<void(GLuint)> callback,const std::string& vert="",const std::string& geom="",const std::string& frag="",const std::string& compute="");
   Program(const Program& other);

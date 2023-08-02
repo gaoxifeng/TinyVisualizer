@@ -231,9 +231,14 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
     }
     //material
     loadMaterial(meshShape,_scene,_scene->mMaterials[mesh->mMaterialIndex],getDirFromFilename(filename).c_str());
+    addShape(meshShape);
+    //for GPU transform-feedback, we need to set refMesh to draw points
     _refMeshes.push_back(std::shared_ptr<MeshShape>(new MeshShape(*meshShape)));
     _refMeshes.back()->setBoneData(boneData);
-    addShape(meshShape);
+    _refMeshes.back()->setMode(GL_POINTS);
+    _refMeshes.back()->clearIndex();
+    for(int i=0; i<_refMeshes.back()->nrVertex(); i++)
+      _refMeshes.back()->addIndexSingle(i);
   }
 }
 void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh) {
@@ -244,20 +249,20 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMes
   readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
   //calc vertices
   for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
-    updateMeshVerticesCPU(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
+    updateMeshVerticesGPU(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
 }
-Eigen::Matrix<GLfloat,-1,-1> SkinnedMeshShape::getBoneTransforms() const {
-  Eigen::Matrix<GLfloat,-1,-1> ret;
-  ret.resize(4,4*_bones.size());
+Eigen::Matrix<GLfloat,4,-1> SkinnedMeshShape::getBoneTransforms(int reserve) const {
+  Eigen::Matrix<GLfloat,4,-1> ret;
+  ret.resize(4,4*std::max<GLint>(reserve,_bones.size()));
   for(int i=0; i<(int)_bones.size(); i++)
     ret.template block<4,4>(0,i*4)=_bones[i]._finalTrans;
   return ret;
 }
-Eigen::Matrix<GLint,-1,-1> SkinnedMeshShape::getBoneId(int id) const {
+Eigen::Matrix<GLint,4,-1> SkinnedMeshShape::getBoneId(int id) const {
   const BoneData& bd=_refMeshes[id]->getBoneData();
   return Eigen::Map<const Eigen::Matrix<GLint,-1,-1>>(bd._boneId.data(),bd._maxNrBone,bd._boneId.size()/bd._maxNrBone);
 }
-Eigen::Matrix<GLfloat,-1,-1> SkinnedMeshShape::getBoneWeight(int id) const {
+Eigen::Matrix<GLfloat,4,-1> SkinnedMeshShape::getBoneWeight(int id) const {
   const BoneData& bd=_refMeshes[id]->getBoneData();
   return Eigen::Map<const Eigen::Matrix<GLfloat,-1,-1>>(bd._boneWeight.data(),bd._maxNrBone,bd._boneWeight.size()/bd._maxNrBone);
 }
@@ -278,7 +283,7 @@ GLuint SkinnedMeshShape::getBoneId(const aiBone* bone) {
   auto it=_boneNameToIndexMap.find(name);
   if(it==_boneNameToIndexMap.end()) {
     GLuint bid=(GLuint)_boneNameToIndexMap.size();
-    _bones.push_back(BoneInfo());
+    _bones.resize(bid+1);
     _bones[bid]._offsetTrans=toEigen(bone->mOffsetMatrix);
     _boneNameToIndexMap[name]=bid;
     return bid;
@@ -402,7 +407,23 @@ void SkinnedMeshShape::updateMeshVerticesCPU(std::shared_ptr<MeshShape> out,std:
   }
 }
 void SkinnedMeshShape::updateMeshVerticesGPU(std::shared_ptr<MeshShape> out,std::shared_ptr<MeshShape> in,const BoneData& boneData) const {
-
+  ASSERT(out->nrVertex()==in->nrVertex())
+  //setup program
+  getTransformFeedbackProg()->begin();
+  Eigen::Matrix<GLfloat,4,-1> boneTrans=getBoneTransforms(128);
+  ASSERT_MSG(boneTrans.cols()==128*4,"We only support at most 128 bones!")
+  getTransformFeedbackProg()->setUniformFloat("boneTrans",boneTrans);
+  //perform computation
+  glEnable(GL_RASTERIZER_DISCARD);
+  glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER,0,out->getVBO()->VBOV());
+  glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER,1,out->getVBO()->VBON());
+  glBeginTransformFeedback(GL_POINTS);
+  in->getVBO()->draw(GL_POINTS);
+  glEndTransformFeedback();
+  glDisable(GL_RASTERIZER_DISCARD);
+  glFlush();
+  //finalize program
+  Program::currentProgram()->end();
 }
 std::shared_ptr<Program> SkinnedMeshShape::getTransformFeedbackProg() const {
 #include "Shader/BoneTransformVert.h"

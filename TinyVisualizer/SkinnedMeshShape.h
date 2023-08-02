@@ -15,9 +15,9 @@ class SkinnedMeshShape : public Bullet3DShape {
   typedef MeshShape::BoneData BoneData;
   SkinnedMeshShape(const std::string& filename);
   void setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh=true);
-  Eigen::Matrix<GLfloat,-1,-1> getBoneTransforms() const;
-  Eigen::Matrix<GLint,-1,-1> getBoneId(int id) const;
-  Eigen::Matrix<GLfloat,-1,-1> getBoneWeight(int id) const;
+  Eigen::Matrix<GLfloat,4,-1> getBoneTransforms(int reserve=-1) const;
+  Eigen::Matrix<GLint,4,-1> getBoneId(int id) const;
+  Eigen::Matrix<GLfloat,4,-1> getBoneWeight(int id) const;
   std::shared_ptr<MeshShape> getMeshRef(int id) const;
   GLfloat duration(GLuint index) const;
   GLuint nrAnimation() const;
