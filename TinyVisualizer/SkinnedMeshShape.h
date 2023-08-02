@@ -28,7 +28,8 @@ class SkinnedMeshShape : public Bullet3DShape {
   Eigen::Matrix<GLfloat,3,3> calcInterpolatedRotation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const;
   Eigen::Matrix<GLfloat,3,1> calcInterpolatedTranslation(GLfloat animationTimeTicks,const aiNodeAnim* pNodeAnim) const;
   void readNodeHierarchy(GLfloat animationTimeTicks,const aiNode* pNode,const Eigen::Matrix<GLfloat,4,4>& parentTransform,const aiAnimation& animation);
-  void updateMeshVertices(std::shared_ptr<MeshShape> out,std::shared_ptr<MeshShape> in,const BoneData& boneData) const;
+  void updateMeshVerticesCPU(std::shared_ptr<MeshShape> out,std::shared_ptr<MeshShape> in,const BoneData& boneData) const;
+  void updateMeshVerticesGPU(std::shared_ptr<MeshShape> out,std::shared_ptr<MeshShape> in,const BoneData& boneData) const;
   std::shared_ptr<Program> getTransformFeedbackProg() const;
   //data
   const aiScene* _scene;
