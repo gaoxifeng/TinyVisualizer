@@ -11,6 +11,7 @@ class MeshShape : public Shape {
   friend class LowDimensionalMeshShape;
  public:
   struct BoneData {
+    BoneData();
     bool empty() const;
     GLuint _maxNrBone;
     std::vector<GLint> _boneId;

@@ -7,8 +7,9 @@
 #include <iostream>
 
 namespace DRAWER {
+MeshShape::BoneData::BoneData():_maxNrBone(0) {}
 bool MeshShape::BoneData::empty() const {
-  return _maxNrBone>0;
+  return _maxNrBone==0;
 }
 //MeshShape
 #define DEFAULT_R 200/255.
