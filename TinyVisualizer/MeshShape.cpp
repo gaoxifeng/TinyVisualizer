@@ -204,6 +204,9 @@ void MeshShape::debugWriteObj(const std::string& path) {
       }
   }
 }
+std::shared_ptr<Texture> MeshShape::getTexture() const {
+  return _mat._tex;
+}
 const ShadowLight::Material& MeshShape::getMaterial() const {
   return _mat;
 }

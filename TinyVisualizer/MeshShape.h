@@ -30,6 +30,7 @@ class MeshShape : public Shape {
   Eigen::Matrix<GLfloat,2,1> getTexcoord(int i) const;
   GLuint getIndex(int i) const;
   void debugWriteObj(const std::string& path);
+  std::shared_ptr<Texture> getTexture() const;
   const ShadowLight::Material& getMaterial() const;
   void setMaterial(const ShadowLight::Material& mat);
   virtual void setPointSize(GLfloat pointSize) override;
