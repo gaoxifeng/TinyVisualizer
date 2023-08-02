@@ -3,7 +3,7 @@
 #include "Matrix.h"
 #include "SceneStructure.h"
 #ifdef BOX2D_SUPPORT
-#include <Box2D/Box2D.h>
+#include <box2d/box2d.h>
 #endif
 #include <unordered_set>
 

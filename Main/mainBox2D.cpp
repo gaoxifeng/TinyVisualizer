@@ -4,7 +4,7 @@
 #include <TinyVisualizer/Box2DShape.h>
 #include <TinyVisualizer/SceneStructure.h>
 #include <TinyVisualizer/MakeTexture.h>
-#include <Box2D/Box2D.h>
+#include <box2d/box2d.h>
 
 using namespace DRAWER;
 

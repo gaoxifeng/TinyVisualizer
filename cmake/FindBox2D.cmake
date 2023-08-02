@@ -10,7 +10,7 @@ if(BOX2D_INCLUDE_DIR)
   set(BOX2D_FIND_QUIETLY TRUE)
 endif(BOX2D_INCLUDE_DIR)
 
-find_path(BOX2D_INCLUDE_DIR Box2D/Box2D.h
+find_path(BOX2D_INCLUDE_DIR box2d/box2d.h
   PATH_SUFFIXES include
   PATHS
   ~/Library/Frameworks
