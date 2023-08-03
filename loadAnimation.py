@@ -100,6 +100,7 @@ class Animation:
         index = random.randint(0,self.nr_animation()-1)
         time = random.uniform(0,self.duration(index))
         self.calc_animation(index, time)
+        return index, time
 
     def calc_animation(self, index, time):
         self.shape.setAnimatedFrame(index, time, False)
@@ -133,8 +134,8 @@ class Animation:
 
 if __name__=='__main__':
     drawer = vis.Drawer(['--headless','1'])
-    anim = Animation('char10.glb')
-    anim.save('char10-modified.glb')
+    anim = Animation('char50.glb')
+    anim.save('char50-modified.glb')
     
     use_opengl = False
     glctx = dr.RasterizeGLContext() if use_opengl else dr.RasterizeCudaContext()
