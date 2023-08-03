@@ -463,6 +463,8 @@ void SkinnedMeshShape::updateMeshVerticesGPU(std::shared_ptr<MeshShape> out,std:
   glFlush();
   //finalize program
   Program::currentProgram()->end();
+  //synchronize CPU
+  Eigen::Map<Eigen::Matrix<GLfloat,-1,1>>(out->_vertices.data(),out->_vertices.size())=out->getVBO()->VBOVData();
 }
 std::shared_ptr<Program> SkinnedMeshShape::getTransformFeedbackProg() const {
 #include "Shader/BoneTransformVert.h"

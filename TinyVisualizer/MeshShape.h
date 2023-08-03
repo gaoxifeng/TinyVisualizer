@@ -9,6 +9,7 @@ namespace DRAWER {
 class Texture;
 class MeshShape : public Shape {
   friend class LowDimensionalMeshShape;
+  friend class SkinnedMeshShape;
  public:
   struct BoneData {
     BoneData();
