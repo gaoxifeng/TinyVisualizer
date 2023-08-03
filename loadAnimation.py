@@ -1,5 +1,5 @@
 from utils import *
-import math,random
+import math,random,imageio
 
 def load_texture(tex):
     tex.loadCPUData()
@@ -82,9 +82,18 @@ class Animation:
                             self.poss if ref else self.poss_trans, 
                             self.idxs, self.uvs, self.texs, resolution, enable_mip, max_mip_level)
 
+    def nr_animation(self):
+        return self.shape.nrAnimation()
+    
+    def duration(self, index):
+        return self.shape.duration(index)
+
     def sample_animation(self):
-        index = random.randint(0,self.shape.nrAnimation()-1)
-        time = random.uniform(0,self.shape.duration(index))
+        index = random.randint(0,self.nr_animation()-1)
+        time = random.uniform(0,self.duration(index))
+        self.calc_animation(index, time)
+
+    def calc_animation(self, index, time):
         self.shape.setAnimatedFrame(index, time, False)
         self.bone_trans = torch.tensor(self.shape.getBoneTransforms(),dtype=torch.float32).cuda()
         self.bone_trans = torch.swapaxes(self.bone_trans.reshape((4,self.bone_trans.shape[1]//4,4)),1,2)
@@ -110,11 +119,20 @@ class Animation:
 if __name__=='__main__':
     drawer = vis.Drawer(0,None)
     anim = Animation('char10.glb')
-    anim.sample_animation()
-    mvp = sample_camera_multi(anim.poss_trans)
     
     use_opengl = False
     glctx = dr.RasterizeGLContext() if use_opengl else dr.RasterizeCudaContext()
-    color, depth = anim.render(glctx, mvp, ref=False)
-    save_image('color.png', color[0,:].cpu().numpy())
-    save_image('depth.png', depth[0,:,:,2].cpu().numpy())
+    
+    mvp = None
+    nFrame = 1000
+    writer = imageio.get_writer('animation.mp4', fps=drawer.FPS())
+    for i in range(nFrame):
+        print('Writing frame %d/%d'%(i,nFrame))
+        anim.calc_animation(0, i*1./drawer.FPS())
+        if mvp is None:
+            mvp = sample_camera_multi(anim.poss_trans)
+        color, depth = anim.render(glctx, mvp, ref=False)
+        save_image('color.png', color[0,:].cpu().numpy())
+        im = imageio.imread('color.png')
+        writer.append_data(im)
+    writer.close()
