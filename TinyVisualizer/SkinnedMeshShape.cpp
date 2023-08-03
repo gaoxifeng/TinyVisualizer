@@ -444,7 +444,7 @@ void SkinnedMeshShape::updateMeshVerticesCPU(std::shared_ptr<MeshShape> out,std:
         trans+=_bones[bid]._finalTrans*bw;
     }
     out->setVertex(i,trans.template block<3,3>(0,0)*pos+trans.template block<3,1>(0,3));
-    out->setVertex(i,(trans.template block<3,3>(0,0)*nor).normalized());
+    out->setNormal(i,(trans.template block<3,3>(0,0)*nor).normalized());
   }
 }
 void SkinnedMeshShape::updateMeshVerticesGPU(std::shared_ptr<MeshShape> out,std::shared_ptr<MeshShape> in,const BoneData& boneData) const {
