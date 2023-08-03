@@ -82,7 +82,7 @@ class Animation:
 
     def save(self, path):
         for id,bw in enumerate(self.bws):
-            self.shape.setBoneWeight(id,bw.cpu().numpy().T)
+            self.shape.setBoneWeight(id,bw.detach().cpu().numpy().T)
         self.shape.write(path)
 
     def render(self,glctx, mvp, resolution=1024, enable_mip=False, max_mip_level=0, ref=True):

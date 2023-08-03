@@ -1,5 +1,6 @@
 from weightParameterize import *
 from loadAnimation import *
+import os
 
 def bilinear_downsample(x):
     w = torch.tensor([[1, 3, 3, 1], [3, 9, 9, 3], [3, 9, 9, 3], [1, 3, 3, 1]], dtype=torch.float32, device=x.device) / 64.0
@@ -10,13 +11,16 @@ def bilinear_downsample(x):
 def optimize(file_low, file_high,
              max_iter=20000,
              log_interval=10,
+             save_interval=100,
              enable_mip = False,
              res = 1024,
              ref_res = 2048,
              lr_base=1e-2,
              lr_ramp=0.1,
              use_opengl=False,
-             max_mip_level = 0):
+             max_mip_level = 0,
+             avg_psnr_frames = 10,
+             log_path = 'bw_opt'):
     #load model
     drawer = vis.Drawer(['--headless','1'])
     low = Animation(file_low)
@@ -36,6 +40,7 @@ def optimize(file_low, file_high,
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda x: lr_ramp**(float(x)/float(max_iter)))
     
     #main loop
+    psnrs = []
     for it in range(max_iter+1):
         #sample animation/camera
         index,time = high.sample_animation()
@@ -50,7 +55,7 @@ def optimize(file_low, file_high,
         color_opt, _ = low.render(glctx, mvp, res, enable_mip, max_mip_level, ref=False)
         while color.shape[1] > res:
             color = bilinear_downsample(color)
-        loss = torch.mean((color - color_opt)**2)   #L2 pixel loss
+        loss = torch.mean((color-color_opt)**2)   #L2 pixel loss
         
         #optimize
         optimizer.zero_grad()
@@ -59,9 +64,27 @@ def optimize(file_low, file_high,
         scheduler.step()
         
         #log
+        psnrs.append(-10.*np.log10(loss.item()))
+        if len(psnrs) > avg_psnr_frames:
+            psnrs = psnrs[1:]
         if log_interval and (it%log_interval)==0:
-            psnr=0.
+            psnr = sum(psnrs)/len(psnrs)
             print("Iter=%4.d, psnr=%4.10f"%(it,psnr))
+        #save
+        if save_interval and (it%save_interval)==0 and log_path is not None:
+            if not os.path.exists(log_path):
+                os.makedirs(log_path, 0o777)
+            #save frames
+            img_path = '%s/color%d.png'%(log_path,it)
+            img_opt_path = '%s/color_opt%d.png'%(log_path,it)
+            save_image(img_path,color[0,:].detach().cpu().numpy())
+            save_image(img_opt_path,color[0,:].detach().cpu().numpy())
+            #save animation
+            save_path = '%s/iter%d.glb'%(log_path,it)
+            low.save(save_path)
+            print("Iter=%4.d, saving to %s;%s;%s"%(it,img_path,img_opt_path,save_path))
+            
+    return low
         
 if __name__=='__main__':
-    optimize('char10.glb','char.glb')
+    low = optimize('char10.glb','char.glb')
