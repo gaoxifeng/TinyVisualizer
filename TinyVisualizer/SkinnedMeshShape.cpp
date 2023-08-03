@@ -245,6 +245,7 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
 bool SkinnedMeshShape::write(const std::string& filename) const {
   Assimp::Exporter exporter;
   aiExportFormatDesc desc;
+  desc.id=NULL;
   bool found=false;
   for(int i=0; i<(int)aiGetExportFormatCount(); i++) {
     desc=*aiGetExportFormatDescription(i);
@@ -288,8 +289,18 @@ Eigen::Matrix<GLfloat,4,-1> SkinnedMeshShape::getBoneWeight(int id) const {
 }
 void SkinnedMeshShape::setBoneWeight(int id,Eigen::Matrix<GLfloat,4,-1> weight) {
   auto& w=_refMeshes[id]->getBoneData()._boneWeight;
-  ASSERT_MSGV(w.size()==weight.size(),"Incorrect bone weight size: %d!=%d",(int)w.size(),(int)weight.size())
+  ASSERT_MSGV((int)w.size()==(int)weight.size(),"Incorrect bone weight size: %d!=%d",(int)w.size(),(int)weight.size())
   Eigen::Map<Eigen::Matrix<GLfloat,4,-1>>(w.data(),weight.rows(),weight.cols())=weight;
+  //reset data structure inside aiScene
+  const aiMesh* mesh=_scene->mMeshes[id];
+  for(unsigned int bid=0; bid<mesh->mNumBones; bid++) {
+    const aiBone* bone=mesh->mBones[bid];
+    for(unsigned int i=0; i<bone->mNumWeights; i++) {
+      aiVertexWeight& w=bone->mWeights[i];
+      if(w.mWeight!=0)
+        w.mWeight=_refMeshes[id]->getBoneData().findWeight(w.mVertexId,getBoneId(bone));
+    }
+  }
 }
 std::shared_ptr<MeshShape> SkinnedMeshShape::getMeshRef(int id) const {
   return _refMeshes[id];

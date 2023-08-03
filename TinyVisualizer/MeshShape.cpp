@@ -11,6 +11,13 @@ MeshShape::BoneData::BoneData():_maxNrBone(0) {}
 bool MeshShape::BoneData::empty() const {
   return _maxNrBone==0;
 }
+GLfloat MeshShape::BoneData::findWeight(int vertexId,int boneId) const {
+  for(int d=0; d<_maxNrBone; d++)
+    if(_boneId[vertexId*_maxNrBone+d]==boneId)
+      return _boneWeight[vertexId*_maxNrBone+d];
+  ASSERT_MSGV(false,"Cannot find bone weight for vertexId=%d and boneId=%d!",vertexId,boneId)
+  return 0.0f;
+}
 //MeshShape
 #define DEFAULT_R 200/255.
 #define DEFAULT_G 143/255.
@@ -222,6 +229,8 @@ void MeshShape::setMaterial(const ShadowLight::Material& mat) {
   _mat=mat;
 }
 MeshShape::BoneData& MeshShape::getBoneData() {
+  _dirty=true;
+  initVBO();
   return _bone;
 }
 const MeshShape::BoneData& MeshShape::getBoneData() const {

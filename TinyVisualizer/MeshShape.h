@@ -13,6 +13,7 @@ class MeshShape : public Shape {
   struct BoneData {
     BoneData();
     bool empty() const;
+    GLfloat findWeight(int vertexId,int boneId) const;
     GLuint _maxNrBone;
     std::vector<GLint> _boneId;
     std::vector<GLfloat> _boneWeight;
