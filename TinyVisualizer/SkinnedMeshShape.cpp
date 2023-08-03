@@ -270,7 +270,7 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMes
   readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
   //calc vertices
   for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
-    updateMeshVerticesGPU(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
+    updateMeshVerticesCPU(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
 }
 Eigen::Matrix<GLfloat,4,-1> SkinnedMeshShape::getBoneTransforms(int reserve) const {
   Eigen::Matrix<GLfloat,4,-1> ret;
@@ -435,6 +435,7 @@ void SkinnedMeshShape::updateMeshVerticesCPU(std::shared_ptr<MeshShape> out,std:
   ASSERT(out->nrVertex()==in->nrVertex())
   for(GLuint i=0; i<(GLuint)in->nrVertex(); i++) {
     Eigen::Matrix<GLfloat,3,1> pos=in->getVertex(i);
+    Eigen::Matrix<GLfloat,3,1> nor=in->getNormal(i);
     Eigen::Matrix<GLfloat,4,4> trans=Eigen::Matrix<GLfloat,4,4>::Zero();
     for(GLuint j=0; j<boneData._maxNrBone; j++) {
       GLint bid=boneData._boneId[i*boneData._maxNrBone+j];
@@ -443,6 +444,7 @@ void SkinnedMeshShape::updateMeshVerticesCPU(std::shared_ptr<MeshShape> out,std:
         trans+=_bones[bid]._finalTrans*bw;
     }
     out->setVertex(i,trans.template block<3,3>(0,0)*pos+trans.template block<3,1>(0,3));
+    out->setVertex(i,(trans.template block<3,3>(0,0)*nor).normalized());
   }
 }
 void SkinnedMeshShape::updateMeshVerticesGPU(std::shared_ptr<MeshShape> out,std::shared_ptr<MeshShape> in,const BoneData& boneData) const {

@@ -49,7 +49,7 @@ def sample_camera_multi(poss, dir=None, up=None, nearCoef=0.9, farCoef=1.1):
     return sample_camera(np.vstack(poss), dir=dir, up=up, nearCoef=nearCoef, farCoef=farCoef)
 
 class Animation:
-    def __init__(self,path):
+    def __init__(self, path):
         self.poss = []
         self.uvs = []
         self.idxs = []
@@ -79,6 +79,11 @@ class Animation:
             self.bids.append(torch.tensor(self.shape.getBoneId(id).T,dtype=torch.int32).cuda())
             self.bws.append(torch.tensor(self.shape.getBoneWeight(id).T,dtype=torch.float32).cuda())
         self.poss_trans = None
+
+    def save(self, path):
+        for id,bw in enumerate(self.bws):
+            self.shape.setBoneWeight(id,bw.cpu().numpy().T)
+        self.shape.write(path)
 
     def render(self,glctx, mvp, resolution=1024, enable_mip=False, max_mip_level=0, ref=True):
         return render_multi(glctx, mvp, 
@@ -129,6 +134,7 @@ class Animation:
 if __name__=='__main__':
     drawer = vis.Drawer(['--headless','1'])
     anim = Animation('char10.glb')
+    anim.save('char10-modified.glb')
     
     use_opengl = False
     glctx = dr.RasterizeGLContext() if use_opengl else dr.RasterizeCudaContext()
