@@ -1,12 +1,14 @@
 %module(directors="1") pyTinyVisualizer
 %include "std_shared_ptr.i"
 %include "std_string.i"
+%include "std_vector.i"
 %include "typemaps.i"
 %include "eigen.i"
 
 %apply int *INOUT { int* v };
 %apply bool *INOUT { bool* v };
 %apply float *INOUT { float* v };
+%template(vectorString) std::vector<std::string>;
 
 %eigen_typemaps(Eigen::Matrix<GLint,-1,-1>)
 %eigen_typemaps(Eigen::Matrix<GLint,-1,1>)

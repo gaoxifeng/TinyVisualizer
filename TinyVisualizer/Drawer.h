@@ -111,6 +111,7 @@ class Plugin {
 //Drawer
 class Drawer {
  public:
+  Drawer(std::vector<std::string> args);
   Drawer(int argc,char** argv);
   virtual ~Drawer();
   void setRes(int width,int height);
@@ -153,10 +154,9 @@ class Drawer {
   void clearScene();
   void clear();
  private:
-  Drawer(const Drawer& other) {}
-  Drawer& operator=(const Drawer& other) {
-    return *this;
-  }
+  void init(int argc,char** argv);
+  Drawer(const Drawer& other);
+  Drawer& operator=(const Drawer& other);
   //data
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<SceneNode> _root;

@@ -53,74 +53,14 @@ void motionNothing(GLFWwindow*,double,double,bool) {}
 void keyNothing(GLFWwindow*,int,int,int,int,bool) {}
 void doNothing(std::shared_ptr<SceneNode>&) {}
 void drawNothing() {}
-Drawer::Drawer(int argc,char** argv)
-  :_mouse(mouseNothing),
-   _wheel(wheelNothing),
-   _motion(motionNothing),
-   _key(keyNothing),
-   _frame(doNothing),
-   _draw(drawNothing),
-   _cb(NULL),_lastTime(0),_invoked(false),_debugBB(false) {
-  if(_invoked)
-    return;
-  _invoked=true;
-  ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
-  glfwDefaultWindowHints();
-  glfwSetErrorCallback(errFunc);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
-  glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
-  glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
-  std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
-  _window=glfwCreateWindow(argparseRange(argc,argv,"width",512),
-                           argparseRange(argc,argv,"height",512),
-                           windowTitle.c_str(),NULL,NULL);
-  ASSERT_MSG(_window,"Failed initializing GLFW!")
-  glfwMakeContextCurrent(_window);
-  int version=gladLoadGL(glfwGetProcAddress);
-  ASSERT_MSG(version!=0,"Failed initializing GLAD!")
-  glfwSwapInterval(1);
-  glClearDepth(1.0f);
-  glEnable(GL_MULTISAMPLE);
-  glEnable(GL_LINE_SMOOTH);
-  glClearColor(argparseRange(argc,argv,"backgroundR",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
-               argparseRange(argc,argv,"backgroundG",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
-               argparseRange(argc,argv,"backgroundB",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,1);
-  glfwSetWindowUserPointer(_window,this);
-  glfwSetMouseButtonCallback(_window,Drawer::mouse);
-  glfwSetScrollCallback(_window,Drawer::wheel);
-  glfwSetCursorPosCallback(_window,Drawer::motion);
-  glfwSetKeyCallback(_window,Drawer::key);
-  _FPS=argparseRange(argc,argv,"FPS",60,Eigen::Matrix<int,2,1>(10,200));
-  //multi-sample not supported
-  GLint samples;
-  glGetIntegerv(GL_SAMPLES,&samples);
-  if(samples)
-    std::cout << "Context reports MSAA is available with " << samples << " samples" << std::endl;
-  else std::cout << "Context reports MSAA is unavailable" << std::endl;
-  //force initial MeshShape::Texture
-  MeshShape();
-  //add default light
-  if(argparseRange(argc,argv,"defaultLight",1,Eigen::Matrix<int,2,1>(0,2))) {
-    addLightSystem(argparseRange(argc,argv,"defaultShadow",0,Eigen::Matrix<int,2,1>(0,2049)),
-                   argparseRange(argc,argv,"defaultShadowSoftness",20,Eigen::Matrix<int,2,1>(0,21)),
-                   argparseRange(argc,argv,"defaultAutoAdjust",1,Eigen::Matrix<int,2,1>(0,2)));
-    getLight()->lightSz(argparseRange(argc,argv,"defaultLightSz",20,Eigen::Matrix<int,2,1>(0,101)));
-  }
-  //add default camera
-  if(argparseRange(argc,argv,"defaultCamera2D",0,Eigen::Matrix<int,2,1>(0,2)))
-    addCamera2D((GLfloat)argparseRange(argc,argv,"defaultCamera2DExt",10,Eigen::Matrix<int,2,1>(0,11)));
-  else if(argparseRange(argc,argv,"defaultCamera3D",1,Eigen::Matrix<int,2,1>(0,2))) {
-    addCamera3D((GLfloat)argparseRange(argc,argv,"defaultCamera3DFovy",90,Eigen::Matrix<int,2,1>(0,271)),
-                Eigen::Matrix<GLfloat,3,1>::Unit(argparseRange(argc,argv,"defaultCamera3DUp",2,Eigen::Matrix<int,2,1>(0,3))));
-    std::string manipulatorType=argparseChoice(argc,argv,"defaultCamera3DManipulator","Trackball", {"FPS","Trackball","None"});
-    if(manipulatorType=="FPS")
-      getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(getCamera3D())));
-    else if(manipulatorType=="Trackball")
-      getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new TrackballCameraManipulator(getCamera3D())));
-  }
+Drawer::Drawer(std::vector<std::string> args) {
+  std::vector<char*> argv(args.size());
+  for(int i=0; i<(int)args.size(); i++)
+    argv[i]=(char*)args[i].c_str();
+  init((int)args.size(),argv.data());
+}
+Drawer::Drawer(int argc,char** argv) {
+  init(argc,argv);
 }
 Drawer::~Drawer() {
   clear();
@@ -445,5 +385,83 @@ void Drawer::clear() {
   clearScene();
   clearVBO();
   Program::clearProgram();
+}
+//helper
+void Drawer::init(int argc,char** argv) {
+  _mouse=mouseNothing;
+  _wheel=wheelNothing;
+  _motion=motionNothing;
+  _key=keyNothing;
+  _frame=doNothing;
+  _draw=drawNothing;
+  _cb=NULL;
+  _lastTime=0;
+  _invoked=false;
+  _debugBB=false;
+
+  if(_invoked)
+    return;
+  _invoked=true;
+  ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
+  glfwDefaultWindowHints();
+  glfwSetErrorCallback(errFunc);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
+  glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
+  std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
+  _window=glfwCreateWindow(argparseRange(argc,argv,"width",512),
+                           argparseRange(argc,argv,"height",512),
+                           windowTitle.c_str(),NULL,NULL);
+  ASSERT_MSG(_window,"Failed initializing GLFW!")
+  glfwMakeContextCurrent(_window);
+  int version=gladLoadGL(glfwGetProcAddress);
+  ASSERT_MSG(version!=0,"Failed initializing GLAD!")
+  glfwSwapInterval(1);
+  glClearDepth(1.0f);
+  glEnable(GL_MULTISAMPLE);
+  glEnable(GL_LINE_SMOOTH);
+  glClearColor(argparseRange(argc,argv,"backgroundR",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
+               argparseRange(argc,argv,"backgroundG",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
+               argparseRange(argc,argv,"backgroundB",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,1);
+  glfwSetWindowUserPointer(_window,this);
+  glfwSetMouseButtonCallback(_window,Drawer::mouse);
+  glfwSetScrollCallback(_window,Drawer::wheel);
+  glfwSetCursorPosCallback(_window,Drawer::motion);
+  glfwSetKeyCallback(_window,Drawer::key);
+  _FPS=argparseRange(argc,argv,"FPS",60,Eigen::Matrix<int,2,1>(10,200));
+  //multi-sample not supported
+  GLint samples;
+  glGetIntegerv(GL_SAMPLES,&samples);
+  if(samples)
+    std::cout << "Context reports MSAA is available with " << samples << " samples" << std::endl;
+  else std::cout << "Context reports MSAA is unavailable" << std::endl;
+  //force initial MeshShape::Texture
+  MeshShape();
+  //add default light
+  if(argparseRange(argc,argv,"defaultLight",1,Eigen::Matrix<int,2,1>(0,2))) {
+    addLightSystem(argparseRange(argc,argv,"defaultShadow",0,Eigen::Matrix<int,2,1>(0,2049)),
+                   argparseRange(argc,argv,"defaultShadowSoftness",20,Eigen::Matrix<int,2,1>(0,21)),
+                   argparseRange(argc,argv,"defaultAutoAdjust",1,Eigen::Matrix<int,2,1>(0,2)));
+    getLight()->lightSz(argparseRange(argc,argv,"defaultLightSz",20,Eigen::Matrix<int,2,1>(0,101)));
+  }
+  //add default camera
+  if(argparseRange(argc,argv,"defaultCamera2D",0,Eigen::Matrix<int,2,1>(0,2)))
+    addCamera2D((GLfloat)argparseRange(argc,argv,"defaultCamera2DExt",10,Eigen::Matrix<int,2,1>(0,11)));
+  else if(argparseRange(argc,argv,"defaultCamera3D",1,Eigen::Matrix<int,2,1>(0,2))) {
+    addCamera3D((GLfloat)argparseRange(argc,argv,"defaultCamera3DFovy",90,Eigen::Matrix<int,2,1>(0,271)),
+                Eigen::Matrix<GLfloat,3,1>::Unit(argparseRange(argc,argv,"defaultCamera3DUp",2,Eigen::Matrix<int,2,1>(0,3))));
+    std::string manipulatorType=argparseChoice(argc,argv,"defaultCamera3DManipulator","Trackball", {"FPS","Trackball","None"});
+    if(manipulatorType=="FPS")
+      getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(getCamera3D())));
+    else if(manipulatorType=="Trackball")
+      getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new TrackballCameraManipulator(getCamera3D())));
+  }
+}
+Drawer::Drawer(const Drawer& other) {}
+Drawer& Drawer::operator=(const Drawer& other) {
+  return *this;
 }
 }

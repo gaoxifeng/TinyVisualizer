@@ -13,7 +13,7 @@ def get_bounding_box(pos):
     maxC = np.max(pos,0)
     return (minC,maxC)
 
-def sample_camera(pos, dir=None, up=None):
+def sample_camera(pos, dir=None, up=None, nearCoef=0.9, farCoef=1.1):
     minC,maxC = get_bounding_box(pos)
     dist = np.linalg.norm(maxC-minC)/2
     #ctr
@@ -41,12 +41,12 @@ def sample_camera(pos, dir=None, up=None):
     fov = max(fovy, fovz) * 360. / math.pi
     
     #automatic near-far computation
-    p = projection(fov, 1., max(.001, np.min(x)), np.max(x))
+    p = projection(fov, 1., max(.001, np.min(x)*nearCoef), np.max(x)*farCoef)
     return np.matmul(p, mv)
 
-def sample_camera_multi(poss, dir=None, up=None):
+def sample_camera_multi(poss, dir=None, up=None, nearCoef=0.9, farCoef=1.1):
     poss = [pos.cpu().numpy() for pos in poss]
-    return sample_camera(np.vstack(poss), dir=dir, up=up)
+    return sample_camera(np.vstack(poss), dir=dir, up=up, nearCoef=nearCoef, farCoef=farCoef)
 
 class Animation:
     def __init__(self,path):
@@ -103,11 +103,10 @@ class Animation:
         self.bone_trans = torch.cat((self.zero_trans.unsqueeze(0), self.bone_trans), dim=0)  #add a dummy bone
         self.calc_animated_poss()
 
-    def calc_animated_poss(self):
+    def calc_animated_poss(self, fast=True):
         #bid: [#maxBone,#vertex]
         #bw:  [#maxBone,#vertex]
         #boneTrans: [#bone,4,4]
-        fast = True
         self.poss_trans = []
         for pos, bid, bw in zip(self.poss, self.bids, self.bws):
             if fast:
@@ -128,7 +127,7 @@ class Animation:
             self.poss_trans.append(pos_trans)
 
 if __name__=='__main__':
-    drawer = vis.Drawer(0,None)
+    drawer = vis.Drawer(['--headless','1'])
     anim = Animation('char10.glb')
     
     use_opengl = False
