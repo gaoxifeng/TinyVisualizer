@@ -14,10 +14,12 @@ class SkinnedMeshShape : public Bullet3DShape {
   };
   typedef MeshShape::BoneData BoneData;
   SkinnedMeshShape(const std::string& filename);
+  bool write(const std::string& filename) const;
   void setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh=true);
   Eigen::Matrix<GLfloat,4,-1> getBoneTransforms(int reserve=-1) const;
   Eigen::Matrix<GLint,4,-1> getBoneId(int id) const;
   Eigen::Matrix<GLfloat,4,-1> getBoneWeight(int id) const;
+  void setBoneWeight(int id,Eigen::Matrix<GLfloat,4,-1> weight);
   std::shared_ptr<MeshShape> getMeshRef(int id) const;
   std::shared_ptr<MeshShape> getMesh(int id) const;
   GLfloat duration(GLuint index) const;

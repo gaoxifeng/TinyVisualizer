@@ -1,6 +1,7 @@
 #include "SkinnedMeshShape.h"
 #include "MeshShape.h"
 #include <assimp/postprocess.h>
+#include <assimp/Exporter.hpp>
 #include <iostream>
 
 #define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate|aiProcess_GenNormals|aiProcess_JoinIdenticalVertices)
@@ -241,6 +242,25 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
       _refMeshes.back()->addIndexSingle(i);
   }
 }
+bool SkinnedMeshShape::write(const std::string& filename) const {
+  Assimp::Exporter exporter;
+  aiExportFormatDesc desc;
+  bool found=false;
+  for(int i=0; i<(int)aiGetExportFormatCount(); i++) {
+    desc=*aiGetExportFormatDescription(i);
+    if(filename.find(desc.fileExtension)!=std::string::npos) {
+      found=true;
+      break;
+    }
+  }
+  if(!found) {
+    std::cout << "Cannot find matching file formating for exporting to: " << filename << " supported formats are: " << std::endl;
+    for(int i=0; i<(int)aiGetExportFormatCount(); i++)
+      std::cout << aiGetExportFormatDescription(i)->fileExtension << std::endl;
+  }
+  exporter.Export(_scene,desc.id,filename.c_str());
+  return true;
+}
 void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh) {
   ASSERT_MSGV(index<_scene->mNumAnimations,"Invalid animation index, maxId=%d!",index)
   Eigen::Matrix<GLfloat,4,4> identity=Eigen::Matrix<GLfloat,4,4>::Identity();
@@ -265,6 +285,11 @@ Eigen::Matrix<GLint,4,-1> SkinnedMeshShape::getBoneId(int id) const {
 Eigen::Matrix<GLfloat,4,-1> SkinnedMeshShape::getBoneWeight(int id) const {
   const BoneData& bd=_refMeshes[id]->getBoneData();
   return Eigen::Map<const Eigen::Matrix<GLfloat,-1,-1>>(bd._boneWeight.data(),bd._maxNrBone,bd._boneWeight.size()/bd._maxNrBone);
+}
+void SkinnedMeshShape::setBoneWeight(int id,Eigen::Matrix<GLfloat,4,-1> weight) {
+  auto& w=_refMeshes[id]->getBoneData()._boneWeight;
+  ASSERT_MSGV(w.size()==weight.size(),"Incorrect bone weight size: %d!=%d",(int)w.size(),(int)weight.size())
+  Eigen::Map<Eigen::Matrix<GLfloat,4,-1>>(w.data(),weight.rows(),weight.cols())=weight;
 }
 std::shared_ptr<MeshShape> SkinnedMeshShape::getMeshRef(int id) const {
   return _refMeshes[id];

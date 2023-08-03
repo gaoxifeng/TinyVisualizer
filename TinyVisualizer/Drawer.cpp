@@ -53,7 +53,7 @@ void motionNothing(GLFWwindow*,double,double,bool) {}
 void keyNothing(GLFWwindow*,int,int,int,int,bool) {}
 void doNothing(std::shared_ptr<SceneNode>&) {}
 void drawNothing() {}
-Drawer::Drawer(std::vector<std::string> args) {
+Drawer::Drawer(const std::vector<std::string>& args) {
   std::vector<char*> argv(args.size());
   for(int i=0; i<(int)args.size(); i++)
     argv[i]=(char*)args[i].c_str();

@@ -221,6 +221,9 @@ const ShadowLight::Material& MeshShape::getMaterial() const {
 void MeshShape::setMaterial(const ShadowLight::Material& mat) {
   _mat=mat;
 }
+MeshShape::BoneData& MeshShape::getBoneData() {
+  return _bone;
+}
 const MeshShape::BoneData& MeshShape::getBoneData() const {
   return _bone;
 }

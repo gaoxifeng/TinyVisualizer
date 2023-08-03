@@ -41,6 +41,7 @@ class MeshShape : public Shape {
   std::shared_ptr<Texture> getTexture() const;
   const ShadowLight::Material& getMaterial() const;
   void setMaterial(const ShadowLight::Material& mat);
+  BoneData& getBoneData();
   const BoneData& getBoneData() const;
   void setBoneData(const BoneData& bone);
   std::shared_ptr<VBO> getVBO();    //a dangerous method, we will flag mesh as dirty when this is called

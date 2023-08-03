@@ -111,7 +111,7 @@ class Plugin {
 //Drawer
 class Drawer {
  public:
-  Drawer(std::vector<std::string> args);
+  Drawer(const std::vector<std::string>& args);
   Drawer(int argc,char** argv);
   virtual ~Drawer();
   void setRes(int width,int height);
