@@ -270,7 +270,7 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMes
   readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
   //calc vertices
   for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
-    updateMeshVerticesCPU(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
+    updateMeshVerticesGPU(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
 }
 Eigen::Matrix<GLfloat,4,-1> SkinnedMeshShape::getBoneTransforms(int reserve) const {
   Eigen::Matrix<GLfloat,4,-1> ret;

@@ -7,9 +7,6 @@ def bilinear_downsample(x):
     x = torch.nn.functional.conv2d(x.permute(0, 3, 1, 2), w, padding=1, stride=2, groups=x.shape[-1])
     return x.permute(0, 2, 3, 1)
 
-def log():
-    pass
-
 def optimize(file_low, file_high,
              max_iter=20000,
              log_interval=10,
@@ -28,6 +25,8 @@ def optimize(file_low, file_high,
     #parameterize weight
     weights = [WeightParameterize(bid,bw) for bid,bw in zip(low.bids,low.bws)]
     vars = [wp.log_bw for wp in weights]
+    for v in vars:
+        v.requires_grad_()
     
     #initialize nvdiffrast
     glctx = dr.RasterizeGLContext() if use_opengl else dr.RasterizeCudaContext()
@@ -40,15 +39,15 @@ def optimize(file_low, file_high,
     for it in range(max_iter+1):
         #sample animation/camera
         index,time = high.sample_animation()
-        mvp = sample_camera_multi(high.poss_curr)
+        mvp = sample_camera_multi(high.poss_trans)
         #reconstruct weight
         low.bws = [wp.assemble_bw() for wp in weights]
         #set low-res animation to the same
         low.calc_animation(index, time)
         
         #compute loss
-        color = high.render(glctx, mvp, ref_res, True, max_mip_level)
-        color_opt = low.render(glctx, mvp, res, enable_mip, max_mip_level)
+        color, _ = high.render(glctx, mvp, ref_res, True, max_mip_level, ref=False)
+        color_opt, _ = low.render(glctx, mvp, res, enable_mip, max_mip_level, ref=False)
         while color.shape[1] > res:
             color = bilinear_downsample(color)
         loss = torch.mean((color - color_opt)**2)   #L2 pixel loss
@@ -61,7 +60,8 @@ def optimize(file_low, file_high,
         
         #log
         if log_interval and (it%log_interval)==0:
-            log()
+            psnr=0.
+            print("Iter=%4.d, psnr=%4.10f"%(it,psnr))
         
 if __name__=='__main__':
-    pass
+    optimize('char10.glb','char.glb')
