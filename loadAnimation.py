@@ -13,18 +13,20 @@ def get_bounding_box(pos):
     maxC = np.max(pos,0)
     return (minC,maxC)
 
-def sample_camera(pos):
+def sample_camera(pos, dir=None, up=None):
     minC,maxC = get_bounding_box(pos)
+    dist = np.linalg.norm(maxC-minC)/2
     #ctr
     ctr = (minC+maxC)/2
     #dir
-    dist = np.linalg.norm(maxC-minC)/2
-    dir = np.random.rand(3) * 2 - 1
-    dir /= np.linalg.norm(dir)
+    if dir is None:
+        dir = np.random.rand(3) * 2 - 1
+        dir /= np.linalg.norm(dir)
     #up
-    up = np.random.rand(3) * 2 - 1
-    up = np.cross(up, dir)
-    up /= np.linalg.norm(up)
+    if up is None:
+        up = np.random.rand(3) * 2 - 1
+        up = np.cross(up, dir)
+        up /= np.linalg.norm(up)
     
     #create matrix
     eye = ctr + dir * dist
@@ -42,9 +44,9 @@ def sample_camera(pos):
     p = projection(fov, 1., max(.001, np.min(x)), np.max(x))
     return np.matmul(p, mv)
 
-def sample_camera_multi(poss):
+def sample_camera_multi(poss, dir=None, up=None):
     poss = [pos.cpu().numpy() for pos in poss]
-    return sample_camera(np.vstack(poss))
+    return sample_camera(np.vstack(poss), dir=dir, up=up)
 
 class Animation:
     def __init__(self,path):
@@ -54,6 +56,7 @@ class Animation:
         self.texs = []
         self.bids = []
         self.bws = []
+        self.zero_trans = torch.zeros((4,4)).cuda()
         self.shape = vis.SkinnedMeshShape(path)
         for id in range(self.shape.numChildren()):
             mesh = self.shape.getMesh(id)
@@ -96,24 +99,32 @@ class Animation:
     def calc_animation(self, index, time):
         self.shape.setAnimatedFrame(index, time, False)
         self.bone_trans = torch.tensor(self.shape.getBoneTransforms(),dtype=torch.float32).cuda()
-        self.bone_trans = torch.swapaxes(self.bone_trans.reshape((4,self.bone_trans.shape[1]//4,4)),1,2)
+        self.bone_trans = torch.permute(self.bone_trans.reshape((4,self.bone_trans.shape[1]//4,4)),(1,0,2))
+        self.bone_trans = torch.cat((self.zero_trans.unsqueeze(0), self.bone_trans), dim=0)  #add a dummy bone
         self.calc_animated_poss()
 
     def calc_animated_poss(self):
         #bid: [#maxBone,#vertex]
         #bw:  [#maxBone,#vertex]
         #boneTrans: [#bone,4,4]
+        fast = True
         self.poss_trans = []
         for pos, bid, bw in zip(self.poss, self.bids, self.bws):
-            pos_trans = []
-            for pid in range(pos.shape[0]):
-                trans = torch.zeros((4,4)).cuda()
-                for d in range(4):
-                    if bid[pid,d]>=0:
-                        trans += self.bone_trans[:,:,bid[pid,d]] * bw[pid,d]
-                p_trans = torch.mm(trans[:3,:3],pos[pid:pid+1,:].T) + trans[:3,3:4]
-                pos_trans.append(p_trans)
-            pos_trans = torch.cat(pos_trans,dim=1).T
+            if fast:
+                trans  = torch.index_select(self.bone_trans,0,bid[:,0]+1) * bw[:,0].unsqueeze(1).unsqueeze(2)
+                trans += torch.index_select(self.bone_trans,0,bid[:,1]+1) * bw[:,1].unsqueeze(1).unsqueeze(2)
+                trans += torch.index_select(self.bone_trans,0,bid[:,2]+1) * bw[:,2].unsqueeze(1).unsqueeze(2)
+                trans += torch.index_select(self.bone_trans,0,bid[:,3]+1) * bw[:,3].unsqueeze(1).unsqueeze(2)
+                pos_trans = torch.bmm(trans[:,:3,:3], pos.unsqueeze(2)).squeeze(2) + trans[:,:3,3]
+            else:
+                pos_trans = []
+                for pid in range(pos.shape[0]):
+                    trans = torch.zeros((4,4)).cuda()
+                    for d in range(4):
+                        trans += self.bone_trans[bid[pid,d]+1,...] * bw[pid,d]
+                    p_trans = torch.mm(trans[:3,:3],pos[pid:pid+1,:].T) + trans[:3,3:4]
+                    pos_trans.append(p_trans)
+                pos_trans = torch.cat(pos_trans,dim=1).T
             self.poss_trans.append(pos_trans)
 
 if __name__=='__main__':
@@ -130,7 +141,7 @@ if __name__=='__main__':
         print('Writing frame %d/%d'%(i,nFrame))
         anim.calc_animation(0, i*1./drawer.FPS())
         if mvp is None:
-            mvp = sample_camera_multi(anim.poss_trans)
+            mvp = sample_camera_multi(anim.poss_trans, dir=np.array([0.,0.,1.]), up=np.array([0.,-1.,0.]))
         color, depth = anim.render(glctx, mvp, ref=False)
         save_image('color.png', color[0,:].cpu().numpy())
         im = imageio.imread('color.png')
