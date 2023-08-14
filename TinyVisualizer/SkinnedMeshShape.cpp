@@ -126,12 +126,12 @@ void loadMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,const aiM
   aiColor3D ambientColor(0.0f,0.0f,0.0f);
   if(mat->Get(AI_MATKEY_COLOR_AMBIENT,ambientColor)==AI_SUCCESS)
     mesh->setColorAmbient(GL_TRIANGLES,ambientColor.r,ambientColor.g,ambientColor.b);
-  else mesh->setColorAmbient(GL_TRIANGLES,1,1,1);
+  else mesh->setColorAmbient(GL_TRIANGLES,0,0,0);
 
   aiColor3D diffuseColor(0.0f,0.0f,0.0f);
   if(mat->Get(AI_MATKEY_COLOR_AMBIENT,diffuseColor)==AI_SUCCESS)
     mesh->setColorDiffuse(GL_TRIANGLES,diffuseColor.r,diffuseColor.g,diffuseColor.b);
-  else mesh->setColorDiffuse(GL_TRIANGLES,1,1,1);
+  else mesh->setColorDiffuse(GL_TRIANGLES,0,0,0);
 
   aiColor3D specularColor(0.0f,0.0f,0.0f);
   if(mat->Get(AI_MATKEY_COLOR_SPECULAR,specularColor)==AI_SUCCESS)

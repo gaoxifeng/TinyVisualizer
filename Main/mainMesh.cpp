@@ -13,6 +13,7 @@ using namespace DRAWER;
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
   Eigen::Matrix<GLfloat,4,4> scale=Eigen::Matrix<GLfloat,4,4>::Identity();
+  Eigen::Matrix<GLfloat,4,4> translate=Eigen::Matrix<GLfloat,4,4>::Identity();
   std::shared_ptr<SkinnedMeshShape> shapeM(new SkinnedMeshShape(argv[1]));
   std::cout << "#animation=" << shapeM->nrAnimation() << " duration=";
   for(GLuint i=0; i<shapeM->nrAnimation(); i++)
@@ -21,9 +22,12 @@ int main(int argc,char** argv) {
 
   //mesh
   Eigen::Matrix<GLfloat,6,1> bb=shapeM->getBB();
+  translate.col(3).segment<3>(0)=-(bb.segment<3>(3)+bb.segment<3>(0))/2;
   scale.diagonal().segment<3>(0).array()=1/(bb.segment<3>(3)-bb.segment<3>(0)).norm();
-  shapeM->setLocalTransform(scale*shapeM->getLocalTransform());
+  shapeM->setLocalTransform(scale*translate*shapeM->getLocalTransform());
   shapeM->setColorDiffuse(GL_TRIANGLES,1,1,1);
+  shapeM->setColorSpecular(GL_TRIANGLES,1,1,1);
+  shapeM->setShininess(GL_TRIANGLES,50);
   drawer.addShape(shapeM);
 
   //intersect
@@ -45,8 +49,8 @@ int main(int argc,char** argv) {
       for(int z=-1; z<=1; z+=2)
         drawer.getLight()->addLight(Eigen::Matrix<GLfloat,3,1>(x,y,z)*2,
                                     Eigen::Matrix<GLfloat,3,1>(.2,.2,.2),
-                                    Eigen::Matrix<GLfloat,3,1>(.2,.2,.2),
-                                    Eigen::Matrix<GLfloat,3,1>(0,0,0));
+                                    Eigen::Matrix<GLfloat,3,1>(.5,.5,.5),
+                                    Eigen::Matrix<GLfloat,3,1>(.5,.5,.5));
 #endif
 
   //camera
