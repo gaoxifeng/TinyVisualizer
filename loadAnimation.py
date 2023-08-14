@@ -74,7 +74,7 @@ class Animation:
                 idx.append([mesh.getIndex(fid*3+d) for d in range(3)])
             self.idxs.append(torch.tensor(np.vstack(idx),dtype=torch.int32).cuda())
             #read texture
-            self.texs.append(load_texture(mesh.getTexture()))
+            self.texs.append(load_texture(mesh.getTextureDiffuse()))
             #read bone
             self.bids.append(torch.tensor(self.shape.getBoneId(id).T,dtype=torch.int32).cuda())
             self.bws.append(torch.tensor(self.shape.getBoneWeight(id).T,dtype=torch.float32).cuda())
@@ -85,10 +85,15 @@ class Animation:
             self.shape.setBoneWeight(id,bw.detach().cpu().numpy().T)
         self.shape.write(path)
 
-    def render(self,glctx, mvp, resolution=1024, enable_mip=False, max_mip_level=0, ref=True):
+    def render(self, glctx, mvp, resolution=1024, enable_mip=False, max_mip_level=0, ref=True):
         return render_multi(glctx, mvp, 
                             self.poss if ref else self.poss_trans, 
                             self.idxs, self.uvs, self.texs, resolution, enable_mip, max_mip_level)
+
+    def render_by_merge(self, glctx, mvp, resolution=1024, enable_mip=False, max_mip_level=0, ref=True):
+        from meshMerger import merge_mesh
+        pos,idx,uv,tex = merge_mesh(self, ref)
+        return render(glctx, mvp, pos, idx, uv, idx, tex, resolution, enable_mip, max_mip_level)
 
     def nr_animation(self):
         return self.shape.nrAnimation()
@@ -148,7 +153,7 @@ if __name__=='__main__':
         anim.calc_animation(0, i*1./drawer.FPS())
         if mvp is None:
             mvp = sample_camera_multi(anim.poss_trans, dir=np.array([0.,0.,1.]), up=np.array([0.,-1.,0.]))
-        color, depth = anim.render(glctx, mvp, ref=False)
+        color, depth = anim.render_by_merge(glctx, mvp, ref=False)
         save_image('color.png', color[0,:].cpu().numpy())
         im = imageio.imread('color.png')
         writer.append_data(im)
