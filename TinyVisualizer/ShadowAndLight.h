@@ -12,7 +12,8 @@ class ShadowLight {
     Eigen::Matrix<GLfloat,4,1> _ambient;
     Eigen::Matrix<GLfloat,4,1> _diffuse;
     Eigen::Matrix<GLfloat,4,1> _specular;
-    std::shared_ptr<Texture> _tex;
+    std::shared_ptr<Texture> _texDiffuse;
+    std::shared_ptr<Texture> _texSpecular;
     GLfloat _pointSize,_lineWidth;
     GLfloat _shininess;
     Drawer* _drawer;
@@ -71,6 +72,7 @@ class ShadowLight {
   int _softShadow;
   bool _autoAdjust;
   int _shadow,_lightSz;
+  int _shadowMapOffset;
   std::vector<Light> _lights;
   Eigen::Matrix<GLfloat,4,4> _MVShadow,_invMVShadow;
 };

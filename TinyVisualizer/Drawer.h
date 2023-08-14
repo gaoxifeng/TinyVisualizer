@@ -39,11 +39,12 @@ class Shape {
   virtual ~Shape() {}
   virtual void setPointSize(GLfloat) {}
   virtual void setLineWidth(GLfloat) {}
-  virtual void setColor(GLenum,GLfloat,GLfloat,GLfloat) {}
+  virtual void setColorDiffuse(GLenum,GLfloat,GLfloat,GLfloat) {}
   virtual void setColorAmbient(GLenum,GLfloat,GLfloat,GLfloat) {}
   virtual void setColorSpecular(GLenum,GLfloat,GLfloat,GLfloat) {}
   virtual void setShininess(GLenum,GLfloat) {}
-  virtual void setTexture(std::shared_ptr<Texture>) {}
+  virtual void setTextureDiffuse(std::shared_ptr<Texture>) {}
+  virtual void setTextureSpecular(std::shared_ptr<Texture>) {}
   virtual void setDepth(GLfloat) {}
   virtual void setDrawer(Drawer*) {}
   virtual void setEnabled(bool enabled);

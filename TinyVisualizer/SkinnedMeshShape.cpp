@@ -102,10 +102,10 @@ std::pair<const aiTexture*,int> getEmbeddedTextureAndIndex(const aiScene* scene,
   }*/
   return std::make_pair(nullptr,-1);
 }
-std::shared_ptr<Texture> loadTexture(const aiScene* scene,const aiMaterial* mat,const char* dir) {
-  if(mat->GetTextureCount(aiTextureType_DIFFUSE)>0) {
+std::shared_ptr<Texture> loadTexture(aiTextureType type,const aiScene* scene,const aiMaterial* mat,const char* dir) {
+  if(mat->GetTextureCount(type)>0) {
     aiString path;
-    if(mat->GetTexture(aiTextureType_DIFFUSE,0,&path,NULL,NULL,NULL,NULL,NULL)==AI_SUCCESS) {
+    if(mat->GetTexture(type,0,&path,NULL,NULL,NULL,NULL,NULL)==AI_SUCCESS) {
       const aiTexture* tex=getEmbeddedTextureAndIndex(scene,path.C_Str()).first;
       if(tex)
         return Texture::load(*tex);
@@ -130,18 +130,25 @@ void loadMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,const aiM
 
   aiColor3D diffuseColor(0.0f,0.0f,0.0f);
   if(mat->Get(AI_MATKEY_COLOR_AMBIENT,diffuseColor)==AI_SUCCESS)
-    mesh->setColor(GL_TRIANGLES,diffuseColor.r,diffuseColor.g,diffuseColor.b);
-  else mesh->setColor(GL_TRIANGLES,1,1,1);
+    mesh->setColorDiffuse(GL_TRIANGLES,diffuseColor.r,diffuseColor.g,diffuseColor.b);
+  else mesh->setColorDiffuse(GL_TRIANGLES,1,1,1);
 
   aiColor3D specularColor(0.0f,0.0f,0.0f);
   if(mat->Get(AI_MATKEY_COLOR_SPECULAR,specularColor)==AI_SUCCESS)
     mesh->setColorSpecular(GL_TRIANGLES,specularColor.r,specularColor.g,specularColor.b);
   else mesh->setColorSpecular(GL_TRIANGLES,0,0,0);
 
+  std::shared_ptr<Texture> texDiffuse=loadTexture(aiTextureType_DIFFUSE,scene,mat,dir);
+  std::shared_ptr<Texture> texSpecular=loadTexture(aiTextureType_SPECULAR,scene,mat,dir);
+  mesh->setTextureDiffuse(texDiffuse);
+  mesh->setTextureSpecular(texSpecular);
+
+  //debug write
   //static int id=0;
-  std::shared_ptr<Texture> tex=loadTexture(scene,mat,dir);
-  //tex->save(std::to_string(id++)+".png");
-  mesh->setTexture(tex);
+  //if(texDiffuse)
+  //  texDiffuse->save("diffuse"+std::to_string(id++)+".png");
+  //if(texSpecular)
+  //  texSpecular->save("texSpecular"+std::to_string(id++)+".png");
 }
 const aiNodeAnim* findNodeAnim(const aiAnimation& animation,const std::string& NodeName) {
   for(GLuint i=0; i<animation.mNumChannels; i++) {

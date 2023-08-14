@@ -34,8 +34,8 @@ void Box2DShape::syncWorld(std::shared_ptr<SceneNode>& root,const b2World* world
     //add object if not in shapes
     if(shapeSet.find(b)==shapeSet.end()) {
       std::shared_ptr<Shape> s(new Box2DShape(b));
-      s->setColor(GL_TRIANGLE_FAN,c[0],c[1],c[2]);
-      s->setColor(GL_LINE_LOOP,cB[0],cB[1],cB[2]);
+      s->setColorDiffuse(GL_TRIANGLE_FAN,c[0],c[1],c[2]);
+      s->setColorDiffuse(GL_LINE_LOOP,cB[0],cB[1],cB[2]);
       s->setLineWidth(lineWidth);
       root=SceneNode::update(root,s);
       shapeSet.insert(b);

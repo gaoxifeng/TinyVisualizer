@@ -34,8 +34,8 @@ void Bullet3DShape::syncWorld(std::shared_ptr<SceneNode>& root,const btDiscreteD
     //add object if not in shapes
     if(shapeSet.find(b)==shapeSet.end()) {
       std::shared_ptr<Shape> s(new Bullet3DShape(b,tex));
-      s->setColor(GL_TRIANGLE_FAN,c[0],c[1],c[2]);
-      s->setColor(GL_LINES,cB[0],cB[1],cB[2]);
+      s->setColorDiffuse(GL_TRIANGLE_FAN,c[0],c[1],c[2]);
+      s->setColorDiffuse(GL_LINES,cB[0],cB[1],cB[2]);
       s->setLineWidth(lineWidth);
       root=SceneNode::update(root,s);
       shapeSet.insert(b);
@@ -124,7 +124,7 @@ void Bullet3DShape::createShape(const btCollisionObject* b,std::shared_ptr<Textu
     if(!_fillBox) {
       _fillBox=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(1,1,1));
       _borderBox=makeBox(1,false,Eigen::Matrix<GLfloat,3,1>(1,1,1));
-      _fillBox->setTexture(tex);
+      _fillBox->setTextureDiffuse(tex);
     }
     btVector3 he=dynamic_cast<const btBoxShape*>(shape)->getHalfExtentsWithMargin();
     _localTrans.block<3,3>(0,0).diagonal()=Eigen::Matrix<GLfloat,3,1>(he.x(),he.y(),he.z());
@@ -135,7 +135,7 @@ void Bullet3DShape::createShape(const btCollisionObject* b,std::shared_ptr<Textu
     if(!_fillSphere) {
       _fillSphere=makeSphere(RES,true,1);
       _borderSphere=makeSphere(RES,false,1);
-      _fillSphere->setTexture(tex);
+      _fillSphere->setTextureDiffuse(tex);
     }
     GLfloat rad=dynamic_cast<const btSphereShape*>(shape)->getRadius();
     _localTrans.block<3,3>(0,0)*=rad;
@@ -149,7 +149,7 @@ void Bullet3DShape::createShape(const btCollisionObject* b,std::shared_ptr<Textu
     if(_fillCapsule.find(height)==_fillCapsule.end()) {
       _fillCapsule[height]=makeCapsule(RES,true,1,height);
       _borderCapsule[height]=makeCapsule(RES,false,1,height);
-      _fillCapsule[height]->setTexture(tex);
+      _fillCapsule[height]->setTextureDiffuse(tex);
     }
     _localTrans.col(0).setUnit((upAxis+1)%3);
     _localTrans.col(1).setUnit((upAxis+2)%3);

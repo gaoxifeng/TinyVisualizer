@@ -17,7 +17,7 @@ int main(int argc,char** argv) {
 
   std::shared_ptr<Bullet3DShape> shapeTA(new Bullet3DShape);
   std::shared_ptr<MeshShape> sphere=makeSphere(8,true,0.25f);
-  sphere->setTexture(checker);
+  sphere->setTextureDiffuse(checker);
   shapeTA->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>(-0.5f,0,0));
   shapeTA->addShape(sphere);
   drawer.addShape(shapeTA);
@@ -26,7 +26,7 @@ int main(int argc,char** argv) {
   std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
   std::shared_ptr<MeshShape> box=makeBox(1,true,sz);
   box->setCastShadow(false);
-  box->setTexture(checker);
+  box->setTextureDiffuse(checker);
   shapeTB->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>(-2.0f,0,0));
   shapeTB->addShape(box);
   drawer.addShape(shapeTB);
@@ -40,7 +40,7 @@ int main(int argc,char** argv) {
         points->addIndexSingle(off++);
       }
   points->setMode(GL_POINTS);
-  points->setColor(GL_POINTS,.6,.3,.3);
+  points->setColorDiffuse(GL_POINTS,.6,.3,.3);
   points->setPointSize(5);
   drawer.addShape(points);
 
@@ -71,13 +71,13 @@ int main(int argc,char** argv) {
     T.block<3,1>(0,3)=T.block<3,3>(0,0)*Eigen::Matrix<GLfloat,3,1>(-0.5f,0,0);
     shapeTA->setLocalTransform(T);
     shapeTA->setColorAmbient(GL_TRIANGLES,0,.05,0);
-    shapeTA->setColor(GL_TRIANGLES,.2,.2,.2);
+    shapeTA->setColorDiffuse(GL_TRIANGLES,.2,.2,.2);
     shapeTA->setColorSpecular(GL_TRIANGLES,.5,.5,.5);
     shapeTA->setShininess(GL_TRIANGLES,10.);
     T.block<3,1>(0,3)=T.block<3,3>(0,0)*Eigen::Matrix<GLfloat,3,1>(-2.0f,0,0);
     shapeTB->setLocalTransform(T);
     shapeTB->setColorAmbient(GL_TRIANGLES,0,.05,0);
-    shapeTB->setColor(GL_TRIANGLES,.2,.2,.2);
+    shapeTB->setColorDiffuse(GL_TRIANGLES,.2,.2,.2);
     shapeTB->setColorSpecular(GL_TRIANGLES,.5,.5,.5);
     shapeTB->setShininess(GL_TRIANGLES,10.);
     if(sim)

@@ -36,7 +36,7 @@ int main(int argc,char** argv) {
     Eigen::Matrix<GLfloat,2,1> tcMult(1/16.,1/16.);
     Eigen::Matrix<GLfloat,3,1> scale(1/16.,1/8.,1/16.);
     std::shared_ptr<MeshShape> terrain(new TerrainShape(height,1,scale,tcMult));
-    terrain->setTexture(drawGrid());
+    terrain->setTextureDiffuse(drawGrid());
     drawer.addShape(terrain);
   }
   {
@@ -46,12 +46,12 @@ int main(int argc,char** argv) {
     std::shared_ptr<MeshShape> terrain(new TerrainShape([&](GLfloat x,GLfloat y) {
       return std::sin(x*4.)*std::sin(y*4.)/8.;
     },1,aabb,0.1f,tcMult));
-    terrain->setTexture(drawGrid());
+    terrain->setTextureDiffuse(drawGrid());
     drawer.addShape(terrain);
   }
   std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
   std::shared_ptr<MeshShape> box=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(0.25,0.25,0.25));
-  box->setTexture(drawChecker());
+  box->setTextureDiffuse(drawChecker());
   shapeTB->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>(2,0.5,2));
   shapeTB->addShape(box);
   drawer.addShape(shapeTB);

@@ -40,7 +40,8 @@ class MeshShape : public Shape {
   Eigen::Matrix<GLfloat,2,1> getTexcoord(int i) const;
   GLuint getIndex(int i) const;
   void debugWriteObj(const std::string& path);
-  std::shared_ptr<Texture> getTexture() const;
+  std::shared_ptr<Texture> getTextureDiffuse() const;
+  std::shared_ptr<Texture> getTextureSpecular() const;
   const ShadowLight::Material& getMaterial() const;
   void setMaterial(const ShadowLight::Material& mat);
   BoneData& getBoneData();
@@ -49,10 +50,11 @@ class MeshShape : public Shape {
   std::shared_ptr<VBO> getVBO();    //a dangerous method, we will flag mesh as dirty when this is called
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
-  virtual void setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;
+  virtual void setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;
   virtual void setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,GLfloat BA) override;
   virtual void setColorSpecular(GLenum mode,GLfloat RS,GLfloat GS,GLfloat BS) override;
-  virtual void setTexture(std::shared_ptr<Texture> tex) override;
+  virtual void setTextureDiffuse(std::shared_ptr<Texture> tex) override;
+  virtual void setTextureSpecular(std::shared_ptr<Texture> tex) override;
   virtual void setDepth(GLfloat depth) override;
   virtual void setDrawer(Drawer* drawer) override;
   virtual void setShininess(GLenum mode,GLfloat S) override;

@@ -9,11 +9,12 @@ class CompositeShape : public Shape {
   void addShape(std::shared_ptr<Shape> s);
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
-  virtual void setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;
+  virtual void setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;
   virtual void setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,GLfloat BA) override;
   virtual void setColorSpecular(GLenum mode,GLfloat RS,GLfloat GS,GLfloat BS) override;
   virtual void setShininess(GLenum mode,GLfloat S) override;
-  virtual void setTexture(std::shared_ptr<Texture>) override;
+  virtual void setTextureDiffuse(std::shared_ptr<Texture>) override;
+  virtual void setTextureSpecular(std::shared_ptr<Texture>) override;
   virtual void setDepth(GLfloat depth) override;
   virtual void setDrawer(Drawer* drawer) override;
   virtual bool needRecomputeNormal() const override;

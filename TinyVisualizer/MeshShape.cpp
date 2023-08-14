@@ -12,7 +12,7 @@ bool MeshShape::BoneData::empty() const {
   return _maxNrBone==0;
 }
 GLfloat MeshShape::BoneData::findWeight(int vertexId,int boneId) const {
-  for(int d=0; d<_maxNrBone; d++)
+  for(int d=0; d<(int)_maxNrBone; d++)
     if(_boneId[vertexId*_maxNrBone+d]==boneId)
       return _boneWeight[vertexId*_maxNrBone+d];
   ASSERT_MSGV(false,"Cannot find bone weight for vertexId=%d and boneId=%d!",vertexId,boneId)
@@ -38,7 +38,8 @@ MeshShape::MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLui
   initMaterial();
 }
 MeshShape::~MeshShape() {
-  _mat._tex=NULL;
+  _mat._texDiffuse=NULL;
+  _mat._texSpecular=NULL;
   if(_texWhite.use_count()==1)
     _texWhite=NULL;
 }
@@ -178,10 +179,15 @@ void MeshShape::debugWriteObj(const std::string& path) {
     os<<"Ka "<<_mat._ambient[0]<<" "<<_mat._ambient[1]<<" "<<_mat._ambient[2]<<std::endl;
     os<<"Kd "<<_mat._diffuse[0]<<" "<<_mat._diffuse[1]<<" "<<_mat._diffuse[2]<<std::endl;
     os<<"Ks "<<_mat._specular[0]<<" "<<_mat._specular[1]<<" "<<_mat._specular[2]<<std::endl;
-    if(_mat._tex) {
-      std::string pathTex=path.substr(0,path.size()-4)+".png";
+    if(_mat._texDiffuse) {
+      std::string pathTex=path.substr(0,path.size()-4)+"Kd.png";
       os<<"map_Kd "<<pathTex<<std::endl;
-      _mat._tex->save(pathTex);
+      _mat._texDiffuse->save(pathTex);
+    }
+    if(_mat._texSpecular) {
+      std::string pathTex=path.substr(0,path.size()-4)+"Ks.png";
+      os<<"map_Ks "<<pathTex<<std::endl;
+      _mat._texSpecular->save(pathTex);
     }
   }
   {
@@ -219,8 +225,11 @@ void MeshShape::debugWriteObj(const std::string& path) {
       }
   }
 }
-std::shared_ptr<Texture> MeshShape::getTexture() const {
-  return _mat._tex;
+std::shared_ptr<Texture> MeshShape::getTextureDiffuse() const {
+  return _mat._texDiffuse;
+}
+std::shared_ptr<Texture> MeshShape::getTextureSpecular() const {
+  return _mat._texSpecular;
 }
 const ShadowLight::Material& MeshShape::getMaterial() const {
   return _mat;
@@ -252,7 +261,7 @@ void MeshShape::setPointSize(GLfloat pointSize) {
 void MeshShape::setLineWidth(GLfloat lineWidth) {
   _mat._lineWidth=lineWidth;
 }
-void MeshShape::setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) {
+void MeshShape::setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B) {
   if(_mode!=mode)
     return;
   _mat._diffuse=Eigen::Matrix<GLfloat,4,1>(R,G,B,1);
@@ -272,10 +281,15 @@ void MeshShape::setShininess(GLenum mode,GLfloat S) {
     return;
   _mat._shininess=S;
 }
-void MeshShape::setTexture(std::shared_ptr<Texture> tex) {
+void MeshShape::setTextureDiffuse(std::shared_ptr<Texture> tex) {
   if(tex)
-    _mat._tex=tex;
-  else _mat._tex=getWhiteTexture();
+    _mat._texDiffuse=tex;
+  else _mat._texDiffuse=getWhiteTexture();
+}
+void MeshShape::setTextureSpecular(std::shared_ptr<Texture> tex) {
+  if(tex)
+    _mat._texSpecular=tex;
+  else _mat._texSpecular=getWhiteTexture();
 }
 void MeshShape::setDepth(GLfloat depth) {
   for(int i=0; i<(int)_vertices.size(); i+=3)
@@ -311,17 +325,27 @@ void MeshShape::draw(PASS_TYPE passType) const {
     setupMaterial(_mat);
   setupMatrixInShader();
   //turn on texture
-  if(_mat._tex) {
+  if(_mat._texDiffuse) {
     glActiveTexture(GL_TEXTURE0);
-    _mat._tex->begin();
-    glActiveTexture(GL_TEXTURE1);
+    _mat._texDiffuse->begin();
   }
+  if(_mat._texSpecular) {
+    glActiveTexture(GL_TEXTURE1);
+    _mat._texSpecular->begin();
+  }
+  glActiveTexture(GL_TEXTURE2);
+  //draw
   _VBO->draw(_mode);
   //turn off texture
-  if(_mat._tex) {
-    _mat._tex->end();
+  if(_mat._texDiffuse) {
     glActiveTexture(GL_TEXTURE0);
+    _mat._texDiffuse->end();
   }
+  if(_mat._texSpecular) {
+    glActiveTexture(GL_TEXTURE1);
+    _mat._texSpecular->end();
+  }
+  glActiveTexture(GL_TEXTURE0);
 }
 Eigen::Matrix<GLfloat,6,1> MeshShape::getBB() const {
   if(_dirty) {
@@ -378,7 +402,8 @@ void MeshShape::initMaterial() {
   _mat._shininess=DEFAULT_S;
   _mat._pointSize=1;
   _mat._lineWidth=0;
-  _mat._tex=_texWhite;
+  _mat._texDiffuse=_texWhite;
+  _mat._texSpecular=_texWhite;
   _mat._drawer=NULL;
 }
 std::shared_ptr<Texture> MeshShape::_texWhite;

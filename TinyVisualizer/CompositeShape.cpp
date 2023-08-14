@@ -13,9 +13,9 @@ void CompositeShape::setLineWidth(GLfloat lineWidth) {
   for(int i=0; i<(int)_shapes.size(); i++)
     _shapes[i]->setLineWidth(lineWidth);
 }
-void CompositeShape::setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B)  {
+void CompositeShape::setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B)  {
   for(int i=0; i<(int)_shapes.size(); i++)
-    _shapes[i]->setColor(mode,R,G,B);
+    _shapes[i]->setColorDiffuse(mode,R,G,B);
 }
 void CompositeShape::setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,GLfloat BA)  {
   for(int i=0; i<(int)_shapes.size(); i++)
@@ -29,9 +29,13 @@ void CompositeShape::setShininess(GLenum mode,GLfloat S) {
   for(int i=0; i<(int)_shapes.size(); i++)
     _shapes[i]->setShininess(mode,S);
 }
-void CompositeShape::setTexture(std::shared_ptr<Texture> tex) {
+void CompositeShape::setTextureDiffuse(std::shared_ptr<Texture> tex) {
   for(int i=0; i<(int)_shapes.size(); i++)
-    _shapes[i]->setTexture(tex);
+    _shapes[i]->setTextureDiffuse(tex);
+}
+void CompositeShape::setTextureSpecular(std::shared_ptr<Texture> tex) {
+  for(int i=0; i<(int)_shapes.size(); i++)
+    _shapes[i]->setTextureSpecular(tex);
 }
 void CompositeShape::setDepth(GLfloat depth) {
   for(int i=0; i<(int)_shapes.size(); i++)

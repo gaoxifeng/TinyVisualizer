@@ -7,7 +7,7 @@
 namespace DRAWER {
 #define MAX_LIGHT 8
 ShadowLight::ShadowLight(int shadow,int softShadow,bool autoAdjust)
-  :_bias(0.1f),_softShadow(softShadow),_autoAdjust(autoAdjust),_shadow(shadow),_lightSz(0) {}
+  :_bias(0.1f),_softShadow(softShadow),_autoAdjust(autoAdjust),_shadow(shadow),_lightSz(0),_shadowMapOffset(2) {}
 int ShadowLight::addLight(const Eigen::Matrix<GLfloat,3,1>& pos,
                           const Eigen::Matrix<GLfloat,3,1>& ambient,
                           const Eigen::Matrix<GLfloat,3,1>& diffuse,
@@ -225,6 +225,7 @@ void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNorma
   prog->begin();
   prog->setUniformInt("MAX_LIGHTS",(int)_lights.size());
   prog->setTexUnit("diffuseMap",0,false);
+  prog->setTexUnit("specularMap",1,false);
   getFloatv(GL_MODELVIEW_MATRIX,_MVShadow);
   _invMVShadow=_MVShadow.inverse();
   if(_shadow>0) {
@@ -237,11 +238,11 @@ void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNorma
     ASSERT_MSG(!_lights.empty(),"No light exists!")
     for(int id=0; id<MAX_LIGHT; id++) {
       const Light& l=_lights[std::min(id,(int)_lights.size()-1)];
-      glActiveTexture(GL_TEXTURE1+id);
+      glActiveTexture(GL_TEXTURE0+id+_shadowMapOffset);
       l._shadowMap->beginShadow();
-      prog->setTexUnit("lights["+std::to_string(id)+"].depthMap",id+1);
+      prog->setTexUnit("lights["+std::to_string(id)+"].depthMap",id+_shadowMapOffset);
     }
-    glActiveTexture(GL_TEXTURE1+MAX_LIGHT);
+    glActiveTexture(GL_TEXTURE0+MAX_LIGHT+_shadowMapOffset);
   }
 }
 void ShadowLight::setupLightMaterial(const Material& mat) {
@@ -272,7 +273,7 @@ void ShadowLight::end() {
   if(_shadow>0) {
     for(int id=0; id<MAX_LIGHT; id++) {
       const Light& l=_lights[std::min(id,(int)_lights.size()-1)];
-      glActiveTexture(GL_TEXTURE1+id);
+      glActiveTexture(GL_TEXTURE0+id+_shadowMapOffset);
       l._shadowMap->endShadow();
     }
     glActiveTexture(GL_TEXTURE0);

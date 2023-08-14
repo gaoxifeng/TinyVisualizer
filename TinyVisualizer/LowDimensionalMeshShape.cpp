@@ -9,8 +9,8 @@ void LowDimensionalMeshShape::setPointSize(GLfloat pointSize) {
 void LowDimensionalMeshShape::setLineWidth(GLfloat lineWidth) {
   _inner->setLineWidth(lineWidth);
 }
-void LowDimensionalMeshShape::setColor(GLenum mode,GLfloat R,GLfloat G,GLfloat B) {
-  _inner->setColor(mode,R,G,B);
+void LowDimensionalMeshShape::setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B) {
+  _inner->setColorDiffuse(mode,R,G,B);
 }
 void LowDimensionalMeshShape::setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,GLfloat BA) {
   _inner->setColorAmbient(mode,RA,GA,BA);
@@ -18,8 +18,11 @@ void LowDimensionalMeshShape::setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,
 void LowDimensionalMeshShape::setColorSpecular(GLenum mode,GLfloat RS,GLfloat GS,GLfloat BS) {
   _inner->setColorSpecular(mode,RS,GS,BS);
 }
-void LowDimensionalMeshShape::setTexture(std::shared_ptr<Texture> tex) {
-  _inner->setTexture(tex);
+void LowDimensionalMeshShape::setTextureDiffuse(std::shared_ptr<Texture> tex) {
+  _inner->setTextureDiffuse(tex);
+}
+void LowDimensionalMeshShape::setTextureSpecular(std::shared_ptr<Texture> tex) {
+  _inner->setTextureSpecular(tex);
 }
 void LowDimensionalMeshShape::setDepth(GLfloat depth) {
   _inner->setDepth(depth);
