@@ -15,7 +15,7 @@ class Texture {
     unsigned int _width;
     unsigned int _height;
   };
-  Texture(int width,int height,GLenum format=GL_RGB);
+  Texture(int width,int height,GLenum format=GL_RGB,bool CPUOnly=false);
   Texture(const Texture& other);
   Texture& operator=(const Texture& other);
   virtual ~Texture();

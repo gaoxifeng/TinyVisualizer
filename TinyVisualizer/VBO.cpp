@@ -320,6 +320,9 @@ GLuint VBO::VBOBW() const {
   return _VBOBW;
 }
 void VBO::reset(int nV,int nI,bool hasV,bool hasN,bool hasT,bool hasI,bool hasBI,bool hasBW) {
+  _VAO=(GLuint)-1;
+  if(!glad_glGenVertexArrays)
+    throw std::runtime_error("VertexArray not supported!");
   glGenVertexArrays(1,&_VAO);
   glBindVertexArray(_VAO);
   _nV=nV;

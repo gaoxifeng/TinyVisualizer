@@ -38,8 +38,8 @@ MeshShape::MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLui
   initMaterial();
 }
 MeshShape::~MeshShape() {
-  _mat._texDiffuse=NULL;
-  _mat._texSpecular=NULL;
+  _mat->_texDiffuse=NULL;
+  _mat->_texSpecular=NULL;
   if(_texWhite.use_count()==1)
     _texWhite=NULL;
 }
@@ -176,18 +176,18 @@ void MeshShape::debugWriteObj(const std::string& path) {
   std::string pathMtl=path.substr(0,path.size()-4)+".mtl";
   {
     std::ofstream os(pathMtl);
-    os<<"Ka "<<_mat._ambient[0]<<" "<<_mat._ambient[1]<<" "<<_mat._ambient[2]<<std::endl;
-    os<<"Kd "<<_mat._diffuse[0]<<" "<<_mat._diffuse[1]<<" "<<_mat._diffuse[2]<<std::endl;
-    os<<"Ks "<<_mat._specular[0]<<" "<<_mat._specular[1]<<" "<<_mat._specular[2]<<std::endl;
-    if(_mat._texDiffuse) {
+    os<<"Ka "<<_mat->_ambient[0]<<" "<<_mat->_ambient[1]<<" "<<_mat->_ambient[2]<<std::endl;
+    os<<"Kd "<<_mat->_diffuse[0]<<" "<<_mat->_diffuse[1]<<" "<<_mat->_diffuse[2]<<std::endl;
+    os<<"Ks "<<_mat->_specular[0]<<" "<<_mat->_specular[1]<<" "<<_mat->_specular[2]<<std::endl;
+    if(_mat->_texDiffuse) {
       std::string pathTex=path.substr(0,path.size()-4)+"Kd.png";
       os<<"map_Kd "<<pathTex<<std::endl;
-      _mat._texDiffuse->save(pathTex);
+      _mat->_texDiffuse->save(pathTex);
     }
-    if(_mat._texSpecular) {
+    if(_mat->_texSpecular) {
       std::string pathTex=path.substr(0,path.size()-4)+"Ks.png";
       os<<"map_Ks "<<pathTex<<std::endl;
-      _mat._texSpecular->save(pathTex);
+      _mat->_texSpecular->save(pathTex);
     }
   }
   {
@@ -226,15 +226,15 @@ void MeshShape::debugWriteObj(const std::string& path) {
   }
 }
 std::shared_ptr<Texture> MeshShape::getTextureDiffuse() const {
-  return _mat._texDiffuse;
+  return _mat->_texDiffuse;
 }
 std::shared_ptr<Texture> MeshShape::getTextureSpecular() const {
-  return _mat._texSpecular;
+  return _mat->_texSpecular;
 }
-const ShadowLight::Material& MeshShape::getMaterial() const {
+std::shared_ptr<Material> MeshShape::getMaterial() const {
   return _mat;
 }
-void MeshShape::setMaterial(const ShadowLight::Material& mat) {
+void MeshShape::setMaterial(std::shared_ptr<Material> mat) {
   _mat=mat;
 }
 MeshShape::BoneData& MeshShape::getBoneData() {
@@ -256,47 +256,43 @@ std::shared_ptr<VBO> MeshShape::getVBO() {
   return _VBO;
 }
 void MeshShape::setPointSize(GLfloat pointSize) {
-  _mat._pointSize=pointSize;
+  _mat->_pointSize=pointSize;
 }
 void MeshShape::setLineWidth(GLfloat lineWidth) {
-  _mat._lineWidth=lineWidth;
+  _mat->_lineWidth=lineWidth;
 }
 void MeshShape::setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B) {
   if(_mode!=mode)
     return;
-  _mat._diffuse=Eigen::Matrix<GLfloat,4,1>(R,G,B,1);
+  _mat->_diffuse=Eigen::Matrix<GLfloat,4,1>(R,G,B,1);
 }
 void MeshShape::setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,GLfloat BA) {
   if(_mode!=mode)
     return;
-  _mat._ambient=Eigen::Matrix<GLfloat,4,1>(RA,GA,BA,1);
+  _mat->_ambient=Eigen::Matrix<GLfloat,4,1>(RA,GA,BA,1);
 }
 void MeshShape::setColorSpecular(GLenum mode,GLfloat RS,GLfloat GS,GLfloat BS) {
   if(_mode!=mode)
     return;
-  _mat._specular=Eigen::Matrix<GLfloat,4,1>(RS,GS,BS,1);
+  _mat->_specular=Eigen::Matrix<GLfloat,4,1>(RS,GS,BS,1);
 }
 void MeshShape::setShininess(GLenum mode,GLfloat S) {
   if(_mode!=mode)
     return;
-  _mat._shininess=S;
+  _mat->_shininess=S;
 }
 void MeshShape::setTextureDiffuse(std::shared_ptr<Texture> tex) {
-  if(tex)
-    _mat._texDiffuse=tex;
-  else _mat._texDiffuse=getWhiteTexture();
+  _mat->_texDiffuse=tex;
 }
 void MeshShape::setTextureSpecular(std::shared_ptr<Texture> tex) {
-  if(tex)
-    _mat._texSpecular=tex;
-  else _mat._texSpecular=getWhiteTexture();
+  _mat->_texSpecular=tex;
 }
 void MeshShape::setDepth(GLfloat depth) {
   for(int i=0; i<(int)_vertices.size(); i+=3)
     _vertices[i+2]=depth;
 }
 void MeshShape::setDrawer(Drawer* drawer) {
-  _mat._drawer=drawer;
+  _mat->_drawer=drawer;
 }
 void MeshShape::draw(PASS_TYPE passType) const {
   if(passType&MESH_PASS)
@@ -322,29 +318,21 @@ void MeshShape::draw(PASS_TYPE passType) const {
   const_cast<MeshShape*>(this)->initVBO();
   //turn on material
   if((passType&SHADOW_PASS)==0)
-    setupMaterial(_mat);
+    setupMaterial(*_mat);
   setupMatrixInShader();
   //turn on texture
-  if(_mat._texDiffuse) {
-    glActiveTexture(GL_TEXTURE0);
-    _mat._texDiffuse->begin();
-  }
-  if(_mat._texSpecular) {
-    glActiveTexture(GL_TEXTURE1);
-    _mat._texSpecular->begin();
-  }
+  glActiveTexture(GL_TEXTURE0);
+  (_mat->_texDiffuse?_mat->_texDiffuse:_texWhite)->begin();
+  glActiveTexture(GL_TEXTURE1);
+  (_mat->_texSpecular?_mat->_texSpecular:_texWhite)->begin();
   glActiveTexture(GL_TEXTURE2);
   //draw
   _VBO->draw(_mode);
   //turn off texture
-  if(_mat._texDiffuse) {
-    glActiveTexture(GL_TEXTURE0);
-    _mat._texDiffuse->end();
-  }
-  if(_mat._texSpecular) {
-    glActiveTexture(GL_TEXTURE1);
-    _mat._texSpecular->end();
-  }
+  glActiveTexture(GL_TEXTURE0);
+  (_mat->_texDiffuse?_mat->_texDiffuse:_texWhite)->end();
+  glActiveTexture(GL_TEXTURE1);
+  (_mat->_texSpecular?_mat->_texSpecular:_texWhite)->end();
   glActiveTexture(GL_TEXTURE0);
 }
 Eigen::Matrix<GLfloat,6,1> MeshShape::getBB() const {
@@ -375,7 +363,12 @@ bool MeshShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alph
 }
 void MeshShape::initVBO() {
   if(!_VBO) {
-    const_cast<MeshShape*>(this)->_VBO.reset(new VBO(nrVertex(),nrIndex(),true,true,true,false,!_bone.empty(),!_bone.empty()));
+    try {
+      const_cast<MeshShape*>(this)->_VBO.reset(new VBO(nrVertex(),nrIndex(),true,true,true,false,!_bone.empty(),!_bone.empty()));
+    } catch(...) {
+      const_cast<MeshShape*>(this)->_VBO=NULL;
+      return;
+    }
     _VBO->setVertexPosition(_vertices);
     if(!_normals.empty())
       _VBO->setVertexNormal(_normals);
@@ -395,17 +388,20 @@ void MeshShape::refitBB() {
     _bb=unionBB(_bb,(Eigen::Matrix<GLfloat,3,1>)getVertex(i));
 }
 void MeshShape::initMaterial() {
+  _mat.reset(new Material);
+  _mat->_ambient=Eigen::Matrix<GLfloat,4,1>(0,0,0,1);
+  _mat->_diffuse=Eigen::Matrix<GLfloat,4,1>((GLfloat)DEFAULT_R,(GLfloat)DEFAULT_G,(GLfloat)DEFAULT_B,(GLfloat)1);
+  _mat->_specular=Eigen::Matrix<GLfloat,4,1>(0,0,0,1);
+  _mat->_shininess=DEFAULT_S;
+  _mat->_pointSize=1;
+  _mat->_lineWidth=0;
+  _mat->_texDiffuse=NULL;
+  _mat->_texSpecular=NULL;
+  _mat->_drawer=NULL;
+  if(!glad_glGenTextures)
+    return; //this is CPU only, just return
   if(!_texWhite)
     _texWhite=getWhiteTexture();
-  _mat._ambient=Eigen::Matrix<GLfloat,4,1>(0,0,0,1);
-  _mat._diffuse=Eigen::Matrix<GLfloat,4,1>((GLfloat)DEFAULT_R,(GLfloat)DEFAULT_G,(GLfloat)DEFAULT_B,(GLfloat)1);
-  _mat._specular=Eigen::Matrix<GLfloat,4,1>(0,0,0,1);
-  _mat._shininess=DEFAULT_S;
-  _mat._pointSize=1;
-  _mat._lineWidth=0;
-  _mat._texDiffuse=_texWhite;
-  _mat._texSpecular=_texWhite;
-  _mat._drawer=NULL;
 }
 std::shared_ptr<Texture> MeshShape::_texWhite;
 }

@@ -42,8 +42,8 @@ class MeshShape : public Shape {
   void debugWriteObj(const std::string& path);
   std::shared_ptr<Texture> getTextureDiffuse() const;
   std::shared_ptr<Texture> getTextureSpecular() const;
-  const ShadowLight::Material& getMaterial() const;
-  void setMaterial(const ShadowLight::Material& mat);
+  std::shared_ptr<Material> getMaterial() const;
+  void setMaterial(std::shared_ptr<Material> mat);
   BoneData& getBoneData();
   const BoneData& getBoneData() const;
   void setBoneData(const BoneData& bone);
@@ -68,9 +68,9 @@ class MeshShape : public Shape {
   std::shared_ptr<VBO> _VBO;
   static std::shared_ptr<Texture> _texWhite;
   std::vector<GLfloat> _vertices,_normals,_texcoords;
+  std::shared_ptr<Material> _mat;
   Eigen::Matrix<GLfloat,6,1> _bb;
   std::vector<GLuint> _indices;
-  ShadowLight::Material _mat;
   BoneData _bone;
   GLenum _mode;
   bool _dirty;

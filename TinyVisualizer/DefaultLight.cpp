@@ -68,7 +68,7 @@ void setupMaterial(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,4,1>
 void setupMaterial(std::shared_ptr<Texture> tex,GLfloat r,GLfloat g,GLfloat b) {
   setupMaterial(tex,Eigen::Matrix<GLfloat,4,1>(r,g,b,1));
 }
-void setupMaterial(const ShadowLight::Material& mat) {
+void setupMaterial(const Material& mat) {
   if(Program::currentProgram()->getName().find("Light")!=std::string::npos && mat._drawer)
     mat._drawer->getLight()->setupLightMaterial(mat);
   else setupMaterial(mat._texDiffuse,mat._diffuse);

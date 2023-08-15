@@ -6,28 +6,28 @@
 #include "FBO.h"
 
 namespace DRAWER {
+struct Material {
+  Eigen::Matrix<GLfloat,4,1> _ambient;
+  Eigen::Matrix<GLfloat,4,1> _diffuse;
+  Eigen::Matrix<GLfloat,4,1> _specular;
+  std::shared_ptr<Texture> _texDiffuse;
+  std::shared_ptr<Texture> _texSpecular;
+  GLfloat _pointSize,_lineWidth;
+  GLfloat _shininess;
+  Drawer* _drawer;
+};
+struct Light {
+  Eigen::Matrix<GLfloat,4,1> _position;
+  Eigen::Matrix<GLfloat,4,1> _ambient;
+  Eigen::Matrix<GLfloat,4,1> _diffuse;
+  Eigen::Matrix<GLfloat,4,1> _specular;
+  std::shared_ptr<FBOShadow> _shadowMap;
+  Eigen::Matrix<GLfloat,3,1> _target[6];
+  Eigen::Matrix<GLfloat,4,4> _MV[6],_invMV[6];
+  Eigen::Matrix<GLfloat,-1,1> _viewFrustum[6];
+};
 class ShadowLight {
  public:
-  struct Material {
-    Eigen::Matrix<GLfloat,4,1> _ambient;
-    Eigen::Matrix<GLfloat,4,1> _diffuse;
-    Eigen::Matrix<GLfloat,4,1> _specular;
-    std::shared_ptr<Texture> _texDiffuse;
-    std::shared_ptr<Texture> _texSpecular;
-    GLfloat _pointSize,_lineWidth;
-    GLfloat _shininess;
-    Drawer* _drawer;
-  };
-  struct Light {
-    Eigen::Matrix<GLfloat,4,1> _position;
-    Eigen::Matrix<GLfloat,4,1> _ambient;
-    Eigen::Matrix<GLfloat,4,1> _diffuse;
-    Eigen::Matrix<GLfloat,4,1> _specular;
-    std::shared_ptr<FBOShadow> _shadowMap;
-    Eigen::Matrix<GLfloat,3,1> _target[6];
-    Eigen::Matrix<GLfloat,4,4> _MV[6],_invMV[6];
-    Eigen::Matrix<GLfloat,-1,1> _viewFrustum[6];
-  };
   ShadowLight(int shadow,int softShadow,bool autoAdjust=true);
   int addLight(const Eigen::Matrix<GLfloat,3,1>& pos,
                const Eigen::Matrix<GLfloat,3,1>& ambient=Eigen::Matrix<GLfloat,3,1>(1,1,1),

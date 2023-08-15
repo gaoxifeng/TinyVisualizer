@@ -97,6 +97,7 @@
 %feature("director") PythonCallback;
 %include <TinyVisualizer/Drawer.h>
 %shared_ptr(DRAWER::ShadowLight);
+%shared_ptr(DRAWER::Material);
 %include <TinyVisualizer/ShadowAndLight.h>
 %shared_ptr(DRAWER::CameraManipulator);
 %include <TinyVisualizer/CameraManipulator.h>

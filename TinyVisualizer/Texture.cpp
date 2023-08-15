@@ -18,8 +18,14 @@ Texture::TextureCPUData::~TextureCPUData() {
   if(_data)
     delete [] _data;
 }
-Texture::Texture(int width,int height,GLenum format):_format(format) {
-  reset(width,height);
+Texture::Texture(int width,int height,GLenum format,bool CPUOnly):_format(format) {
+  if(CPUOnly) {
+    _data=TextureCPUData();
+    _data._width=width;
+    _data._height=height;
+    _data._data=new unsigned char[_data._width*_data._height*4];
+    memset(_data._data,0,_data._width*_data._height*4);
+  } else reset(width,height);
 }
 Texture::Texture(const Texture& other):_format(other._format) {
   reset(other.width(),other.height());
@@ -40,18 +46,26 @@ void Texture::end() const {
   glBindTexture(GL_TEXTURE_2D,0);
 }
 int Texture::width() const {
-  GLint ret;
-  begin();
-  glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&ret);
-  end();
-  return ret;
+  if(_data._data)
+    return _data._width;
+  else {
+    GLint ret;
+    begin();
+    glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&ret);
+    end();
+    return ret;
+  }
 }
 int Texture::height() const {
-  GLint ret;
-  begin();
-  glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&ret);
-  end();
-  return ret;
+  if(_data._data)
+    return _data._height;
+  else {
+    GLint ret;
+    begin();
+    glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&ret);
+    end();
+    return ret;
+  }
 }
 GLuint Texture::id() const {
   return _id;
@@ -88,35 +102,52 @@ std::shared_ptr<Texture> Texture::load(const std::string& path) {
   stbi_uc* data=stbi_load(path.c_str(),&w,&h,&c,0);
   flipY(w,h,c,data);
   ASSERT(c==3 || c==4);
-  std::shared_ptr<Texture> ret(new Texture(w,h,c==4?GL_RGBA:GL_RGB));
-  ret->begin();
-  glTexImage2D(GL_TEXTURE_2D,0,ret->_format,w,h,0,c==4?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
-  ret->end();
-  free(data);
+  std::shared_ptr<Texture> ret;
+  try {
+    ret.reset(new Texture(w,h,c==4?GL_RGBA:GL_RGB));
+    ret->begin();
+    glTexImage2D(GL_TEXTURE_2D,0,ret->_format,w,h,0,c==4?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
+    ret->end();
+    free(data);
+  } catch(...) {
+    ret.reset(new Texture(w,h,c==4?GL_RGBA:GL_RGB,true));
+    for(int idh=0; idh<h; idh++)
+      for(int idw=0; idw<w; idw++)
+        for(int d=0; d<c; d++)
+          ret->_data._data[(idw+idh*w)*4+d]=data[(idw+idh*w)*c+d];
+  }
   return ret;
 }
 std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
   int width,height,BPP;
   void* data=stbi_load_from_memory((const stbi_uc*)tex.pcData,tex.mWidth,&width,&height,&BPP,0);
   flipY(width,height,BPP,(unsigned char*)data);
-  std::shared_ptr<Texture> ret(new Texture(width,height,GL_RGB));
-  ret->reset(width,height);
-  ret->begin();
-  switch(BPP) {
-  case 1:
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RED,width,height,0,GL_RED,GL_UNSIGNED_BYTE,data);
-    break;
-  case 3:
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
-    break;
-  case 4:
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,data);
-    break;
-  default:
-    ASSERT_MSG(false,"Image format not supported!")
+  std::shared_ptr<Texture> ret;
+  try {
+    ret.reset(new Texture(width,height,GL_RGB));
+    ret->begin();
+    switch(BPP) {
+    case 1:
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RED,width,height,0,GL_RED,GL_UNSIGNED_BYTE,data);
+      break;
+    case 3:
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
+      break;
+    case 4:
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,data);
+      break;
+    default:
+      ASSERT_MSG(false,"Image format not supported!")
+    }
+    ret->end();
+    stbi_image_free(data);
+  } catch(...) {
+    ret.reset(new Texture(width,height,GL_RGB,true));
+    for(int idh=0; idh<width; idh++)
+      for(int idw=0; idw<height; idw++)
+        for(int d=0; d<BPP; d++)
+          ret->_data._data[(idw+idh*width)*4+d]=((stbi_uc*)data)[(idw+idh*width)*BPP+d];
   }
-  ret->end();
-  stbi_image_free(data);
   return ret;
 }
 Eigen::Matrix<GLfloat,-1,-1> Texture::getDataChannel(int cid) const {
@@ -163,7 +194,9 @@ Eigen::Matrix<GLdouble,4,1> Texture::getData(const Eigen::Matrix<GLdouble,2,1>& 
   return getData<GLdouble>(tc);
 }
 void Texture::reset(int width,int height) {
-  ASSERT_MSG(glad_glGenTextures,"Texture not supported!")
+  _id=(GLuint)-1;
+  if(!glad_glGenTextures)
+    throw std::runtime_error("Texture not supported!");
   glGenTextures(1,&_id);
   begin();
   glTexImage2D(GL_TEXTURE_2D,0,_format,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,0);
