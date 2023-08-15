@@ -40,8 +40,6 @@ MeshShape::MeshShape(const std::vector<GLfloat>& vertices,const std::vector<GLui
 MeshShape::~MeshShape() {
   _mat->_texDiffuse=NULL;
   _mat->_texSpecular=NULL;
-  if(_texWhite.use_count()==1)
-    _texWhite=NULL;
 }
 void MeshShape::addVertex(const Eigen::Matrix<GLfloat,-1,1>& v,const Eigen::Matrix<GLfloat,-1,1>* tc) {
   _vertices.reserve(_vertices.size()+v.size());
@@ -400,8 +398,7 @@ void MeshShape::initMaterial() {
   _mat->_drawer=NULL;
   if(!glad_glGenTextures)
     return; //this is CPU only, just return
-  if(!_texWhite)
-    _texWhite=getWhiteTexture();
+  _texWhite=getWhiteTexture();
 }
 std::shared_ptr<Texture> MeshShape::_texWhite;
 }
