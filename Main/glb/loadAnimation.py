@@ -81,6 +81,13 @@ class Animation:
         self.poss_trans = None
 
     def save(self, path):
+        for id in range(self.shape.numChildren()):
+            mesh = self.shape.getMesh(id)
+            tex = mesh.getTextureDiffuse()
+            texRef = self.texs[id].detach().cpu().numpy()
+            for d in range(4):
+                tex.setDataChannel(d, texRef[:,:,d].T)
+            
         for id,bw in enumerate(self.bws):
             self.shape.setBoneWeight(id,bw.detach().cpu().numpy().T)
         self.shape.write(path)

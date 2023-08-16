@@ -1,8 +1,12 @@
 from loadAnimation import *
+from meshMerger import *
 
 if __name__=='__main__':
     drawer = vis.Drawer(['--headless','1'])
     anim = Animation('char10.glb')
+    
+    pos,idx,uv,tex = merge_mesh(anim, True)
+    anim.texs = unmerge_mesh(anim, tex)
     for tex in anim.texs:
         tex[:,:,:3]*=.5
     

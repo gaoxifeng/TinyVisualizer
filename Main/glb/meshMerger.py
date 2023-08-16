@@ -25,6 +25,14 @@ def merge_mesh(anim, ref=True):
     uvM = torch.cat(scaled_uvs)
     return posM,idxM,uvM,texM
     
+def unmerge_mesh(anim, texM):
+    texs = []
+    offH = 0
+    for uv,tex in zip(anim.uvs,anim.texs):
+        texs.append(texM[offH:offH+tex.shape[0],0:tex.shape[1],:])
+        offH += tex.shape[0]
+    return texs
+    
 if __name__=='__main__':
     drawer = vis.Drawer(['--headless','1'])
     anim = Animation('char50.glb')
