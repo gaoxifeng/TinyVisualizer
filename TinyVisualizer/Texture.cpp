@@ -4,6 +4,14 @@
 #include <stb/stb_image_write.h>
 
 namespace DRAWER {
+void writeFunc(void* context,void* data,int size) {
+  aiTexture* tex=(aiTexture*)context;
+  delete [] tex->pcData;
+  tex->pcData=(aiTexel*)new GLchar[size];
+  memcpy(tex->pcData,data,size);
+  tex->mWidth=size;
+  tex->mHeight=0;
+}
 void flipY(int w,int h,int c,unsigned char* data) {
   unsigned sz=w*c;
   std::vector<unsigned char> buffer(sz);
@@ -91,11 +99,40 @@ void Texture::syncGPUData() {
   glTexImage2D(GL_TEXTURE_2D,0,_format,_data._width,_data._height,0,GL_RGBA,GL_UNSIGNED_BYTE,_data._data);
   end();
 }
-void Texture::save(const std::string& path) const {
+void Texture::save(const std::string& path,int quality) const {
   const_cast<Texture*>(this)->loadCPUData();
   flipY(_data._width,_data._height,4,_data._data);
-  ASSERT(path.size()>4 && path.substr(path.size()-4)==".png")
-  stbi_write_png(path.c_str(),_data._width,_data._height,4,_data._data,_data._width*4);
+  if(path.size()>4 && (path.substr(path.size()-4)==".png" || path.substr(path.size()-4)==".PNG"))
+    stbi_write_png(path.c_str(),_data._width,_data._height,4,_data._data,_data._width*4);
+  else if(path.size()>4 && (path.substr(path.size()-4)==".bmp" || path.substr(path.size()-4)==".BMP"))
+    stbi_write_bmp(path.c_str(),_data._width,_data._height,4,_data._data);
+  else if(path.size()>4 && (path.substr(path.size()-4)==".tga" || path.substr(path.size()-4)==".TGA"))
+    stbi_write_tga(path.c_str(),_data._width,_data._height,4,_data._data);
+  else if(path.size()>4 && (path.substr(path.size()-4)==".jpg" || path.substr(path.size()-4)==".JPG"))
+    stbi_write_jpg(path.c_str(),_data._width,_data._height,4,_data._data,quality);
+  else {
+    ASSERT_MSGV(false,"Unsupported texture save path: %s!",path.c_str())
+  }
+  //flip back
+  flipY(_data._width,_data._height,4,_data._data);
+}
+void Texture::save(aiTexture& tex,int quality) const {
+  void* context=&tex;
+  const_cast<Texture*>(this)->loadCPUData();
+  flipY(width(),height(),4,(unsigned char*)_data._data);
+  if(strcmp(tex.achFormatHint,"png")==0)
+    stbi_write_png_to_func(writeFunc,context,_data._width,_data._height,4,_data._data,_data._width*4);
+  else if(strcmp(tex.achFormatHint,"bmp")==0)
+    stbi_write_bmp_to_func(writeFunc,context,_data._width,_data._height,4,_data._data);
+  else if(strcmp(tex.achFormatHint,"tga")==0)
+    stbi_write_tga_to_func(writeFunc,context,_data._width,_data._height,4,_data._data);
+  else if(strcmp(tex.achFormatHint,"jpg")==0)
+    stbi_write_jpg_to_func(writeFunc,context,_data._width,_data._height,4,_data._data,quality);
+  else {
+    ASSERT_MSGV(false,"Unsupported texture save format: %s!",tex.achFormatHint)
+  }
+  //flip back
+  flipY(width(),height(),4,(unsigned char*)_data._data);
 }
 std::shared_ptr<Texture> Texture::load(const std::string& path) {
   int w,h,c;
@@ -143,22 +180,48 @@ std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
     stbi_image_free(data);
   } catch(...) {
     ret.reset(new Texture(width,height,GL_RGB,true));
-    for(int idh=0; idh<width; idh++)
-      for(int idw=0; idw<height; idw++)
+    for(int idh=0; idh<height; idh++)
+      for(int idw=0; idw<width; idw++)
         for(int d=0; d<BPP; d++)
           ret->_data._data[(idw+idh*width)*4+d]=((stbi_uc*)data)[(idw+idh*width)*BPP+d];
   }
   return ret;
 }
+//data channel access
+void Texture::setDataChannel(int cid,const Eigen::Matrix<GLfloat,-1,-1>& data) {
+  setDataChannel<GLfloat>(cid,data);
+}
+template <typename T>
+void Texture::setDataChannel(int cid,const Eigen::Matrix<T,-1,-1>& data) {
+  Eigen::Map<Eigen::Matrix<unsigned char,-1,-1>,0,Eigen::InnerStride<4>>(_data._data+cid,_data._width,_data._height)=(data*255).template cast<unsigned char>();
+}
 Eigen::Matrix<GLfloat,-1,-1> Texture::getDataChannel(int cid) const {
   return getDataChannel<GLfloat>(cid);
-}
-Eigen::Matrix<GLfloat,4,1> Texture::getData(int w,int h) const {
-  return getData<GLfloat>(w,h);
 }
 template <typename T>
 Eigen::Matrix<T,-1,-1> Texture::getDataChannel(int cid) const {
   return Eigen::Map<const Eigen::Matrix<unsigned char,-1,-1>,0,Eigen::InnerStride<4>>(_data._data+cid,_data._width,_data._height).cast<T>()/255;
+}
+//data access
+void Texture::setData(int w,int h,const Eigen::Matrix<GLfloat,4,1>& data) {
+  setData<GLfloat>(w,h,data);
+}
+template <typename T>
+void Texture::setData(int w,int h,const Eigen::Matrix<T,4,1>& data) {
+  //repeat w
+  w=w%_data._width;
+  if(w<0)
+    w+=_data._width;
+  //repeat h
+  h=h%_data._height;
+  if(h<0)
+    h+=_data._height;
+  //fetch
+  int offset=4*(w+_data._width*h);
+  Eigen::Map<Eigen::Matrix<unsigned char,4,1>>(_data._data+offset)=(data*255).template cast<unsigned char>();
+}
+Eigen::Matrix<GLfloat,4,1> Texture::getData(int w,int h) const {
+  return getData<GLfloat>(w,h);
 }
 template <typename T>
 Eigen::Matrix<T,4,1> Texture::getData(int w,int h) const {
@@ -174,6 +237,7 @@ Eigen::Matrix<T,4,1> Texture::getData(int w,int h) const {
   int offset=4*(w+_data._width*h);
   return Eigen::Map<const Eigen::Matrix<unsigned char,4,1>>(_data._data+offset).cast<T>()/255;
 }
+//interpolated data access
 template <typename T>
 Eigen::Matrix<T,4,1> Texture::getData(const Eigen::Matrix<T,2,1>& tc) const {
   T w=tc[0]*_data._width-0.5f;
@@ -193,6 +257,7 @@ Eigen::Matrix<GLfloat,4,1> Texture::getData(const Eigen::Matrix<GLfloat,2,1>& tc
 Eigen::Matrix<GLdouble,4,1> Texture::getData(const Eigen::Matrix<GLdouble,2,1>& tc) const {
   return getData<GLdouble>(tc);
 }
+//helper
 void Texture::reset(int width,int height) {
   _id=(GLuint)-1;
   if(!glad_glGenTextures)

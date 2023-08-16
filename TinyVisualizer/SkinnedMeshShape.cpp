@@ -81,7 +81,7 @@ const char* getShortFilename(const char* filename) {
   const char* shortFilename=lastSlash!=nullptr?lastSlash+1:filename;
   return shortFilename;
 }
-std::pair<const aiTexture*,int> getEmbeddedTextureAndIndex(const aiScene* scene,const char* filename) {
+std::pair<aiTexture*,int> getEmbeddedTextureAndIndex(const aiScene* scene,const char* filename) {
   if(nullptr==filename)
     return std::make_pair(nullptr,-1);
   //lookup using texture ID (if referenced like: "*1", "*2", etc.)
@@ -106,7 +106,7 @@ std::shared_ptr<Texture> loadTexture(aiTextureType type,const aiScene* scene,con
   if(mat->GetTextureCount(type)>0) {
     aiString path;
     if(mat->GetTexture(type,0,&path,NULL,NULL,NULL,NULL,NULL)==AI_SUCCESS) {
-      const aiTexture* tex=getEmbeddedTextureAndIndex(scene,path.C_Str()).first;
+      aiTexture* tex=getEmbeddedTextureAndIndex(scene,path.C_Str()).first;
       if(tex)
         return Texture::load(*tex);
       else {
@@ -122,6 +122,25 @@ std::shared_ptr<Texture> loadTexture(aiTextureType type,const aiScene* scene,con
   }
   return NULL;
 }
+void saveTexture(Texture& input,aiTextureType type,const aiScene* scene,const aiMaterial* mat,const char* dir) {
+  if(mat->GetTextureCount(type)>0) {
+    aiString path;
+    if(mat->GetTexture(type,0,&path,NULL,NULL,NULL,NULL,NULL)==AI_SUCCESS) {
+      aiTexture* tex=getEmbeddedTextureAndIndex(scene,path.C_Str()).first;
+      if(tex)
+        input.save(*tex);
+      else {
+        std::string p(path.data);
+        for(unsigned int i=0; i<p.length(); i++)
+          if(p[i]=='\\')
+            p[i]='/';
+        if(p.substr(0,2)==".\\")
+          p=p.substr(2,p.size()-2);
+        input.save(std::string(dir)+"/"+p);
+      }
+    }
+  }
+}
 void loadMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,const aiMaterial* mat,const char* dir) {
   aiColor3D ambientColor(0.0f,0.0f,0.0f);
   if(mat->Get(AI_MATKEY_COLOR_AMBIENT,ambientColor)==AI_SUCCESS)
@@ -129,7 +148,7 @@ void loadMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,const aiM
   else mesh->setColorAmbient(GL_TRIANGLES,0,0,0);
 
   aiColor3D diffuseColor(0.0f,0.0f,0.0f);
-  if(mat->Get(AI_MATKEY_COLOR_AMBIENT,diffuseColor)==AI_SUCCESS)
+  if(mat->Get(AI_MATKEY_COLOR_DIFFUSE,diffuseColor)==AI_SUCCESS)
     mesh->setColorDiffuse(GL_TRIANGLES,diffuseColor.r,diffuseColor.g,diffuseColor.b);
   else mesh->setColorDiffuse(GL_TRIANGLES,0,0,0);
 
@@ -138,17 +157,56 @@ void loadMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,const aiM
     mesh->setColorSpecular(GL_TRIANGLES,specularColor.r,specularColor.g,specularColor.b);
   else mesh->setColorSpecular(GL_TRIANGLES,0,0,0);
 
+  ai_real shininess=0;
+  if(mat->Get(AI_MATKEY_SHININESS,shininess)==AI_SUCCESS)
+    mesh->setShininess(GL_TRIANGLES,shininess);
+
   std::shared_ptr<Texture> texDiffuse=loadTexture(aiTextureType_DIFFUSE,scene,mat,dir);
   std::shared_ptr<Texture> texSpecular=loadTexture(aiTextureType_SPECULAR,scene,mat,dir);
   mesh->setTextureDiffuse(texDiffuse);
   mesh->setTextureSpecular(texSpecular);
-
   //debug write
   //static int id=0;
   //if(texDiffuse)
   //  texDiffuse->save("diffuse"+std::to_string(id++)+".png");
   //if(texSpecular)
   //  texSpecular->save("texSpecular"+std::to_string(id++)+".png");
+}
+void saveMaterial(std::shared_ptr<MeshShape> mesh,const aiScene* scene,aiMaterial* mat,const char* dir) {
+  aiColor3D ambientColor(0.0f,0.0f,0.0f);
+  if(mat->Get(AI_MATKEY_COLOR_AMBIENT,ambientColor)==AI_SUCCESS) {
+    ambientColor.r=mesh->getMaterial()->_ambient[0];
+    ambientColor.g=mesh->getMaterial()->_ambient[1];
+    ambientColor.b=mesh->getMaterial()->_ambient[2];
+    mat->AddProperty<aiColor3D>(&ambientColor,1,AI_MATKEY_COLOR_AMBIENT);
+  }
+
+  aiColor3D diffuseColor(0.0f,0.0f,0.0f);
+  if(mat->Get(AI_MATKEY_COLOR_DIFFUSE,diffuseColor)==AI_SUCCESS) {
+    diffuseColor.r=mesh->getMaterial()->_diffuse[0];
+    diffuseColor.g=mesh->getMaterial()->_diffuse[1];
+    diffuseColor.b=mesh->getMaterial()->_diffuse[2];
+    mat->AddProperty<aiColor3D>(&diffuseColor,1,AI_MATKEY_COLOR_DIFFUSE);
+  }
+
+  aiColor3D specularColor(0.0f,0.0f,0.0f);
+  if(mat->Get(AI_MATKEY_COLOR_SPECULAR,specularColor)==AI_SUCCESS) {
+    specularColor.r=mesh->getMaterial()->_specular[0];
+    specularColor.g=mesh->getMaterial()->_specular[1];
+    specularColor.b=mesh->getMaterial()->_specular[2];
+    mat->AddProperty<aiColor3D>(&specularColor,1,AI_MATKEY_COLOR_SPECULAR);
+  }
+
+  ai_real shininess=0;
+  if(mat->Get(AI_MATKEY_SHININESS,shininess)==AI_SUCCESS) {
+    shininess=mesh->getMaterial()->_shininess;
+    mat->AddProperty<ai_real>(&shininess,1,AI_MATKEY_SHININESS);
+  }
+
+  if(mesh->getMaterial()->_texDiffuse)
+    saveTexture(*(mesh->getMaterial()->_texDiffuse),aiTextureType_DIFFUSE,scene,mat,dir);
+  if(mesh->getMaterial()->_texSpecular)
+    saveTexture(*(mesh->getMaterial()->_texSpecular),aiTextureType_SPECULAR,scene,mat,dir);
 }
 const aiNodeAnim* findNodeAnim(const aiAnimation& animation,const std::string& NodeName) {
   for(GLuint i=0; i<animation.mNumChannels; i++) {
@@ -250,6 +308,13 @@ SkinnedMeshShape::SkinnedMeshShape(const std::string& filename) {
   }
 }
 bool SkinnedMeshShape::write(const std::string& filename) const {
+  //save material
+  for(unsigned int mid=0; mid<_scene->mNumMeshes; mid++) {
+    const aiMesh* mesh=_scene->mMeshes[mid];
+    std::shared_ptr<MeshShape> meshShape=std::dynamic_pointer_cast<MeshShape>(_shapes[mid]);
+    saveMaterial(meshShape,_scene,_scene->mMaterials[mesh->mMaterialIndex],getDirFromFilename(filename).c_str());
+  }
+  //write mesh
   Assimp::Exporter exporter;
   aiExportFormatDesc desc;
   desc.id=NULL;

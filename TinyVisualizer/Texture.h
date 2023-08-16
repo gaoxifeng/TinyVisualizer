@@ -26,15 +26,25 @@ class Texture {
   GLuint id() const;
   TextureCPUData& loadCPUData();
   void syncGPUData();
-  void save(const std::string& path) const;
+  void save(const std::string& path,int quality=100) const;
+  void save(aiTexture& tex,int quality=100) const;
   static std::shared_ptr<Texture> load(const std::string& path);
   static std::shared_ptr<Texture> load(const aiTexture& tex);
+  //data channel access
+  void setDataChannel(int cid,const Eigen::Matrix<GLfloat,-1,-1>& data);
+  template <typename T>
+  void setDataChannel(int cid,const Eigen::Matrix<T,-1,-1>& data);
   Eigen::Matrix<GLfloat,-1,-1> getDataChannel(int cid) const;
-  Eigen::Matrix<GLfloat,4,1> getData(int w,int h) const;
   template <typename T>
   Eigen::Matrix<T,-1,-1> getDataChannel(int cid) const;
+  //data access
+  void setData(int w,int h,const Eigen::Matrix<GLfloat,4,1>& data);
+  template <typename T>
+  void setData(int w,int h,const Eigen::Matrix<T,4,1>& data);
+  Eigen::Matrix<GLfloat,4,1> getData(int w,int h) const;
   template <typename T>
   Eigen::Matrix<T,4,1> getData(int w,int h) const;
+  //interpolated data access
   template <typename T>
   Eigen::Matrix<T,4,1> getData(const Eigen::Matrix<T,2,1>& tc) const;
   Eigen::Matrix<GLfloat,4,1> getData(const Eigen::Matrix<GLfloat,2,1>& tc) const;
