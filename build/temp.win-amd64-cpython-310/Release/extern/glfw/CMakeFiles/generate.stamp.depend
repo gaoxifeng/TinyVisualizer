@@ -1,0 +1,16 @@
+# CMake generation dependency list for this directory.
+C:/TinyVisualizer/extern/glfw/CMake/glfw3.pc.in
+C:/TinyVisualizer/extern/glfw/CMake/glfw3Config.cmake.in
+C:/TinyVisualizer/extern/glfw/CMakeLists.txt
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/CMakeDependentOption.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/CMakePackageConfigHelpers.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/CheckCSourceCompiles.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/CheckIncludeFile.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/CheckLibraryExists.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/FindPackageHandleStandardArgs.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/FindPackageMessage.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/FindThreads.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/GNUInstallDirs.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/Internal/CheckSourceCompiles.cmake
+C:/Users/zherongpan/AppData/Local/Temp/pip-build-env-_7g4bi6s/overlay/Lib/site-packages/cmake/data/share/cmake-3.27/Modules/WriteBasicConfigVersionFile.cmake

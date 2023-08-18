@@ -1,0 +1,10 @@
+^C:\TINYVISUALIZER\EXTERN\GLFW\SRC\CMAKELISTS.TXT
+setlocal
+C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\bin\cmake.exe -SC:/TinyVisualizer -BC:/TinyVisualizer/build/temp.win-amd64-cpython-310/Release --check-stamp-file C:/TinyVisualizer/build/temp.win-amd64-cpython-310/Release/extern/glfw/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

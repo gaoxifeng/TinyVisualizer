@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8A55B069-4447-3BC2-9A29-4033A185CE4E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>mainSphericalBoxAndPoints</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mainSphericalBoxAndPoints.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mainSphericalBoxAndPoints</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\TinyVisualizer\extern\eigen;C:\TinyVisualizer\extern\glfw;C:\TinyVisualizer\extern\glfw\include;\imgui;C:\vcpkg\installed\x64-windows\include;C:\TinyVisualizer;C:\TinyVisualizer\extern;C:\TinyVisualizer\extern\imgui;C:\TinyVisualizer\extern\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;IMGUI_IMPL_OPENGL_LOADER_GLAD2;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;IMGUI_IMPL_OPENGL_LOADER_GLAD2;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\TinyVisualizer\extern\eigen;C:\TinyVisualizer\extern\glfw;C:\TinyVisualizer\extern\glfw\include;\imgui;C:\vcpkg\installed\x64-windows\include;C:\TinyVisualizer;C:\TinyVisualizer\extern;C:\TinyVisualizer\extern\imgui;C:\TinyVisualizer\extern\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\TinyVisualizer\extern\eigen;C:\TinyVisualizer\extern\glfw;C:\TinyVisualizer\extern\glfw\include;\imgui;C:\vcpkg\installed\x64-windows\include;C:\TinyVisualizer;C:\TinyVisualizer\extern;C:\TinyVisualizer\extern\imgui;C:\TinyVisualizer\extern\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>Release\TinyVisualizer.lib;extern\glfw\src\Release\glfw3.lib;C:\vcpkg\installed\x64-windows\lib\assimp-vc142-mt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/TinyVisualizer/build/temp.win-amd64-cpython-310/Release/Release/mainSphericalBoxAndPoints.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/TinyVisualizer/build/temp.win-amd64-cpython-310/Release/Release/mainSphericalBoxAndPoints.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\TinyVisualizer\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/TinyVisualizer/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\bin\cmake.exe -SC:/TinyVisualizer -BC:/TinyVisualizer/build/temp.win-amd64-cpython-310/Release --check-stamp-file C:/TinyVisualizer/build/temp.win-amd64-cpython-310/Release/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\CMakeFiles\3.27.2\CMakeCCompiler.cmake;C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\CMakeFiles\3.27.2\CMakeCXXCompiler.cmake;C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\CMakeFiles\3.27.2\CMakeRCCompiler.cmake;C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\CMakeFiles\3.27.2\CMakeSystem.cmake;C:\TinyVisualizer\cmake\FindAssimp.cmake;C:\TinyVisualizer\cmake\LoadLibs.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeCCompiler.cmake.in;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeCCompilerABI.c;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeCInformation.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeCXXCompiler.cmake.in;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeCXXCompilerABI.cpp;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeCXXInformation.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeCommonLanguageInclude.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeCompilerIdDetection.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeDetermineCCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeDetermineCXXCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeDetermineCompileFeatures.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeDetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeDetermineCompilerABI.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeDetermineCompilerId.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeDetermineRCCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeDetermineSystem.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeFindBinUtils.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeGenericSystem.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeInitializeConfigs.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeLanguageInformation.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeParseImplicitIncludeInfo.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeParseImplicitLinkInfo.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeParseLibraryArchitecture.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeRCCompiler.cmake.in;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeRCInformation.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeSystem.cmake.in;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeSystemSpecificInformation.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeTestCCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeTestCXXCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeTestCompilerCommon.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CMakeTestRCCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\ADSP-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\ARMCC-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\ARMClang-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\AppleClang-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Borland-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Bruce-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Clang-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Clang-DetermineCompilerInternal.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Comeau-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Compaq-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Compaq-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Cray-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Embarcadero-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Fujitsu-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\FujitsuClang-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\GHS-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\GNU-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\GNU-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\HP-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\HP-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\IAR-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\IBMCPP-C-DetermineVersionInternal.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\IBMCPP-CXX-DetermineVersionInternal.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\IBMClang-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\IBMClang-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Intel-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\IntelLLVM-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\LCC-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\LCC-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\MSVC-C.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\MSVC-CXX.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\MSVC-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\MSVC.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\NVHPC-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\NVIDIA-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\OpenWatcom-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\PGI-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\PathScale-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\SCO-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\SDCC-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\SunPro-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\SunPro-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\TI-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Tasking-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\TinyCC-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\VisualAge-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\VisualAge-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\Watcom-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\XL-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\XL-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\XLClang-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\XLClang-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\zOS-C-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Compiler\zOS-CXX-DetermineCompiler.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\CompilerId\VS-10.vcxproj.in;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\FindPackageHandleStandardArgs.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\FindPackageMessage.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Internal\FeatureTesting.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Platform\Windows-Determine-CXX.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Platform\Windows-Initialize.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Platform\Windows-MSVC-C.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Platform\Windows-MSVC.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Platform\Windows.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\Platform\WindowsPaths.cmake;C:\Users\zherongpan\AppData\Local\Temp\pip-build-env-_7g4bi6s\overlay\Lib\site-packages\cmake\data\share\cmake-3.27\Modules\SelectLibraryConfigurations.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\TinyVisualizer\Main\mainSphericalBoxAndPoints.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\ZERO_CHECK.vcxproj">
+      <Project>{0B391D53-02BD-3294-9113-DBCD5A7AD38E}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\TinyVisualizer.vcxproj">
+      <Project>{2589337C-A383-3603-809B-74ABB090C4B6}</Project>
+      <Name>TinyVisualizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\TinyVisualizer\build\temp.win-amd64-cpython-310\Release\extern\glfw\src\glfw.vcxproj">
+      <Project>{C43F6B30-87A5-3DCF-A5BE-F750CE560D4B}</Project>
+      <Name>glfw</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
