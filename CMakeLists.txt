@@ -11,17 +11,19 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/ ${PROJEC
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
   MESSAGE(STATUS "Build type: Debug")
   IF(MSVC)
-    SET(CMAKE_CXX_FLAGS "/bigobj -W0 ${CMAKE_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "/openmp /bigobj /Wall /std:c++17 ${CMAKE_CXX_FLAGS}")
   ELSE(MSVC)
     ADD_COMPILE_DEFINITIONS(_GLIBCXX_DEBUG=1)
-    SET(CMAKE_CXX_FLAGS "-O0 -Wall -fPIC -std=c++11 -Wno-unused-function -Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
+    ADD_COMPILE_DEFINITIONS(_GLIBCXX_USE_CXX11_ABI=1)
+    SET(CMAKE_CXX_FLAGS "-fopenmp -O0 -Wall -fPIC -std=c++17 -Wno-unused-function -Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
   ENDIF(MSVC)
 ELSE()
   MESSAGE(STATUS "Build type: Release")
   IF(MSVC)
-    SET(CMAKE_CXX_FLAGS "/bigobj -W0 ${CMAKE_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "/openmp /bigobj /Wall /std:c++17 ${CMAKE_CXX_FLAGS}")
   ELSE(MSVC)
-    SET(CMAKE_CXX_FLAGS "-O3 -Wall -fPIC -std=c++11 -Wno-unused-function -Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
+    ADD_COMPILE_DEFINITIONS(_GLIBCXX_USE_CXX11_ABI=1)
+    SET(CMAKE_CXX_FLAGS "-fopenmp -O3 -Wall -fPIC -std=c++17 -Wno-unused-function -Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
   ENDIF(MSVC)
 ENDIF()
 SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE})
@@ -69,6 +71,9 @@ INSTALL(TARGETS TinyVisualizer
   ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_BUILD_TYPE}
   LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_BUILD_TYPE}
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include/TinyVisualizer)
+INSTALL(DIRECTORY extern/glfw/include
+  DESTINATION ${CMAKE_INSTALL_PREFIX}
+  FILES_MATCHING PATTERN glfw3.h PATTERN glfw3native.h)
 INSTALL(DIRECTORY extern/glad/include 
   DESTINATION ${CMAKE_INSTALL_PREFIX}
   FILES_MATCHING PATTERN gl.h PATTERN khrplatform.h)
