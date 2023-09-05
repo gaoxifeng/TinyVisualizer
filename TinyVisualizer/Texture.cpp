@@ -151,13 +151,13 @@ std::shared_ptr<Texture> Texture::load(const std::string& path) {
   flipY(w,h,c,data);
   ASSERT(c==3 || c==4);
   std::shared_ptr<Texture> ret;
-  try {
+  if(glad_glGenTextures) {  //OpenGL initialized
     ret.reset(new Texture(w,h,c==4?GL_RGBA:GL_RGB));
     ret->begin();
     glTexImage2D(GL_TEXTURE_2D,0,ret->_format,w,h,0,c==4?GL_RGBA:GL_RGB,GL_UNSIGNED_BYTE,data);
     ret->end();
     free(data);
-  } catch(...) {
+  } else {
     ret.reset(new Texture(w,h,c==4?GL_RGBA:GL_RGB,true));
     for(int idh=0; idh<h; idh++)
       for(int idw=0; idw<w; idw++)
@@ -172,7 +172,7 @@ std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
   int width,height,BPP;
   void* data=stbi_load_from_memory((const stbi_uc*)tex.pcData,tex.mWidth,&width,&height,&BPP,0);
   flipY(width,height,BPP,(unsigned char*)data);
-  try {
+  if(glad_glGenTextures) {  //OpenGL initialized
     ret.reset(new Texture(width,height,GL_RGB));
     ret->begin();
     switch(BPP) {
@@ -190,7 +190,7 @@ std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
     }
     ret->end();
     stbi_image_free(data);
-  } catch(...) {
+  } else {
     ret.reset(new Texture(width,height,GL_RGB,true));
     for(int idh=0; idh<height; idh++)
       for(int idw=0; idw<width; idw++)
@@ -276,7 +276,10 @@ Eigen::Matrix<GLdouble,4,1> Texture::getData(const Eigen::Matrix<GLdouble,2,1>& 
 void Texture::reset(int width,int height) {
   _id=(GLuint)-1;
   if(!glad_glGenTextures)
-    throw std::runtime_error("Texture not supported!");
+  {
+    ASSERT_MSG(glad_glGenTextures,"OpenGL not initialized!")
+    //throw std::runtime_error("Texture not supported!");
+  }
   glGenTextures(1,&_id);
   begin();
   glTexImage2D(GL_TEXTURE_2D,0,_format,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,0);

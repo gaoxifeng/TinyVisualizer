@@ -361,9 +361,9 @@ bool MeshShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alph
 }
 void MeshShape::initVBO() {
   if(!_VBO) {
-    try {
+    if(glad_glGenVertexArrays) {    //OpenGL initialized
       const_cast<MeshShape*>(this)->_VBO.reset(new VBO(nrVertex(),nrIndex(),true,true,true,false,!_bone.empty(),!_bone.empty()));
-    } catch(...) {
+    } else {
       const_cast<MeshShape*>(this)->_VBO=NULL;
       return;
     }
