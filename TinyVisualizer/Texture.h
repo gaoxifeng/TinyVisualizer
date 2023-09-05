@@ -2,8 +2,11 @@
 #define TEXTURE_H
 
 #include "DrawerUtility.h"
-#include <assimp/texture.h>
 #include <memory>
+
+extern "C" {
+  struct aiTexture;
+}
 
 namespace DRAWER {
 class Texture {
