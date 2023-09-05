@@ -11,7 +11,7 @@
 using namespace DRAWER;
 
 int main(int argc,char** argv) {
-#ifdef ASSIMP_SUPPORT
+#ifdef IMGUI_SUPPORT
   Drawer drawer(argc,argv);
   Eigen::Matrix<GLfloat,4,4> scale=Eigen::Matrix<GLfloat,4,4>::Identity();
   Eigen::Matrix<GLfloat,4,4> translate=Eigen::Matrix<GLfloat,4,4>::Identity();
