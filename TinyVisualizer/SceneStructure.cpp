@@ -202,7 +202,7 @@ bool SceneNode::empty() const {
   //return isLeaf() && _shapes.empty();
   return _nrShape==0;
 }
-void SceneNode::check() const {
+void SceneNode::parityCheck() const {
   visit([&](const SceneNode& n) {
     ASSERT_MSGV(n.nrShape()==n._nrShape,"n.nrShape()(%d)!=n._nrShape(%d)",n.nrShape(),n._nrShape)
     for(std::shared_ptr<Shape> s=_shapes; s; s=s->_next) {

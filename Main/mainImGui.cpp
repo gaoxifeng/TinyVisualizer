@@ -11,6 +11,7 @@
 using namespace DRAWER;
 
 int main(int argc,char** argv) {
+#ifdef IMGUI_SUPPORT
   Drawer drawer(argc,argv);
   std::shared_ptr<ArrowShape> arrow(new ArrowShape(60,0.1,0.2));
   arrow->setArrow(Eigen::Matrix<GLfloat,3,1>(-0.5,-0.5,-0.5),Eigen::Matrix<GLfloat,3,1>(0.5,0.5,0.5));
@@ -51,5 +52,6 @@ int main(int argc,char** argv) {
   });
   drawer.getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(drawer.getCamera3D())));
   drawer.mainLoop();
+#endif
   return 0;
 }

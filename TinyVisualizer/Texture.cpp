@@ -1,17 +1,23 @@
 #include "Texture.h"
+#ifdef ASSIMP_SUPPORT
 #include <assimp/texture.h>
+#endif
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
 namespace DRAWER {
 void writeFunc(void* context,void* data,int size) {
+#ifdef ASSIMP_SUPPORT
   aiTexture* tex=(aiTexture*)context;
   delete [] tex->pcData;
   tex->pcData=(aiTexel*)new GLchar[size];
   memcpy(tex->pcData,data,size);
   tex->mWidth=size;
   tex->mHeight=0;
+#else
+  ASSERT_MSG(false,"Assimp not supported!")
+#endif
 }
 void flipY(int w,int h,int c,unsigned char* data) {
   unsigned sz=w*c;
@@ -118,6 +124,7 @@ void Texture::save(const std::string& path,int quality) const {
   flipY(_data._width,_data._height,4,_data._data);
 }
 void Texture::save(aiTexture& tex,int quality) const {
+#ifdef ASSIMP_SUPPORT
   void* context=&tex;
   const_cast<Texture*>(this)->loadCPUData();
   flipY(width(),height(),4,(unsigned char*)_data._data);
@@ -134,6 +141,9 @@ void Texture::save(aiTexture& tex,int quality) const {
   }
   //flip back
   flipY(width(),height(),4,(unsigned char*)_data._data);
+#else
+  ASSERT_MSG(false,"Assimp not supported!")
+#endif
 }
 std::shared_ptr<Texture> Texture::load(const std::string& path) {
   int w,h,c;
@@ -157,10 +167,11 @@ std::shared_ptr<Texture> Texture::load(const std::string& path) {
   return ret;
 }
 std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
+  std::shared_ptr<Texture> ret;
+#ifdef ASSIMP_SUPPORT
   int width,height,BPP;
   void* data=stbi_load_from_memory((const stbi_uc*)tex.pcData,tex.mWidth,&width,&height,&BPP,0);
   flipY(width,height,BPP,(unsigned char*)data);
-  std::shared_ptr<Texture> ret;
   try {
     ret.reset(new Texture(width,height,GL_RGB));
     ret->begin();
@@ -186,6 +197,9 @@ std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
         for(int d=0; d<BPP; d++)
           ret->_data._data[(idw+idh*width)*4+d]=((stbi_uc*)data)[(idw+idh*width)*BPP+d];
   }
+#else
+  ASSERT_MSG(false,"Assimp not supported!")
+#endif
   return ret;
 }
 //data channel access

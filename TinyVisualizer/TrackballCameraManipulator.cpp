@@ -2,7 +2,9 @@
 #include "ImGuiPlugin.h"
 #include "Camera3D.h"
 #include "Matrix.h"
-#include <imgui.h>
+#ifdef IMGUI_SUPPORT
+#include <imgui/imgui.h>
+#endif
 
 namespace DRAWER {
 TrackballCameraManipulator::TrackballCameraManipulator(std::shared_ptr<Camera3D> camera)
@@ -82,12 +84,14 @@ void TrackballCameraManipulator::imGuiCallback() {
   GLfloat range=std::max<GLfloat>(1e-5f,(_bb.template segment<3>(0)-_bb.template segment<3>(3)).norm());
   GLfloat dist=(GLfloat)std::log((_camera->position()-ctr).norm());
   GLfloat sensitivity=(GLfloat)std::log(_sensitive);
+#ifdef IMGUI_SUPPORT
   ImGui::Begin("Trackball Camera Manipulator");
   ImGui::Text("Usage: left button to change view direction, wheel to zoom");
   ImGui::Text("Mouse mode: %s, middle button to switch",_scaleMode?"distance":"sensitivity");
   ImGui::SliderFloat("Camera distance",&dist,(GLfloat)std::log(range*0.01),(GLfloat)std::log(range*100));
   ImGui::SliderFloat("Angle sensitivity",&sensitivity,(GLfloat)std::log(1e-4f),(GLfloat)std::log(10.f));
   ImGui::End();
+#endif
   //update distance
   Eigen::Matrix<GLfloat,3,1> dir=_camera->position()-ctr;
   _camera->setPosition(ctr+dir.normalized()*std::exp(dist));

@@ -2,7 +2,7 @@
 #include "Matrix.h"
 
 namespace DRAWER {
-ArrowShape::ArrowShape(GLfloat angle,GLfloat thickness,GLfloat thicknessOuter,int RES) {
+ArrowShape::ArrowShape(GLfloat angleTip,GLfloat thickness,GLfloat thicknessOuter,int RES) {
   setMode(GL_TRIANGLES);
   int off=-1;
   //bottom
@@ -42,7 +42,7 @@ ArrowShape::ArrowShape(GLfloat angle,GLfloat thickness,GLfloat thicknessOuter,in
     addVertex(Eigen::Matrix<GLfloat,3,1>(std::cos(angle)*thicknessOuter,std::sin(angle)*thicknessOuter,1));
   }
   off=(int)_vertices.size()/3;
-  _tipLen=(GLfloat)std::tan(angle*M_PI/180)*thicknessOuter;
+  _tipLen=(GLfloat)std::tan(angleTip*M_PI/180)*thicknessOuter;
   addVertex(Eigen::Matrix<GLfloat,3,1>(0,0,1+_tipLen));
   for(int i=0; i<RES; i++)
     addIndex(Eigen::Matrix<GLuint,3,1>(i-RES+off,((i+1)%RES)-RES+off,off));

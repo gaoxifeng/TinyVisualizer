@@ -13,16 +13,19 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/extern/glfw/include)
 LIST(APPEND ALL_LIBRARIES glfw)
 
 #IMGUI
-ADD_DEFINITIONS(-DIMGUI_IMPL_OPENGL_LOADER_GLAD2)
-INCLUDE_DIRECTORIES(${EXTERN_DIRECTORY}/imgui)
-FILE(GLOB IMGUI
-${PROJECT_SOURCE_DIR}/extern/imgui/*.h
-${PROJECT_SOURCE_DIR}/extern/imgui/*.cpp
-${PROJECT_SOURCE_DIR}/TinyVisualizer/imgui/*.h
-${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.h
-${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.cpp
-${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.h
-${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.cpp)
+OPTION(USE_IMGUI "Add internal support for ImGui" OFF)
+IF(USE_IMGUI)
+  ADD_DEFINITIONS(-DIMGUI_SUPPORT)
+  ADD_DEFINITIONS(-DIMGUI_IMPL_OPENGL_LOADER_GLAD2)
+  FILE(GLOB IMGUI
+    ${PROJECT_SOURCE_DIR}/extern/imgui/*.h
+    ${PROJECT_SOURCE_DIR}/extern/imgui/*.cpp
+    ${PROJECT_SOURCE_DIR}/TinyVisualizer/imgui/*.h
+    ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.h
+    ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.cpp
+    ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.h
+    ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.cpp)
+ENDIF(USE_IMGUI)
 
 #Box2D
 OPTION(USE_BOX2D "Add internal support for Box2D" OFF)
@@ -59,8 +62,9 @@ ELSE(USE_BULLET)
 ENDIF(USE_BULLET)
 
 #Assimp
-FIND_PACKAGE(Assimp QUIET REQUIRED)
+FIND_PACKAGE(Assimp QUIET)
 IF(Assimp_FOUND)
+  ADD_DEFINITIONS(-DASSIMP_SUPPORT)
   INCLUDE_DIRECTORIES(${ASSIMP_INCLUDE_DIR})
   MESSAGE(STATUS "Found Assimp @ ${ASSIMP_INCLUDE_DIR}")
   IF(MSVC)
@@ -73,5 +77,5 @@ IF(Assimp_FOUND)
     LIST(APPEND ALL_LIBRARIES ${ASSIMP_LIBRARY_RELEASE})
   ENDIF(MSVC)
 ELSE(Assimp_FOUND)
-  MESSAGE(SEND_ERROR "Cannot find Assimp!")
+  MESSAGE(STATUS "Compile without Assimp!")
 ENDIF(Assimp_FOUND)

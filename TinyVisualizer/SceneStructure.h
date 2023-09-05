@@ -22,7 +22,7 @@ class SceneNode {
   int nrChildren() const;
   bool isLeaf() const;
   bool empty() const;
-  void check() const;
+  void parityCheck() const;
   Eigen::Matrix<GLfloat,6,1> getBB() const;
   void visit(std::function<bool(const SceneNode&)> f) const;
   bool visit(std::function<bool(std::shared_ptr<Shape>)> f) const;

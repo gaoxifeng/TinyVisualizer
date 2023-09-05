@@ -1,3 +1,4 @@
+#ifdef ASSIMP_SUPPORT
 #include "SkinnedMeshShape.h"
 #include "MeshShape.h"
 #include <assimp/postprocess.h>
@@ -554,3 +555,5 @@ std::shared_ptr<Program> SkinnedMeshShape::getTransformFeedbackProg() const {
   return transformFeedbackProgram;
 }
 }
+
+#endif

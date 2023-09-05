@@ -176,19 +176,21 @@ static int jo_processDU(jo_bits_t *bits, float A[64], const unsigned char htdc[9
 		Q[s_jo_ZigZag[i]] = (int)(v < 0 ? ceilf(v - 0.5f) : floorf(v + 0.5f));
 	}
 
-	DC = Q[0] - DC;
-	int aDC = DC < 0 ? -DC : DC;
-	int size = 0;
-	int tempval = aDC;
-	while (tempval) {
-		size++;
-		tempval >>= 1;
-	}
-	jo_writeBits(bits, htdc[size][0], htdc[size][1]);
-	if (DC < 0) {
-		aDC ^= (1 << size) - 1;
-	}
-	jo_writeBits(bits, aDC, size);
+    {
+        DC = Q[0] - DC;
+        int aDC = DC < 0 ? -DC : DC;
+        int size = 0;
+        int tempval = aDC;
+        while (tempval) {
+            size++;
+            tempval >>= 1;
+        }
+        jo_writeBits(bits, htdc[size][0], htdc[size][1]);
+        if (DC < 0) {
+            aDC ^= (1 << size) - 1;
+        }
+        jo_writeBits(bits, aDC, size);
+    }
 
 	int endpos = 63;
 	for (; (endpos>0)&&(Q[endpos]==0); --endpos) {

@@ -20,7 +20,7 @@ int main(int argc,char** argv) {
     //create
     std::cout << "Inserting: " << shapes.size() << std::endl;
     root=SceneNode::update(root,shapeTA);
-    root->check();
+    root->parityCheck();
   }
   //perturb position
   while(!shapes.empty()) {
@@ -29,12 +29,12 @@ int main(int argc,char** argv) {
       s->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>::Random());
     //update
     root=SceneNode::update(root);
-    root->check();
+    root->parityCheck();
     //remove
     root=SceneNode::remove(root,shapes.back());
     shapes.pop_back();
     if(root)
-      root->check();
+      root->parityCheck();
   }
   return 0;
 }

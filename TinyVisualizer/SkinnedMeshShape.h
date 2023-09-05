@@ -1,5 +1,6 @@
 #ifndef SKINNED_MESH_H
 #define SKINNED_MESH_H
+#ifdef ASSIMP_SUPPORT
 
 #include "Bullet3DShape.h"
 #include <assimp/scene.h>
@@ -43,4 +44,5 @@ class SkinnedMeshShape : public Bullet3DShape {
 };
 }
 
+#endif
 #endif

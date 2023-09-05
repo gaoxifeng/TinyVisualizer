@@ -8,6 +8,7 @@ class Camera3D;
 class CameraManipulator {
  public:
   CameraManipulator(std::shared_ptr<Camera3D> camera);
+  virtual ~CameraManipulator() {}
   virtual void frame(GLFWwindow* wnd,GLfloat time) {}
   virtual void mouse(GLFWwindow* wnd,int button,int action,int mods,bool captured) {}
   virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset,bool captured) {}

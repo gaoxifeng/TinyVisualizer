@@ -1,6 +1,8 @@
 #include "FirstPersonCameraManipulator.h"
 #include "Camera3D.h"
-#include <imgui.h>
+#ifdef IMGUI_SUPPORT
+#include <imgui/imgui.h>
+#endif
 
 namespace DRAWER {
 FirstPersonCameraManipulator::FirstPersonCameraManipulator(std::shared_ptr<Camera3D> camera)
@@ -94,12 +96,14 @@ void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int acti
 void FirstPersonCameraManipulator::imGuiCallback() {
   GLfloat speed=std::log(_speed);
   GLfloat sensitivity=std::log(_sensitive);
+#ifdef IMGUI_SUPPORT
   ImGui::Begin("First Person Camera Manipulator");
   ImGui::Text("Usage: w/s/a/d to move, left button to change view");
   ImGui::Text("Mouse mode: %s, middle button to switch",_speedMode?"motion speed":"sensitivity");
   ImGui::SliderFloat("Camera speed",&speed,(GLfloat)std::log(0.01),(GLfloat)std::log(100));
   ImGui::SliderFloat("Angle sensitivity",&sensitivity,(GLfloat)std::log(1e-4f),(GLfloat)std::log(10.f));
   ImGui::End();
+#endif
   //update speed
   _speed=std::exp(speed);
   //update sensitivity
