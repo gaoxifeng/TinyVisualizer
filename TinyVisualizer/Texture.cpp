@@ -2,9 +2,11 @@
 #ifdef ASSIMP_SUPPORT
 #include <assimp/texture.h>
 #endif
+#ifdef STB_SUPPORT
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
+#endif
 
 namespace DRAWER {
 void writeFunc(void* context,void* data,int size) {
@@ -107,6 +109,7 @@ void Texture::syncGPUData() {
   end();
 }
 void Texture::save(const std::string& path,int quality) const {
+#ifdef STB_SUPPORT
   const_cast<Texture*>(this)->loadCPUData();
   flipY(_data._width,_data._height,4,_data._data);
   if(path.size()>4 && (path.substr(path.size()-4)==".png" || path.substr(path.size()-4)==".PNG"))
@@ -122,6 +125,9 @@ void Texture::save(const std::string& path,int quality) const {
   }
   //flip back
   flipY(_data._width,_data._height,4,_data._data);
+#else
+  ASSERT_MSG(false,"STB not supported!")
+#endif
 }
 void Texture::save(aiTexture& tex,int quality) const {
 #ifdef ASSIMP_SUPPORT
@@ -146,11 +152,12 @@ void Texture::save(aiTexture& tex,int quality) const {
 #endif
 }
 std::shared_ptr<Texture> Texture::load(const std::string& path) {
+  std::shared_ptr<Texture> ret;
+#ifdef STB_SUPPORT
   int w,h,c;
   stbi_uc* data=stbi_load(path.c_str(),&w,&h,&c,0);
   flipY(w,h,c,data);
   ASSERT(c==3 || c==4);
-  std::shared_ptr<Texture> ret;
   if(glad_glGenTextures) {  //OpenGL initialized
     ret.reset(new Texture(w,h,c==4?GL_RGBA:GL_RGB));
     ret->begin();
@@ -164,6 +171,9 @@ std::shared_ptr<Texture> Texture::load(const std::string& path) {
         for(int d=0; d<c; d++)
           ret->_data._data[(idw+idh*w)*4+d]=data[(idw+idh*w)*c+d];
   }
+#else
+  ASSERT_MSG(false,"STB not supported!")
+#endif
   return ret;
 }
 std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {

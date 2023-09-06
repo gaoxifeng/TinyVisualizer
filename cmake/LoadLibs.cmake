@@ -1,4 +1,6 @@
 #LIBRARIES
+ADD_DEFINITIONS(-DSTB_SUPPORT)
+
 #EIGEN3
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/extern/eigen)
 
@@ -13,19 +15,16 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/extern/glfw/include)
 LIST(APPEND ALL_LIBRARIES glfw)
 
 #IMGUI
-OPTION(USE_IMGUI "Add internal support for ImGui" ON)
-IF(USE_IMGUI)
-  ADD_DEFINITIONS(-DIMGUI_SUPPORT)
-  ADD_DEFINITIONS(-DIMGUI_IMPL_OPENGL_LOADER_GLAD2)
-  FILE(GLOB IMGUI
-    ${PROJECT_SOURCE_DIR}/extern/imgui/*.h
-    ${PROJECT_SOURCE_DIR}/extern/imgui/*.cpp
-    ${PROJECT_SOURCE_DIR}/TinyVisualizer/imgui/*.h
-    ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.h
-    ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.cpp
-    ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.h
-    ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.cpp)
-ENDIF(USE_IMGUI)
+ADD_DEFINITIONS(-DIMGUI_SUPPORT)
+ADD_DEFINITIONS(-DIMGUI_IMPL_OPENGL_LOADER_GLAD2)
+FILE(GLOB IMGUI
+  ${PROJECT_SOURCE_DIR}/extern/imgui/*.h
+  ${PROJECT_SOURCE_DIR}/extern/imgui/*.cpp
+  ${PROJECT_SOURCE_DIR}/TinyVisualizer/imgui/*.h
+  ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.h
+  ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_glfw.cpp
+  ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.h
+  ${PROJECT_SOURCE_DIR}/extern/imgui/backends/imgui_impl_opengl3.cpp)
 
 #Box2D
 OPTION(USE_BOX2D "Add internal support for Box2D" OFF)

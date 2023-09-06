@@ -3,8 +3,10 @@
 #include "Matrix.h"
 #include "Shader.h"
 #include "DefaultLight.h"
+#ifdef STB_SUPPORT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
+#endif
 
 namespace DRAWER {
 //FBO
@@ -101,8 +103,12 @@ std::vector<std::uint8_t> FBO::read() const {
   return data;
 }
 void FBO::saveImage(const std::string& path) const {
+#ifdef STB_SUPPORT
   std::vector<std::uint8_t> data=read();
   stbi_write_png(path.c_str(),width(),height(),4,&data[0],width()*4);
+#else
+  ASSERT_MSG(false,"STB not supported!")
+#endif
 }
 int FBO::width() const {
   return _rbo->width();
@@ -182,11 +188,15 @@ std::vector<std::uint8_t> FBOShadow::read(int d) const {
   return data;
 }
 void FBOShadow::saveImage(int d,const std::string& path) const {
+#ifdef STB_SUPPORT
   std::vector<std::uint8_t> data=read(d);
   std::vector<std::uint8_t> dataRGBA(data.size()*4,255);
   for(int i=0; i<(int)data.size(); i++)
     dataRGBA[i*4+0]=dataRGBA[i*4+1]=dataRGBA[i*4+2]=data[i];
   stbi_write_png(path.c_str(),width(),height(),4,&dataRGBA[0],width()*4);
+#else
+  ASSERT_MSG(false,"STB not supported!")
+#endif
 }
 int FBOShadow::width() const {
   GLint ret;
