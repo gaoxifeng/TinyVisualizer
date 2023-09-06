@@ -6,6 +6,7 @@
 
 namespace DRAWER {
 class CellShape : public MeshShape {
+  RTTI_DECLARE_TYPEINFO(CellShape, MeshShape);
  public:
   CellShape();
   CellShape(const std::vector<Eigen::Matrix<int,3,1>>& ids,GLfloat res,bool discreteNormal=true);

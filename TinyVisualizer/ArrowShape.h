@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class ArrowShape : public MeshShape {
+  RTTI_DECLARE_TYPEINFO(ArrowShape, MeshShape);
  public:
   ArrowShape(GLfloat angle,GLfloat thickness,GLfloat thicknessOuter,int RES=32);
   void setArrow(const Eigen::Matrix<GLfloat,3,1>& from,

@@ -7,7 +7,8 @@
 #include <vector>
 
 namespace DRAWER {
-class VBO {
+class VBO : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(VBO);
  public:
   VBO(int nV,int nI,bool hasV=true,bool hasN=true,bool hasT=true,bool hasI=false,bool hasBI=false,bool hasBW=false);
   VBO(const VBO& other);

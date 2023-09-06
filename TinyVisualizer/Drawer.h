@@ -3,7 +3,6 @@
 
 #include "DrawerUtility.h"
 #include <functional>
-#include <memory>
 #include <vector>
 
 typedef struct GLFWwindow GLFWwindow;
@@ -15,7 +14,8 @@ class Drawer;
 class Camera2D;
 class Camera3D;
 //swig only support class-based callback
-class PythonCallback {
+class PythonCallback : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(PythonCallback);
  public:
   virtual ~PythonCallback() {}
   virtual void mouse(int button,int action,int mods) {}
@@ -27,7 +27,8 @@ class PythonCallback {
   virtual void setup() {}
 };
 //Shape for OpenGL drawing
-class Shape {
+class Shape : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(Shape);
  public:
   enum PASS_TYPE {
     MESH_PASS   =1<<0,
@@ -66,7 +67,8 @@ class Shape {
   std::shared_ptr<Shape> _next;
 };
 //Camera
-class Camera {
+class Camera : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(Camera);
  public:
   virtual ~Camera() {}
   virtual void focusOn(std::shared_ptr<Shape>) {}
@@ -84,7 +86,8 @@ class Camera {
   }
 };
 //Plugin
-class Plugin {
+class Plugin : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(Plugin);
  public:
   Plugin();
   virtual ~Plugin() {}
@@ -110,7 +113,8 @@ class Plugin {
   Drawer* _drawer;
 };
 //Drawer
-class Drawer {
+class Drawer : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(Drawer);
  public:
   Drawer(const std::vector<std::string>& args);
   Drawer(int argc,char** argv);

@@ -256,8 +256,8 @@ void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up) {
 }
 void Drawer::addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up,const Eigen::Matrix<GLfloat,3,1>& pos,const Eigen::Matrix<GLfloat,3,1>& dir) {
   addCamera3D(angle,up);
-  std::dynamic_pointer_cast<Camera3D>(_camera)->setDirection(dir);
-  std::dynamic_pointer_cast<Camera3D>(_camera)->setPosition(pos);
+  std::custom_pointer_cast<Camera3D>(_camera)->setDirection(dir);
+  std::custom_pointer_cast<Camera3D>(_camera)->setPosition(pos);
 }
 bool Drawer::rayIntersect(Eigen::Matrix<GLfloat,6,1>& ray,std::shared_ptr<Shape>& IShape,GLfloat& IAlpha) const {
   IAlpha=1;
@@ -303,11 +303,11 @@ std::shared_ptr<Camera> Drawer::getCamera() {
 }
 std::shared_ptr<Camera2D> Drawer::getCamera2D() {
   ASSERT(_camera);
-  return std::dynamic_pointer_cast<Camera2D>(_camera);
+  return std::custom_pointer_cast<Camera2D>(_camera);
 }
 std::shared_ptr<Camera3D> Drawer::getCamera3D() {
   ASSERT(_camera);
-  return std::dynamic_pointer_cast<Camera3D>(_camera);
+  return std::custom_pointer_cast<Camera3D>(_camera);
 }
 void Drawer::mainLoop() {
   while (!glfwWindowShouldClose(_window)) {

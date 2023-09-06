@@ -8,6 +8,7 @@
 namespace DRAWER {
 class Texture;
 class MeshShape : public Shape {
+  RTTI_DECLARE_TYPEINFO(MeshShape, Shape);
   friend class LowDimensionalMeshShape;
   friend class SkinnedMeshShape;
  public:

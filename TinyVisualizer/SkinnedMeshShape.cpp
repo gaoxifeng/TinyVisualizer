@@ -312,7 +312,7 @@ bool SkinnedMeshShape::write(const std::string& filename) const {
   //save material
   for(unsigned int mid=0; mid<_scene->mNumMeshes; mid++) {
     const aiMesh* mesh=_scene->mMeshes[mid];
-    std::shared_ptr<MeshShape> meshShape=std::dynamic_pointer_cast<MeshShape>(_shapes[mid]);
+    std::shared_ptr<MeshShape> meshShape=std::custom_pointer_cast<MeshShape>(_shapes[mid]);
     saveMaterial(meshShape,_scene,_scene->mMaterials[mesh->mMaterialIndex],getDirFromFilename(filename).c_str());
   }
   //write mesh
@@ -343,7 +343,7 @@ void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMes
   readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
   //calc vertices
   for(GLuint i=0; updateMesh && i<(GLuint)_refMeshes.size(); i++)
-    updateMeshVerticesGPU(std::dynamic_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
+    updateMeshVerticesGPU(std::custom_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
 }
 Eigen::Matrix<GLfloat,4,-1> SkinnedMeshShape::getBoneTransforms(int reserve) const {
   Eigen::Matrix<GLfloat,4,-1> ret;
@@ -379,7 +379,7 @@ std::shared_ptr<MeshShape> SkinnedMeshShape::getMeshRef(int id) const {
   return _refMeshes[id];
 }
 std::shared_ptr<MeshShape> SkinnedMeshShape::getMesh(int id) const {
-  return std::dynamic_pointer_cast<MeshShape>(_shapes[id]);
+  return std::custom_pointer_cast<MeshShape>(_shapes[id]);
 }
 GLfloat SkinnedMeshShape::duration(GLuint index) const {
   GLfloat duration=0.0f;

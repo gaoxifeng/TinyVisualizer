@@ -6,6 +6,7 @@
 
 namespace DRAWER {
 class Camera3D : public Camera {
+  RTTI_DECLARE_TYPEINFO(Camera3D, Camera);
  public:
   Camera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up);
   void setManipulator(std::shared_ptr<CameraManipulator> manipulator);

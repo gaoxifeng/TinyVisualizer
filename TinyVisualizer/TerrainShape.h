@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class TerrainShape : public MeshShape {
+  RTTI_DECLARE_TYPEINFO(TerrainShape, MeshShape);
  public:
   TerrainShape(const Eigen::Matrix<GLfloat,-1,-1>& height,int upAxis,
                const Eigen::Matrix<GLfloat,3,1>& scale=Eigen::Matrix<GLfloat,3,1>(1,1,1),

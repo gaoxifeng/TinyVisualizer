@@ -7,7 +7,8 @@
 #include <vector>
 
 namespace DRAWER {
-class FBO {
+class FBO : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(FBO);
  public:
   FBO(int width,int height,GLenum formatColor=GL_RGB,GLenum formatDepth=GL_DEPTH_COMPONENT24);
   FBO(const FBO& other);
@@ -35,7 +36,8 @@ class FBO {
   GLuint _fbo,_dbo;
   GLint _vp[4];
 };
-class FBOShadow {
+class FBOShadow : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(FBOShadow);
  public:
   FBOShadow(int res,GLenum formatDepth=GL_DEPTH_COMPONENT24);
   FBOShadow(const FBOShadow& other);
@@ -56,7 +58,8 @@ class FBOShadow {
   GLuint _fbo,_dbo;
   GLint _vp[4];
 };
-class FBOPingPong {
+class FBOPingPong : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(FBOPingPong);
  public:
   FBOPingPong(int levelMin,int levelMax,GLenum formatColor=GL_RGB,GLenum formatDepth=GL_DEPTH_COMPONENT24);
   void saveImage(int i,const std::string& path) const;

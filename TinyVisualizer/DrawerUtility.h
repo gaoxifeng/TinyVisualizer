@@ -1,6 +1,16 @@
 #ifndef DRAWER_UTILITY_H
 #define DRAWER_UTILITY_H
 
+#ifndef RTTI_SUPPORT
+#include <rtti/rtti.hh>
+#else
+namespace RTTI
+{
+class Enable {};
+#define RTTI_DECLARE_TYPEINFO(T, ...)
+}
+#endif
+#include <memory>
 #include <glad/gl.h>
 #define _USE_MATH_DEFINES // for C++
 #include <cmath>
@@ -13,6 +23,22 @@ namespace std {
 inline std::string to_string(const std::string& str) {
   return str;
 }
+#ifndef RTTI_SUPPORT
+template<typename _Tp, typename _Up>
+inline shared_ptr<_Tp> custom_pointer_cast(const shared_ptr<_Up>& __r) noexcept
+{
+  using _Sp = shared_ptr<_Tp>;
+  if (auto* __p = __r.get()->template cast<typename _Sp::element_type>())
+    return _Sp(__r, __p);
+  return _Sp();
+}
+#else
+template<typename _Tp, typename _Up>
+inline shared_ptr<_Tp> custom_pointer_cast(const shared_ptr<_Up>& __r) noexcept
+{
+  return dynamic_pointer_cast<_Tp, _Up>(__r);
+}
+#endif
 }
 namespace DRAWER {
 #define ASSERT(var) {do{if(!(var)){exit(EXIT_FAILURE);}}while(0);}

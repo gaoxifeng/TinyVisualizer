@@ -8,6 +8,7 @@
 
 namespace DRAWER {
 class SkinnedMeshShape : public Bullet3DShape {
+  RTTI_DECLARE_TYPEINFO(SkinnedMeshShape, Bullet3DShape);
  public:
   struct BoneInfo {
     Eigen::Matrix<GLfloat,4,4> _offsetTrans;

@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class CompositeShape : public Shape {
+  RTTI_DECLARE_TYPEINFO(CompositeShape, Shape);
  public:
   void addShape(std::shared_ptr<Shape> s);
   virtual void setPointSize(GLfloat pointSize) override;

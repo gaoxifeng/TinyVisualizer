@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class CaptureGIFPlugin : public Plugin {
+  RTTI_DECLARE_TYPEINFO(CaptureGIFPlugin, Plugin);
  public:
   CaptureGIFPlugin(int hotkey,const std::string& name,int FPS);
   virtual void finalize() override;

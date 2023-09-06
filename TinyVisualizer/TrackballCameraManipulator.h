@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class TrackballCameraManipulator : public CameraManipulator {
+  RTTI_DECLARE_TYPEINFO(TrackballCameraManipulator, CameraManipulator);
  public:
   TrackballCameraManipulator(std::shared_ptr<Camera3D> camera);
   void frame(GLFWwindow* wnd,GLfloat time) override;

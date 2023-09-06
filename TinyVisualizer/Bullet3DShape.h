@@ -12,6 +12,7 @@ class btDiscreteDynamicsWorld;
 namespace DRAWER {
 class Texture;
 class Bullet3DShape : public CompositeShape {
+  RTTI_DECLARE_TYPEINFO(Bullet3DShape, CompositeShape);
  public:
   Bullet3DShape();
 #ifdef BULLET_SUPPORT

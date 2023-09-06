@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class ImGuiPlugin : public Plugin {
+  RTTI_DECLARE_TYPEINFO(ImGuiPlugin, Plugin);
  public:
   ImGuiPlugin(PythonCallback* cb);
   ImGuiPlugin(std::function<void()> ImGuiSetup);

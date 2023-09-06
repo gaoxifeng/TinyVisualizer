@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class Camera2D : public Camera {
+  RTTI_DECLARE_TYPEINFO(Camera2D, Camera);
  public:
   Camera2D(GLfloat xExt);
   void focusOn(std::shared_ptr<Shape> s) override;

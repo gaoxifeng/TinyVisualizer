@@ -6,7 +6,8 @@
 
 namespace DRAWER {
 class Shape;
-class SceneNode {
+class SceneNode : public RTTI::Enable {
+  RTTI_DECLARE_TYPEINFO(SceneNode);
  public:
   SceneNode();
   SceneNode(const Eigen::Matrix<int,3,1>& loc,int sz);

@@ -9,6 +9,7 @@ class b2Body;
 class b2World;
 namespace DRAWER {
 class Box2DShape : public CompositeShape {
+  RTTI_DECLARE_TYPEINFO(Box2DShape, CompositeShape);
  public:
   Box2DShape();
 #ifdef BOX2D_SUPPORT

@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class BezierCurveShape : public MeshShape {
+  RTTI_DECLARE_TYPEINFO(BezierCurveShape, MeshShape);
  public:
   BezierCurveShape(GLfloat thickness,bool isHermite=true,int RES=8);
   int nrControlPoint() const;

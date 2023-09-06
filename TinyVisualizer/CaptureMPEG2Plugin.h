@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class CaptureMPEG2Plugin : public Plugin {
+  RTTI_DECLARE_TYPEINFO(CaptureMPEG2Plugin, Plugin);
  public:
   CaptureMPEG2Plugin(int hotkey,const std::string& name,int FPS);
   virtual void finalize() override;

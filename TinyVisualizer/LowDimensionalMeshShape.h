@@ -5,6 +5,7 @@
 
 namespace DRAWER {
 class LowDimensionalMeshShape : public Shape {
+  RTTI_DECLARE_TYPEINFO(LowDimensionalMeshShape, Shape);
  public:
   LowDimensionalMeshShape(std::shared_ptr<MeshShape> inner);
   virtual void setPointSize(GLfloat pointSize) override;
