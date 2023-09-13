@@ -1,6 +1,8 @@
 #ifndef DRAWER_UTILITY_H
 #define DRAWER_UTILITY_H
 
+#define _USE_MATH_DEFINES // for C++
+#include <cmath>
 #ifndef RTTI_SUPPORT
 #include <rtti/rtti.hh>
 #else
@@ -12,8 +14,6 @@ class Enable {};
 #endif
 #include <memory>
 #include <glad/gl.h>
-#define _USE_MATH_DEFINES // for C++
-#include <cmath>
 #include <GLFW/glfw3.h>
 #include <string>
 #include <Eigen/Eigen>
