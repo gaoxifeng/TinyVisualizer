@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "ShadowAndLight.h"
 #include "DefaultLight.h"
 #include "Matrix.h"
@@ -179,13 +180,13 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
     for(const Light& l:_lights) {
       getShadowProg()->setUniformFloat("lightPos",Eigen::Matrix<GLfloat,3,1>(l._position.segment<3>(0)));
       for(int d=0; d<6; d++) {
-        matrixMode(GL_MODELVIEW_MATRIX);
+        matrixMode(GLModelViewMatrix);
         pushMatrix();
         loadIdentity();
         multMatrixf(l._MV[d]);
         getShadowProg()->setUniformFloat("invModelViewMatrixShadow",l._invMV[d]);
         zRangef(bb,zNear,zFar);
-        matrixMode(GL_PROJECTION_MATRIX);
+        matrixMode(GLProjectionMatrix);
         pushMatrix();
         loadIdentity();
         perspectivef(90,1,zNear,far);
@@ -196,9 +197,9 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
           func(l._viewFrustum[d]);
         l._shadowMap->end();
 
-        matrixMode(GL_MODELVIEW_MATRIX);
+        matrixMode(GLModelViewMatrix);
         popMatrix();
-        matrixMode(GL_PROJECTION_MATRIX);
+        matrixMode(GLProjectionMatrix);
         popMatrix();
         //l._shadowMap->saveImage(d,"depth"+std::to_string(d)+".png");
       }
@@ -226,7 +227,7 @@ void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNorma
   prog->setUniformInt("MAX_LIGHTS",(int)_lights.size());
   prog->setTexUnit("diffuseMap",0,false);
   prog->setTexUnit("specularMap",1,false);
-  getFloatv(GL_MODELVIEW_MATRIX,_MVShadow);
+  getFloatv(GLModelViewMatrix,_MVShadow);
   _invMVShadow=_MVShadow.inverse();
   if(_shadow>0) {
     prog->setUniformFloat("invModelViewMatrixShadow",_invMVShadow);
@@ -309,7 +310,7 @@ void ShadowLight::setMVLight(Light& l) const {
     {0.,-1.,0.},{0.,-1.,0.}
   };
   for(int d=0; d<6; d++) {
-    matrixMode(GL_MODELVIEW_MATRIX);
+    matrixMode(GLModelViewMatrix);
     pushMatrix();
     loadIdentity();
     lookAtf(l._position[0],
@@ -319,19 +320,19 @@ void ShadowLight::setMVLight(Light& l) const {
             l._position[1]+target[d][1],
             l._position[2]+target[d][2],
             up[d][0],up[d][1],up[d][2]);
-    matrixMode(GL_PROJECTION_MATRIX);
+    matrixMode(GLProjectionMatrix);
     pushMatrix();
     loadIdentity();
     perspectivef(90,1,1,10);  //add too dummy values
 
     l._target[d]=Eigen::Map<const Eigen::Matrix<GLfloat,3,1>>(target[d]);
-    getFloatv(GL_MODELVIEW_MATRIX,l._MV[d]);
+    getFloatv(GLModelViewMatrix,l._MV[d]);
     l._invMV[d]=l._MV[d].inverse();
     l._viewFrustum[d]=getViewFrustum3DPlanes().segment<16>(0);  //we do not use zNear,zFar to do culling
 
-    matrixMode(GL_MODELVIEW_MATRIX);
+    matrixMode(GLModelViewMatrix);
     popMatrix();
-    matrixMode(GL_PROJECTION_MATRIX);
+    matrixMode(GLProjectionMatrix);
     popMatrix();
   }
 }

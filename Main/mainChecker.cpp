@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include <TinyVisualizer/Drawer.h>
 #include <TinyVisualizer/MakeTexture.h>
 

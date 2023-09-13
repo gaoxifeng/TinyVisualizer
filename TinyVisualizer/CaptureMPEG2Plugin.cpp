@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "CaptureMPEG2Plugin.h"
 #include <jo_mpeg.h>
 #include <iostream>

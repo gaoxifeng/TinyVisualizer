@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "FBO.h"
 #include "VBO.h"
 #include "Matrix.h"
@@ -55,18 +56,18 @@ void FBO::drawScreenQuad(std::shared_ptr<Texture> tex,GLfloat minx,GLfloat miny,
   });
 }
 void FBO::drawScreenQuad(std::function<void()> func) const {
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   pushMatrix();
   loadIdentity();
-  matrixMode(GL_PROJECTION_MATRIX);
+  matrixMode(GLProjectionMatrix);
   pushMatrix();
   loadIdentity();
 
   func();
 
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   popMatrix();
-  matrixMode(GL_PROJECTION_MATRIX);
+  matrixMode(GLProjectionMatrix);
   popMatrix();
 }
 void FBO::begin() const {

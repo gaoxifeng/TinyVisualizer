@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "VBO.h"
 #include <iostream>
 
@@ -321,8 +322,7 @@ GLuint VBO::VBOBW() const {
 }
 void VBO::reset(int nV,int nI,bool hasV,bool hasN,bool hasT,bool hasI,bool hasBI,bool hasBW) {
   _VAO=(GLuint)-1;
-  if(!glad_glGenVertexArrays)
-  {
+  if(!glad_glGenVertexArrays) {
     ASSERT_MSG(glad_glGenVertexArrays,"OpenGL not initialized!")
     //throw std::runtime_error("VertexArray not supported!");
   }

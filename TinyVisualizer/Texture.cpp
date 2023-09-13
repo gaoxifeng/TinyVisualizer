@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "Texture.h"
 #ifdef ASSIMP_SUPPORT
 #include <assimp/texture.h>
@@ -285,8 +286,7 @@ Eigen::Matrix<GLdouble,4,1> Texture::getData(const Eigen::Matrix<GLdouble,2,1>& 
 //helper
 void Texture::reset(int width,int height) {
   _id=(GLuint)-1;
-  if(!glad_glGenTextures)
-  {
+  if(!glad_glGenTextures) {
     ASSERT_MSG(glad_glGenTextures,"OpenGL not initialized!")
     //throw std::runtime_error("Texture not supported!");
   }

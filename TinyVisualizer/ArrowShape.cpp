@@ -78,11 +78,11 @@ void ArrowShape::setArrow(const Eigen::Matrix<GLfloat,3,1>& from,
   _bb=transformBB(_bb,_T);
 }
 void ArrowShape::draw(PASS_TYPE passType) const {
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   pushMatrix();
   multMatrixf(_T);
   MeshShape::draw(passType);
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   popMatrix();
 }
 }

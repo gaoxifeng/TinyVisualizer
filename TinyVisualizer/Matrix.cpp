@@ -24,10 +24,10 @@ void loadIdentity() {
   currentMatrix->setIdentity();
 }
 void matrixMode(GLuint mode) {
-  if(mode==GL_MODELVIEW_MATRIX) {
+  if(mode==GLModelViewMatrix) {
     currentMatrix=&modelViewMatrix;
     currentStack=&modelViewStack;
-  } else if(mode==GL_PROJECTION_MATRIX) {
+  } else if(mode==GLProjectionMatrix) {
     currentMatrix=&projectionMatrix;
     currentStack=&projectionStack;
   } else {
@@ -35,16 +35,16 @@ void matrixMode(GLuint mode) {
   }
 }
 void getFloatv(GLuint mode,Eigen::Matrix<GLfloat,3,3>& m) {
-  if(mode==GL_NORMAL_MATRIX) {
+  if(mode==GLNormalMatrix) {
     m=modelViewMatrix.block<3,3>(0,0).inverse().transpose();
   } else {
     ASSERT_MSGV(false,"unsupported mode %d for getFloatv!",mode)
   }
 }
 void getFloatv(GLuint mode,Eigen::Matrix<GLfloat,4,4>& m) {
-  if(mode==GL_MODELVIEW_MATRIX) {
+  if(mode==GLModelViewMatrix) {
     m=modelViewMatrix;
-  } else if(mode==GL_PROJECTION_MATRIX) {
+  } else if(mode==GLProjectionMatrix) {
     m=projectionMatrix;
   } else {
     ASSERT_MSGV(false,"unsupported mode %d for getFloatv!",mode)
@@ -99,7 +99,7 @@ void zRangef(const Eigen::Matrix<GLfloat,6,1>& bb,
   zNear=maxZFar;
   zFar=minZNear;
   Eigen::Matrix<GLfloat,4,4> mv;
-  getFloatv(GL_MODELVIEW_MATRIX,mv);
+  getFloatv(GLModelViewMatrix,mv);
   for(GLfloat x: {
         bb[0],bb[3]
       })
@@ -278,21 +278,21 @@ void setupMatrixInShader() {
     return;
 
   Eigen::Matrix<GLfloat,3,3> N;
-  getFloatv(GL_NORMAL_MATRIX,N);
+  getFloatv(GLNormalMatrix,N);
   prog->setUniformFloat("normalMatrix",N,false);
 
   Eigen::Matrix<GLfloat,4,4> MV;
-  getFloatv(GL_MODELVIEW_MATRIX,MV);
+  getFloatv(GLModelViewMatrix,MV);
   prog->setUniformFloat("modelViewMatrix",MV,false);
 
   Eigen::Matrix<GLfloat,4,4> P,MVP;
-  getFloatv(GL_PROJECTION_MATRIX,P);
+  getFloatv(GLProjectionMatrix,P);
   prog->setUniformFloat("modelViewProjectionMatrix",MVP=P*MV,false);
 }
 Eigen::Matrix<GLfloat,24,1> constructViewFrustum3D() {
   Eigen::Matrix<GLfloat,4,4> MV,P,invMVP;
-  getFloatv(GL_MODELVIEW_MATRIX,MV);
-  getFloatv(GL_PROJECTION_MATRIX,P);
+  getFloatv(GLModelViewMatrix,MV);
+  getFloatv(GLProjectionMatrix,P);
   invMVP=(P*MV).inverse();
 
   Eigen::Matrix<GLfloat,24,1> ret;
@@ -306,8 +306,8 @@ Eigen::Matrix<GLfloat,24,1> constructViewFrustum3D() {
 }
 Eigen::Matrix<GLfloat,8,1> constructViewFrustum2D() {
   Eigen::Matrix<GLfloat,4,4> MV,P,invMVP;
-  getFloatv(GL_MODELVIEW_MATRIX,MV);
-  getFloatv(GL_PROJECTION_MATRIX,P);
+  getFloatv(GLModelViewMatrix,MV);
+  getFloatv(GLProjectionMatrix,P);
   invMVP=(P*MV).inverse();
 
   Eigen::Matrix<GLfloat,8,1> ret;

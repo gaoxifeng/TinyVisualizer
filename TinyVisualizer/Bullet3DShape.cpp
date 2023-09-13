@@ -50,7 +50,7 @@ void Bullet3DShape::syncWorld(std::shared_ptr<SceneNode>& root,const btDiscreteD
 void Bullet3DShape::draw(PASS_TYPE passType) const {
   if(!_enabled)
     return;
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   pushMatrix();
   //global
 #ifdef BULLET_SUPPORT
@@ -64,7 +64,7 @@ void Bullet3DShape::draw(PASS_TYPE passType) const {
   //local
   multMatrixf(_localTrans);
   CompositeShape::draw(passType);
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   popMatrix();
 }
 Eigen::Matrix<GLfloat,6,1> Bullet3DShape::getBB() const {

@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "Camera3D.h"
 #include <iostream>
 #include "Matrix.h"
@@ -65,7 +66,7 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   if(_manipulator)
     _manipulator->preDraw(wnd,bb);
   //model view
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   loadIdentity();
   Eigen::Matrix<GLfloat,3,1> up=_dir.cross(_up).cross(_dir).normalized();
   lookAtf(_pos[0],_pos[1],_pos[2],
@@ -76,7 +77,7 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   //projection
   GLfloat zNear=0,zFar=0;
   zRangef(bb,zNear,zFar);
-  matrixMode(GL_PROJECTION_MATRIX);
+  matrixMode(GLProjectionMatrix);
   loadIdentity();
   int w=0,h=0;
   glfwGetWindowSize(wnd,&w,&h);
@@ -127,8 +128,8 @@ Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindow* wnd,double x,doub
 
   Eigen::Matrix<GLfloat,4,1> dir(ratioX,-ratioY,0,1);
   Eigen::Matrix<GLfloat,4,4> mv,p;
-  getFloatv(GL_MODELVIEW_MATRIX,mv);
-  getFloatv(GL_PROJECTION_MATRIX,p);
+  getFloatv(GLModelViewMatrix,mv);
+  getFloatv(GLProjectionMatrix,p);
   dir=p.inverse()*dir;
   dir.segment<3>(0)/=dir[3];  //from homogeneous space
 

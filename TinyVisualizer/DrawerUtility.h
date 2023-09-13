@@ -6,14 +6,12 @@
 #ifndef RTTI_SUPPORT
 #include <rtti/rtti.hh>
 #else
-namespace RTTI
-{
+namespace RTTI {
 class Enable {};
 #define RTTI_DECLARE_TYPEINFO(T, ...)
 }
 #endif
 #include <memory>
-#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <string>
 #include <Eigen/Eigen>
@@ -25,8 +23,7 @@ inline std::string to_string(const std::string& str) {
 }
 #ifndef RTTI_SUPPORT
 template<typename _Tp, typename _Up>
-inline shared_ptr<_Tp> custom_pointer_cast(const shared_ptr<_Up>& __r) noexcept
-{
+inline shared_ptr<_Tp> custom_pointer_cast(const shared_ptr<_Up>& __r) noexcept {
   using _Sp = shared_ptr<_Tp>;
   if (auto* __p = __r.get()->template cast<typename _Sp::element_type>())
     return _Sp(__r, __p);
@@ -34,8 +31,7 @@ inline shared_ptr<_Tp> custom_pointer_cast(const shared_ptr<_Up>& __r) noexcept
 }
 #else
 template<typename _Tp, typename _Up>
-inline shared_ptr<_Tp> custom_pointer_cast(const shared_ptr<_Up>& __r) noexcept
-{
+inline shared_ptr<_Tp> custom_pointer_cast(const shared_ptr<_Up>& __r) noexcept {
   return dynamic_pointer_cast<_Tp, _Up>(__r);
 }
 #endif

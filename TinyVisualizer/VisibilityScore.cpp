@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "VisibilityScore.h"
 #include "SceneStructure.h"
 #include "MakeMesh.h"

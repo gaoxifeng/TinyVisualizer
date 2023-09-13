@@ -51,7 +51,7 @@ void Box2DShape::syncWorld(std::shared_ptr<SceneNode>& root,const b2World* world
 void Box2DShape::draw(PASS_TYPE passType) const {
   if(!_enabled)
     return;
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   pushMatrix();
   //global
 #ifdef BOX2D_SUPPORT
@@ -64,7 +64,7 @@ void Box2DShape::draw(PASS_TYPE passType) const {
   translatef(_posx,_posy,0);
   scalef(_scale,_scale,_scale);
   CompositeShape::draw(passType);
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   popMatrix();
 }
 Eigen::Matrix<GLfloat,6,1> Box2DShape::getBB() const {

@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "Camera2D.h"
 #include "Texture.h"
 #include "Matrix.h"
@@ -61,7 +62,7 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
     _xCtr=(bbF[0]+bbF[3])/2;
     _yCtr=(bbF[1]+bbF[4])/2;
   }
-  matrixMode(GL_MODELVIEW_MATRIX);
+  matrixMode(GLModelViewMatrix);
   loadIdentity();
   int w=0,h=0;
   glfwGetWindowSize(wnd,&w,&h);

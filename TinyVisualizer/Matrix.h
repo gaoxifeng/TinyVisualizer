@@ -4,10 +4,10 @@
 #include "DrawerUtility.h"
 
 namespace DRAWER {
-enum GL_MATRIX_MODE {
-  GL_NORMAL_MATRIX,
-  GL_MODELVIEW_MATRIX,
-  GL_PROJECTION_MATRIX,
+enum GLMatrixType {
+  GLNormalMatrix,
+  GLModelViewMatrix,
+  GLProjectionMatrix,
 };
 extern void popMatrix();
 extern void pushMatrix();

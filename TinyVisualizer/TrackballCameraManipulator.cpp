@@ -74,7 +74,7 @@ void TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloa
   r.template block<3,3>(0,0)=_rot;
   r.template block<3,1>(0,3)=ctr-_rot*ctr;
 
-  getFloatv(GL_MODELVIEW_MATRIX,mv);
+  getFloatv(GLModelViewMatrix,mv);
   mv*=r;
   loadIdentity();
   multMatrixf(mv);
