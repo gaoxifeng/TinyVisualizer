@@ -1,3 +1,5 @@
 include/
 lib/
+Debug/
+Release/
 *.bak
