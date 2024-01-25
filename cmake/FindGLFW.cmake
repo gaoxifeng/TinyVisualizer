@@ -70,6 +70,7 @@ find_path( GLFW_INCLUDE_DIR
 find_path( GLFW_INCLUDE_DIR 
     NAMES
         GL/glfw.h
+		GLFW/glfw3.h
     HINTS
         "${GLFW_LOCATION}/include"
         "$ENV{GLFW_LOCATION}/include"
@@ -113,6 +114,7 @@ if (WIN32)
                 glfw32s 
                 glfw
                 glfw3
+                glfw3dll
             HINTS
                 "${GLFW_LOCATION}/lib"
                 "${GLFW_LOCATION}/lib/x64"

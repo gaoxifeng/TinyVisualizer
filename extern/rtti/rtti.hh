@@ -46,6 +46,8 @@ namespace RTTI {
             return __PRETTY_FUNCTION__;
         #elif defined(__GNUC__)
             return __PRETTY_FUNCTION__;
+        #elif defined(_MSC_VER)
+            return __FUNCSIG__;
         #else
             #error "Unsupported compiler"
         #endif

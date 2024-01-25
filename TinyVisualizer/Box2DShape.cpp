@@ -21,9 +21,9 @@ void Box2DShape::syncWorld(std::shared_ptr<SceneNode>& root,const b2World* world
   std::unordered_set<std::shared_ptr<Box2DShape>> currSet;
   if(root)
     root->visit([&](std::shared_ptr<Shape> s) {
-    if(std::dynamic_pointer_cast<Box2DShape>(s)) {
-      shapeSet.insert(std::dynamic_pointer_cast<Box2DShape>(s)->_body);
-      currSet.insert(std::dynamic_pointer_cast<Box2DShape>(s));
+    if(std::custom_pointer_cast<Box2DShape>(s)) {
+      shapeSet.insert(std::custom_pointer_cast<Box2DShape>(s)->_body);
+      currSet.insert(std::custom_pointer_cast<Box2DShape>(s));
     }
     return true;
   });
