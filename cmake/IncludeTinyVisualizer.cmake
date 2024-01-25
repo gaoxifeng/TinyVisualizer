@@ -1,0 +1,25 @@
+ADD_DEFINITIONS(-DIMGUI_SUPPORT)
+ADD_DEFINITIONS(-DIMGUI_IMPL_OPENGL_LOADER_GLAD2)
+FILE(GLOB IMGUI
+  ${TINY_VISUALIZER_LOCATION}/extern/imgui/*.h
+  ${TINY_VISUALIZER_LOCATION}/extern/imgui/*.cpp
+  ${TINY_VISUALIZER_LOCATION}/TinyVisualizer/imgui/*.h
+  ${TINY_VISUALIZER_LOCATION}/extern/imgui/backends/imgui_impl_glfw.h
+  ${TINY_VISUALIZER_LOCATION}/extern/imgui/backends/imgui_impl_glfw.cpp
+  ${TINY_VISUALIZER_LOCATION}/extern/imgui/backends/imgui_impl_opengl3.h
+  ${TINY_VISUALIZER_LOCATION}/extern/imgui/backends/imgui_impl_opengl3.cpp)
+INCLUDE_DIRECTORIES(${TINY_VISUALIZER_LOCATION}/extern/glad/include)
+INCLUDE_DIRECTORIES(${TINY_VISUALIZER_LOCATION}/extern/imgui)
+INCLUDE_DIRECTORIES(${TINY_VISUALIZER_LOCATION}/extern)
+INCLUDE_DIRECTORIES(${TINY_VISUALIZER_LOCATION})
+MACRO(SEARCH_SOURCE NAME DIRPRJ)
+  FILE(GLOB_RECURSE header${NAME} ${DIRPRJ}/*.h ${DIRPRJ}/*.hpp ${DIRPRJ}/*.hh)
+  FILE(GLOB_RECURSE source${NAME} ${DIRPRJ}/*.cpp ${DIRPRJ}/*.cc ${DIRPRJ}/*.c)
+ENDMACRO(SEARCH_SOURCE)
+SEARCH_SOURCE(TinyVisualizer ${TINY_VISUALIZER_LOCATION}/TinyVisualizer)
+SEARCH_SOURCE(GLAD ${TINY_VISUALIZER_LOCATION}/extern/glad/src)
+SEARCH_SOURCE(ImGui ${TINY_VISUALIZER_LOCATION}/extern/imgui)
+ADD_LIBRARY(TinyVisualizer STATIC
+    ${headerTinyVisualizer} ${sourceTinyVisualizer}
+    ${headerGLAD} ${sourceGLAD}
+    ${IMGUI} ${IMGUI})
