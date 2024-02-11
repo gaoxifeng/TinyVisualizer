@@ -13,6 +13,7 @@ std::shared_ptr<SceneNode> SceneNode::update(std::shared_ptr<SceneNode> root,std
       root=NULL;
   }
   if(s) {
+    s->_next=NULL;
     if(!root || !root->tryAssign(s,s->getBB()))
       toBeAdjusted=insertList(toBeAdjusted,s);
   }
@@ -60,6 +61,7 @@ std::shared_ptr<SceneNode> SceneNode::update(std::shared_ptr<SceneNode> root,std
 }
 std::shared_ptr<SceneNode> SceneNode::remove(std::shared_ptr<SceneNode> root,std::shared_ptr<Shape> s) {
   ASSERT(root->remove(s))
+  s->_next=NULL;
   if(root->empty())
     return NULL;
   return root;
