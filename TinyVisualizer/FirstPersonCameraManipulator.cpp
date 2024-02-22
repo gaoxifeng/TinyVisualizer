@@ -1,3 +1,4 @@
+#include <glad/gl.h>
 #include "FirstPersonCameraManipulator.h"
 #include "Camera3D.h"
 #ifdef IMGUI_SUPPORT
@@ -20,11 +21,11 @@ void FirstPersonCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
     theta-=clampMin(_xCurr-_xLast)*_sensitive*time;
     phi-=clampMin(_yCurr-_yLast)*_sensitive*time;
     end(theta,phi);
-    int w=0,h=0;
-    glfwGetWindowSize(wnd,&w,&h);
-    glfwSetCursorPos(wnd,w/2.0f,h/2.0f);
-    _xLast=w/2.0f;
-    _yLast=h/2.0f;
+    int vp[4];
+    glGetIntegerv(GL_VIEWPORT,vp);
+    glfwSetCursorPos(wnd,vp[2]/2.0f,vp[3]/2.0f);
+    _xLast=vp[2]/2.0f;
+    _yLast=vp[3]/2.0f;
   }
   if(_forward)
     _camera->setPosition(_camera->position()+_camera->direction()*_speed*time);
@@ -46,11 +47,11 @@ void FirstPersonCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,i
   } else if(button==GLFW_MOUSE_BUTTON_1) {
     if(action==GLFW_PRESS) {
       _inMotion=true;
-      int w=0,h=0;
-      glfwGetWindowSize(wnd,&w,&h);
-      glfwSetCursorPos(wnd,w/2.0f,h/2.0f);
-      _xLast=_xCurr=w/2.0f;
-      _yLast=_yCurr=h/2.0f;
+      int vp[4];
+      glGetIntegerv(GL_VIEWPORT,vp);
+      glfwSetCursorPos(wnd,vp[2]/2.0f,vp[3]/2.0f);
+      _xLast=_xCurr=vp[2]/2.0f;
+      _yLast=_yCurr=vp[3]/2.0f;
     } else if(action==GLFW_RELEASE) {
       _inMotion=false;
     }

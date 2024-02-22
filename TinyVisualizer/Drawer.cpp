@@ -1,5 +1,5 @@
 #include <glad/gl.h>
-#include "Drawer.h"
+#include "MultiDrawer.h"
 #include "Camera2D.h"
 #include "Camera3D.h"
 #include "MeshShape.h"
@@ -45,7 +45,7 @@ void Plugin::setDrawer(Drawer* drawer) {
   _drawer=drawer;
 }
 //Drawer
-static void errFunc(int error,const char* description) {
+void errFunc(int error,const char* description) {
   ASSERT_MSGV(false,"GLFW error=%d, message: %s!",error,description)
 }
 void mouseNothing(GLFWwindow*,int,int,int,bool) {}
@@ -54,18 +54,20 @@ void motionNothing(GLFWwindow*,double,double,bool) {}
 void keyNothing(GLFWwindow*,int,int,int,int,bool) {}
 void doNothing(std::shared_ptr<SceneNode>&) {}
 void drawNothing() {}
-Drawer::Drawer(const std::vector<std::string>& args) {
+Drawer::Drawer(const std::vector<std::string>& args,GLFWwindow* wnd,MultiDrawer* parent):_parent(parent),_window(wnd) {
   std::vector<char*> argv(args.size());
   for(int i=0; i<(int)args.size(); i++)
     argv[i]=(char*)args[i].c_str();
   init((int)args.size(),argv.data());
 }
-Drawer::Drawer(int argc,char** argv) {
+Drawer::Drawer(int argc,char** argv,GLFWwindow* wnd,MultiDrawer* parent):_parent(parent),_window(wnd) {
   init(argc,argv);
 }
 Drawer::~Drawer() {
   clear();
-  glfwDestroyWindow(_window);
+  if(_parent==NULL)
+    //we are not using viewport
+    glfwDestroyWindow(_window);
 }
 void Drawer::setRes(int width,int height) {
   glfwSetWindowSize(_window,width,height);
@@ -96,13 +98,19 @@ void Drawer::timer() {
   }
 }
 void Drawer::draw() {
-  int width=0,height=0;
-  glfwGetFramebufferSize(_window,&width,&height);
-  glViewport(0,0,width,height);
-
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
+  if(_parent) {
+    Eigen::Matrix<int,4,1> vp=_parent->getViewport(this);
+    glViewport(vp[0],vp[1],vp[2],vp[3]);
+  } else {
+    //this is for whole window
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    //set viewport as whole window
+    int width=0,height=0;
+    glfwGetFramebufferSize(_window,&width,&height);
+    glViewport(0,0,width,height);
+  }
 
   //calculate BB
   Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();
@@ -311,6 +319,7 @@ std::shared_ptr<Camera3D> Drawer::getCamera3D() {
   return std::custom_pointer_cast<Camera3D>(_camera);
 }
 void Drawer::mainLoop() {
+  ASSERT_MSG(_parent==NULL,"mainLoop() of a multi-viewport Drawer cannot be called!")
   while (!glfwWindowShouldClose(_window)) {
     glfwPollEvents();
     draw();
@@ -397,29 +406,27 @@ void Drawer::init(int argc,char** argv) {
   _draw=drawNothing;
   _cb=NULL;
   _lastTime=0;
-  _invoked=false;
   _debugBB=false;
 
-  if(_invoked)
-    return;
-  _invoked=true;
-  ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
-  glfwDefaultWindowHints();
-  glfwSetErrorCallback(errFunc);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
-  glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
-  glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
-  std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
-  _window=glfwCreateWindow(argparseRange(argc,argv,"width",512),
-                           argparseRange(argc,argv,"height",512),
-                           windowTitle.c_str(),NULL,NULL);
-  ASSERT_MSG(_window,"Failed initializing GLFW!")
-  glfwMakeContextCurrent(_window);
-  int version=gladLoadGL(glfwGetProcAddress);
-  ASSERT_MSG(version!=0,"Failed initializing GLAD!")
+  if(_window==NULL) {
+    ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
+    glfwDefaultWindowHints();
+    glfwSetErrorCallback(errFunc);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
+    glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
+    std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
+    _window=glfwCreateWindow(argparseRange(argc,argv,"width",512),
+                             argparseRange(argc,argv,"height",512),
+                             windowTitle.c_str(),NULL,NULL);
+    ASSERT_MSG(_window,"Failed initializing GLFW!")
+    glfwMakeContextCurrent(_window);
+    int version=gladLoadGL(glfwGetProcAddress);
+    ASSERT_MSG(version!=0,"Failed initializing GLAD!")
+  }
   glfwSwapInterval(1);
   glClearDepth(1.0f);
   glEnable(GL_MULTISAMPLE);
@@ -427,11 +434,13 @@ void Drawer::init(int argc,char** argv) {
   glClearColor(argparseRange(argc,argv,"backgroundR",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
                argparseRange(argc,argv,"backgroundG",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
                argparseRange(argc,argv,"backgroundB",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,1);
-  glfwSetWindowUserPointer(_window,this);
-  glfwSetMouseButtonCallback(_window,Drawer::mouse);
-  glfwSetScrollCallback(_window,Drawer::wheel);
-  glfwSetCursorPosCallback(_window,Drawer::motion);
-  glfwSetKeyCallback(_window,Drawer::key);
+  if(_parent==NULL) {
+    glfwSetWindowUserPointer(_window,this);
+    glfwSetMouseButtonCallback(_window,Drawer::mouse);
+    glfwSetScrollCallback(_window,Drawer::wheel);
+    glfwSetCursorPosCallback(_window,Drawer::motion);
+    glfwSetKeyCallback(_window,Drawer::key);
+  }
   _FPS=argparseRange(argc,argv,"FPS",60,Eigen::Matrix<int,2,1>(10,200));
   //multi-sample not supported
   GLint samples;

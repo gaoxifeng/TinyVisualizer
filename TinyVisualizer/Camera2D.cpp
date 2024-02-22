@@ -64,9 +64,9 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
   }
   matrixMode(GLModelViewMatrix);
   loadIdentity();
-  int w=0,h=0;
-  glfwGetWindowSize(wnd,&w,&h);
-  _yExt=_xExt*(GLfloat)h/(GLfloat)w;
+  int vp[4];
+  glGetIntegerv(GL_VIEWPORT,vp);
+  _yExt=_xExt*(GLfloat)vp[3]/(GLfloat)vp[2];
   orthof(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,
          _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,MAX_DEPTH);
 
@@ -132,10 +132,10 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
 }
 Eigen::Matrix<GLfloat,-1,1> Camera2D::getCameraRay(GLFWwindow* wnd,double x,double y) const {
   Eigen::Matrix<GLfloat,2,1> ret;
-  int w=0,h=0;
-  glfwGetWindowSize(wnd,&w,&h);
-  ret[0]=interp1D<GLfloat,GLfloat>(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,(GLfloat)x/(GLfloat)w);
-  ret[1]=interp1D<GLfloat,GLfloat>(_yCtr-_yExt*_scale,_yCtr+_yExt*_scale,1-(GLfloat)y/(GLfloat)h);
+  int vp[4];
+  glGetIntegerv(GL_VIEWPORT,vp);
+  ret[0]=interp1D<GLfloat,GLfloat>(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,(GLfloat)(x-vp[0])/(GLfloat)vp[2]);
+  ret[1]=interp1D<GLfloat,GLfloat>(_yCtr-_yExt*_scale,_yCtr+_yExt*_scale,1-(GLfloat)(y-vp[1])/(GLfloat)vp[3]);
   return ret;
 }
 Eigen::Matrix<GLfloat,-1,1> Camera2D::getViewFrustum() const {

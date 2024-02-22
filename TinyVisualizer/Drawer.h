@@ -113,11 +113,12 @@ class Plugin : public RTTI::Enable {
   Drawer* _drawer;
 };
 //Drawer
+class MultiDrawer;
 class Drawer : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Drawer);
  public:
-  Drawer(const std::vector<std::string>& args);
-  Drawer(int argc,char** argv);
+  Drawer(const std::vector<std::string>& args,GLFWwindow* wnd=NULL,MultiDrawer* parent=NULL);
+  Drawer(int argc,char** argv,GLFWwindow* wnd=NULL,MultiDrawer* parent=NULL);
   virtual ~Drawer();
   void setRes(int width,int height);
   void setBackground(GLfloat r=1,GLfloat g=1,GLfloat b=1);
@@ -173,10 +174,10 @@ class Drawer : public RTTI::Enable {
   std::function<void(GLFWwindow*,int,int,int,int,bool)> _key;
   std::function<void(std::shared_ptr<SceneNode>&)> _frame;
   std::function<void()> _draw;
-  PythonCallback* _cb;
+  MultiDrawer* _parent=NULL;    //this is the multi-viewport pointer
   GLFWwindow* _window;
+  PythonCallback* _cb;
   double _lastTime;
-  bool _invoked;
   bool _debugBB;
   int _FPS;
 };

@@ -79,9 +79,9 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   zRangef(bb,zNear,zFar);
   matrixMode(GLProjectionMatrix);
   loadIdentity();
-  int w=0,h=0;
-  glfwGetWindowSize(wnd,&w,&h);
-  perspectivef(_angle,(GLfloat)w/(GLfloat)h,zNear,zFar);
+  int vp[4];
+  glGetIntegerv(GL_VIEWPORT,vp);
+  perspectivef(_angle,(GLfloat)vp[2]/(GLfloat)vp[3],zNear,zFar);
   if(_debug) {
     getDefaultProg()->begin();
     setupMatrixInShader();
@@ -121,10 +121,10 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   }
 }
 Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindow* wnd,double x,double y) const {
-  int w=0,h=0;
-  glfwGetWindowSize(wnd,&w,&h);
-  GLfloat ratioX=((GLfloat)x-(GLfloat)w/2)/(GLfloat)(w/2);
-  GLfloat ratioY=((GLfloat)y-(GLfloat)h/2)/(GLfloat)(h/2);
+  int vp[4];
+  glGetIntegerv(GL_VIEWPORT,vp);
+  GLfloat ratioX=((GLfloat)(x-vp[0])-(GLfloat)vp[2]/2)/(GLfloat)(vp[2]/2);
+  GLfloat ratioY=((GLfloat)(y-vp[1])-(GLfloat)vp[3]/2)/(GLfloat)(vp[3]/2);
 
   Eigen::Matrix<GLfloat,4,1> dir(ratioX,-ratioY,0,1);
   Eigen::Matrix<GLfloat,4,4> mv,p;

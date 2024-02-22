@@ -51,10 +51,10 @@ std::shared_ptr<Program> getThickLineProg() {
   return thickLineProg;
 }
 void setThickLineWidth(GLfloat size) {
-  int width=0,height=0;
   GLFWwindow* wnd=glfwGetCurrentContext();
-  glfwGetWindowSize(wnd,&width,&height);
-  getThickLineProg()->setUniformFloat("sz",size/std::max(width,height),false);
+  int vp[4];
+  glGetIntegerv(GL_VIEWPORT,vp);
+  getThickLineProg()->setUniformFloat("sz",size/std::max(vp[2],vp[3]),false);
 }
 void setupMaterial(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,4,1>& diffuse) {
   Program::currentProgram()->setUniformBool("useTexture",tex!=NULL,false);
