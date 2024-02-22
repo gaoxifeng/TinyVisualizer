@@ -2,6 +2,7 @@
 #include "MultiDrawer.h"
 #include "Camera2D.h"
 #include "Camera3D.h"
+#include "Matrix.h"
 #include "MeshShape.h"
 #include "DefaultLight.h"
 #include "DrawerUtility.h"
@@ -39,6 +40,19 @@ bool Shape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>&,GLfloat&) const {
   ASSERT_MSG(false,"rayIntersect function not implemented!")
   return false;
 }
+//Camera
+void Camera::saveCamera() {
+  _mv=getFloatv4(GLModelViewMatrix);
+  _p=getFloatv4(GLProjectionMatrix);
+}
+void Camera::loadCamera() {
+  matrixMode(GLModelViewMatrix);
+  loadIdentity();
+  multMatrixf(_mv);
+  matrixMode(GLProjectionMatrix);
+  loadIdentity();
+  multMatrixf(_p);
+}
 //Plugin
 Plugin::Plugin():_drawer(NULL) {}
 void Plugin::setDrawer(Drawer* drawer) {
@@ -73,7 +87,7 @@ void Drawer::setRes(int width,int height) {
   glfwSetWindowSize(_window,width,height);
 }
 void Drawer::setBackground(GLfloat r,GLfloat g,GLfloat b) {
-  glClearColor(r,g,b,1);
+  _background << r,g,b;
 }
 void Drawer::addLightSystem(int shadow,int softShadow,bool autoAdjust) {
   _light.reset(new ShadowLight(shadow,softShadow,autoAdjust));
@@ -103,14 +117,29 @@ void Drawer::draw() {
     glViewport(vp[0],vp[1],vp[2],vp[3]);
   } else {
     //this is for whole window
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+    glClear(GL_DEPTH_BUFFER_BIT);
     glDepthFunc(GL_LEQUAL);
     //set viewport as whole window
     int width=0,height=0;
     glfwGetFramebufferSize(_window,&width,&height);
     glViewport(0,0,width,height);
   }
+
+  //draw background
+  /*glDisable(GL_DEPTH_TEST);
+  matrixMode(GLModelViewMatrix);
+  loadIdentity();
+  orthof(-1,1,-1,1,0,1);
+  matrixMode(GLProjectionMatrix);
+  loadIdentity();
+  getDefaultProg()->begin();
+  setupMaterial(NULL,_background[0],_background[1],_background[2]);
+  drawQuadf(Eigen::Matrix<GLfloat,3,1>(-1,-1,-1),
+            Eigen::Matrix<GLfloat,3,1>( 1,-1,-1),
+            Eigen::Matrix<GLfloat,3,1>( 1, 1,-1),
+            Eigen::Matrix<GLfloat,3,1>(-1, 1,-1));
+  Program::currentProgram()->end();
+  glEnable(GL_DEPTH_TEST);*/
 
   //calculate BB
   Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();
@@ -431,9 +460,9 @@ void Drawer::init(int argc,char** argv) {
   glClearDepth(1.0f);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_LINE_SMOOTH);
-  glClearColor(argparseRange(argc,argv,"backgroundR",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
-               argparseRange(argc,argv,"backgroundG",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,
-               argparseRange(argc,argv,"backgroundB",255,Eigen::Matrix<int,2,1>(0,256))/255.0f,1);
+  _background[0]=argparseRange(argc,argv,"backgroundR",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
+  _background[1]=argparseRange(argc,argv,"backgroundG",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
+  _background[2]=argparseRange(argc,argv,"backgroundB",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
   if(_parent==NULL) {
     glfwSetWindowUserPointer(_window,this);
     glfwSetMouseButtonCallback(_window,Drawer::mouse);

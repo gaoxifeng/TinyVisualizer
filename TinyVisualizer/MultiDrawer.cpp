@@ -62,9 +62,6 @@ Eigen::Matrix<int,4,1> MultiDrawer::getViewport(Drawer* drawer) const {
 void MultiDrawer::setRes(int width,int height) {
   glfwSetWindowSize(_window,width,height);
 }
-void MultiDrawer::setBackground(GLfloat r,GLfloat g,GLfloat b) {
-  glClearColor(r,g,b,1);
-}
 void MultiDrawer::timer() {
   for(const auto& vrow:_views)
     for(const auto& v:vrow)

@@ -84,6 +84,10 @@ class Camera : public RTTI::Enable {
   virtual Eigen::Matrix<GLfloat,-1,1> getViewFrustum() const {
     return Eigen::Matrix<GLfloat,-1,1>();
   }
+  void saveCamera();
+  void loadCamera();
+ private:
+  Eigen::Matrix<GLfloat,4,4> _mv,_p;
 };
 //Plugin
 class Plugin : public RTTI::Enable {
@@ -167,6 +171,7 @@ class Drawer : public RTTI::Enable {
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<SceneNode> _root;
   std::shared_ptr<ShadowLight> _light;
+  Eigen::Matrix<GLfloat,3,1> _background;
   std::vector<std::shared_ptr<Plugin>> _plugins;
   std::function<void(GLFWwindow*,int,int,int,bool)> _mouse;
   std::function<void(GLFWwindow*,double,double,bool)> _wheel;

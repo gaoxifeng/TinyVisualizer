@@ -50,9 +50,10 @@ void Camera2D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool cap
     _inMotion=false;
     _xCtr=_yCtr=0;
     _scale=1;
-  } else if(key==GLFW_KEY_V && action==GLFW_PRESS)
+  } else if(key==GLFW_KEY_V && action==GLFW_PRESS) {
+    loadCamera();
     _debugFrustum=constructViewFrustum2D();
-  else if(key==GLFW_KEY_B && action==GLFW_PRESS) {
+  } else if(key==GLFW_KEY_B && action==GLFW_PRESS) {
     _debug=!_debug;
   }
 }
@@ -71,6 +72,7 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
          _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,MAX_DEPTH);
   matrixMode(GLProjectionMatrix);
   loadIdentity();
+  saveCamera();
 
   if(_tex) {
     getDefaultProg()->begin();
@@ -100,29 +102,29 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
     GLfloat delta=0.3f;
     setupMaterial(NULL,1,0,0);
     drawLinef(
-      Eigen::Matrix<GLfloat,2,1>(-_scale,0),
-      Eigen::Matrix<GLfloat,2,1>( _scale,0)
+      Eigen::Matrix<GLfloat,3,1>(-_scale,0,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,3,1>( _scale,0,-(MAX_DEPTH-1))
     );
     drawLinef(
-      Eigen::Matrix<GLfloat,2,1>( _scale-_scale*delta,-_scale*delta),
-      Eigen::Matrix<GLfloat,2,1>( _scale,0)
+      Eigen::Matrix<GLfloat,3,1>( _scale-_scale*delta,-_scale*delta,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,3,1>( _scale,0,-(MAX_DEPTH-1))
     );
     drawLinef(
-      Eigen::Matrix<GLfloat,2,1>( _scale-_scale*delta, _scale*delta),
-      Eigen::Matrix<GLfloat,2,1>( _scale,0)
+      Eigen::Matrix<GLfloat,3,1>( _scale-_scale*delta, _scale*delta,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,3,1>( _scale,0,-(MAX_DEPTH-1))
     );
     setupMaterial(NULL,0,0,1);
     drawLinef(
-      Eigen::Matrix<GLfloat,2,1>(0,-_scale),
-      Eigen::Matrix<GLfloat,2,1>(0, _scale)
+      Eigen::Matrix<GLfloat,3,1>(0,-_scale,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,3,1>(0, _scale,-(MAX_DEPTH-1))
     );
     drawLinef(
-      Eigen::Matrix<GLfloat,2,1>(-_scale*delta, _scale-_scale*delta),
-      Eigen::Matrix<GLfloat,2,1>(0,_scale)
+      Eigen::Matrix<GLfloat,3,1>(-_scale*delta, _scale-_scale*delta,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,3,1>(0,_scale,-(MAX_DEPTH-1))
     );
     drawLinef(
-      Eigen::Matrix<GLfloat,2,1>( _scale*delta, _scale-_scale*delta),
-      Eigen::Matrix<GLfloat,2,1>(0,_scale)
+      Eigen::Matrix<GLfloat,3,1>( _scale*delta, _scale-_scale*delta,-(MAX_DEPTH-1)),
+      Eigen::Matrix<GLfloat,3,1>(0,_scale,-(MAX_DEPTH-1))
     );
     Program::currentProgram()->end();
     if(_debugFrustum.size()==8) {

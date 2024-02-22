@@ -17,7 +17,6 @@ class MultiDrawer : public RTTI::Enable {
   Eigen::Matrix<int,4,1> getViewport(Drawer* drawer) const;
   //common function
   void setRes(int width,int height);
-  void setBackground(GLfloat r=1,GLfloat g=1,GLfloat b=1);
   void timer();
   void draw();
   static void mouse(GLFWwindow* wnd,int button,int action,int mods);

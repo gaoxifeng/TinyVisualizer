@@ -33,6 +33,7 @@ void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int mods,bool capture
   else if(button==GLFW_MOUSE_BUTTON_2) {
     if(action==GLFW_PRESS) {
       double x=0,y=0;
+      loadCamera();
       glfwGetCursorPos(wnd,&x,&y);
       _debugLine=getCameraRay(wnd,x,y);
     }
@@ -51,9 +52,10 @@ void Camera3D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool cap
     _manipulator->key(wnd,key,scan,action,mods,captured);
   if(captured)
     return;
-  else if(key==GLFW_KEY_V && action==GLFW_PRESS)
+  else if(key==GLFW_KEY_V && action==GLFW_PRESS) {
+    loadCamera();
     _debugFrustum=constructViewFrustum3D();
-  else if(key==GLFW_KEY_B && action==GLFW_PRESS)
+  } else if(key==GLFW_KEY_B && action==GLFW_PRESS)
     _debug=!_debug;
 }
 void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
@@ -82,6 +84,8 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   int vp[4];
   glGetIntegerv(GL_VIEWPORT,vp);
   perspectivef(_angle,(GLfloat)vp[2]/(GLfloat)vp[3],zNear,zFar);
+  saveCamera();
+
   if(_debug) {
     getDefaultProg()->begin();
     setupMatrixInShader();
