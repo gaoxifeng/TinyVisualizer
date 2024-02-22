@@ -69,6 +69,8 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
   _yExt=_xExt*(GLfloat)vp[3]/(GLfloat)vp[2];
   orthof(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,
          _yCtr-_yExt*_scale,_yCtr+_yExt*_scale,0,MAX_DEPTH);
+  matrixMode(GLProjectionMatrix);
+  loadIdentity();
 
   if(_tex) {
     getDefaultProg()->begin();

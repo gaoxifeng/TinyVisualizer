@@ -94,10 +94,15 @@ void MultiDrawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
 }
 void MultiDrawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
   MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  double x,y;
   for(const auto& vrow:drawer->_views)
     for(const auto& v:vrow) {
       glfwSetWindowUserPointer(wnd,v.get());
-      v->wheel(wnd,xoffset,yoffset);
+      Eigen::Matrix<int,4,1> vp=drawer->getViewport(v.get());
+      glfwGetCursorPos(wnd,&x,&y);
+      if(x>=vp[0] && x<vp[0]+vp[2])
+        if(y>=vp[1] && y<vp[1]+vp[3])
+          v->wheel(wnd,xoffset,yoffset);
     }
   glfwSetWindowUserPointer(wnd,drawer);
 }

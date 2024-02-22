@@ -51,7 +51,6 @@ std::shared_ptr<Program> getThickLineProg() {
   return thickLineProg;
 }
 void setThickLineWidth(GLfloat size) {
-  GLFWwindow* wnd=glfwGetCurrentContext();
   int vp[4];
   glGetIntegerv(GL_VIEWPORT,vp);
   getThickLineProg()->setUniformFloat("sz",size/std::max(vp[2],vp[3]),false);
