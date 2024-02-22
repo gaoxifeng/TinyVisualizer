@@ -1,7 +1,7 @@
 #ifndef DRAWER_H
 #define DRAWER_H
 
-#include "DrawerUtility.h"
+#include "Background.h"
 #include <functional>
 #include <vector>
 
@@ -126,6 +126,7 @@ class Drawer : public RTTI::Enable {
   virtual ~Drawer();
   void setRes(int width,int height);
   void setBackground(GLfloat r=1,GLfloat g=1,GLfloat b=1);
+  void setBackground(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,2,1>& tcMult=Eigen::Matrix<GLfloat,2,1>(1,1));
   void addLightSystem(int shadow=1024,int softShadow=10,bool autoAdjust=false);
   void timer();
   void draw();
@@ -168,10 +169,10 @@ class Drawer : public RTTI::Enable {
   Drawer(const Drawer& other);
   Drawer& operator=(const Drawer& other);
   //data
+  Background _background;
   std::shared_ptr<Camera> _camera;
   std::shared_ptr<SceneNode> _root;
   std::shared_ptr<ShadowLight> _light;
-  Eigen::Matrix<GLfloat,3,1> _background;
   std::vector<std::shared_ptr<Plugin>> _plugins;
   std::function<void(GLFWwindow*,int,int,int,bool)> _mouse;
   std::function<void(GLFWwindow*,double,double,bool)> _wheel;

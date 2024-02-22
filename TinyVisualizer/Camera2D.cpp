@@ -74,28 +74,6 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
   loadIdentity();
   saveCamera();
 
-  if(_tex) {
-    getDefaultProg()->begin();
-    setupMaterial(_tex);
-    setupMatrixInShader();
-    glActiveTexture(GL_TEXTURE0);
-    _tex->begin();
-    glActiveTexture(GL_TEXTURE1);
-    drawQuadf(
-      Eigen::Matrix<GLfloat,2,1>((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]),
-      Eigen::Matrix<GLfloat,3,1>(_xCtr-_xExt*_scale,_yCtr-_yExt*_scale,-(MAX_DEPTH-1)),
-      Eigen::Matrix<GLfloat,2,1>((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr-_yExt*_scale)*_tcMult[1]),
-      Eigen::Matrix<GLfloat,3,1>(_xCtr+_xExt*_scale,_yCtr-_yExt*_scale,-(MAX_DEPTH-1)),
-      Eigen::Matrix<GLfloat,2,1>((_xCtr+_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]),
-      Eigen::Matrix<GLfloat,3,1>(_xCtr+_xExt*_scale,_yCtr+_yExt*_scale,-(MAX_DEPTH-1)),
-      Eigen::Matrix<GLfloat,2,1>((_xCtr-_xExt*_scale)*_tcMult[0],(_yCtr+_yExt*_scale)*_tcMult[1]),
-      Eigen::Matrix<GLfloat,3,1>(_xCtr-_xExt*_scale,_yCtr+_yExt*_scale,-(MAX_DEPTH-1))
-    );
-    _tex->end();
-    glActiveTexture(GL_TEXTURE0);
-    Program::currentProgram()->end();
-  }
-
   if(_debug) {
     getDefaultProg()->begin();
     setupMatrixInShader();
@@ -144,9 +122,5 @@ Eigen::Matrix<GLfloat,-1,1> Camera2D::getCameraRay(GLFWwindow* wnd,double x,doub
 }
 Eigen::Matrix<GLfloat,-1,1> Camera2D::getViewFrustum() const {
   return getViewFrustum2DPlanes();
-}
-void Camera2D::setTexture(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,2,1>& tcMult) {
-  _tex=tex;
-  _tcMult=tcMult;
 }
 }

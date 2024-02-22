@@ -20,6 +20,7 @@ int main(int argc,char** argv) {
   //first view
   {
     std::shared_ptr<Drawer> view1=drawer.getDrawer(0,0);
+    view1->setBackground(drawChecker());
     view1->setBackground(.5,.5,.5);
     view1->addCamera2D(10);
     view1->setDrawFunc([&]() {

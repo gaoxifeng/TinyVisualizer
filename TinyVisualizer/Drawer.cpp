@@ -4,8 +4,8 @@
 #include "Camera3D.h"
 #include "Matrix.h"
 #include "MeshShape.h"
-#include "DefaultLight.h"
 #include "DrawerUtility.h"
+#include "DefaultLight.h"
 #include "ShadowAndLight.h"
 #include "SceneStructure.h"
 #include "FirstPersonCameraManipulator.h"
@@ -87,7 +87,11 @@ void Drawer::setRes(int width,int height) {
   glfwSetWindowSize(_window,width,height);
 }
 void Drawer::setBackground(GLfloat r,GLfloat g,GLfloat b) {
-  _background << r,g,b;
+  _background._color << r,g,b;
+}
+void Drawer::setBackground(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,2,1>& tcMult) {
+  _background._tex=tex;
+  _background._tcMult=tcMult;
 }
 void Drawer::addLightSystem(int shadow,int softShadow,bool autoAdjust) {
   _light.reset(new ShadowLight(shadow,softShadow,autoAdjust));
@@ -126,23 +130,7 @@ void Drawer::draw() {
   }
 
   //draw background
-  glDisable(GL_DEPTH_TEST);
-  matrixMode(GLModelViewMatrix);
-  loadIdentity();
-  orthof(0,1,0,1,0,1);
-  matrixMode(GLProjectionMatrix);
-  loadIdentity();
-  getDefaultProg()->begin();
-  setupMaterial(NULL,_background[0],_background[1],_background[2]);
-  setupMatrixInShader();
-  drawQuadf(
-    Eigen::Matrix<GLfloat,2,1>(0,0),
-    Eigen::Matrix<GLfloat,2,1>(1,0),
-    Eigen::Matrix<GLfloat,2,1>(1,1),
-    Eigen::Matrix<GLfloat,2,1>(0,1));
-  Program::currentProgram()->end();
-  glEnable(GL_DEPTH_TEST);
-
+  _background.draw();
   //calculate BB
   Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();
   //setup camera
@@ -462,9 +450,9 @@ void Drawer::init(int argc,char** argv) {
   glClearDepth(1.0f);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_LINE_SMOOTH);
-  _background[0]=argparseRange(argc,argv,"backgroundR",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
-  _background[1]=argparseRange(argc,argv,"backgroundG",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
-  _background[2]=argparseRange(argc,argv,"backgroundB",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
+  _background._color[0]=argparseRange(argc,argv,"backgroundR",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
+  _background._color[1]=argparseRange(argc,argv,"backgroundG",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
+  _background._color[2]=argparseRange(argc,argv,"backgroundB",255,Eigen::Matrix<int,2,1>(0,256))/255.0f;
   if(_parent==NULL) {
     glfwSetWindowUserPointer(_window,this);
     glfwSetMouseButtonCallback(_window,Drawer::mouse);

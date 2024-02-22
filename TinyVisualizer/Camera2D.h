@@ -16,7 +16,6 @@ class Camera2D : public Camera {
   void draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) override;
   Eigen::Matrix<GLfloat,-1,1> getCameraRay(GLFWwindow* wnd,double x,double y) const override;
   Eigen::Matrix<GLfloat,-1,1> getViewFrustum() const override;
-  void setTexture(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,2,1>& tcMult=Eigen::Matrix<GLfloat,2,1>(1,1));
  private:
   GLfloat _xExt,_yExt;
   GLfloat _xCtr,_yCtr;
@@ -25,8 +24,6 @@ class Camera2D : public Camera {
   double _xLast,_yLast;
   bool _inMotion,_debug;
   std::shared_ptr<Shape> _focus;
-  std::shared_ptr<Texture> _tex;
-  Eigen::Matrix<GLfloat,2,1> _tcMult;
   Eigen::Matrix<GLfloat,-1,1> _debugFrustum;
 };
 }
