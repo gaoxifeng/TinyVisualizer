@@ -73,8 +73,10 @@ void FirstPersonCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool
     _inMotion=false;
     return;
   } else if(_inMotion) {
-    _xCurr=(GLfloat)x;
-    _yCurr=(GLfloat)y;
+    int vp[4];
+    glGetIntegerv(GL_VIEWPORT,vp);
+    _xCurr=(GLfloat)x-vp[0];
+    _yCurr=(GLfloat)y-vp[1];
   }
 }
 void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
