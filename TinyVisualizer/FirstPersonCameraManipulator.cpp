@@ -23,7 +23,7 @@ void FirstPersonCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
     end(theta,phi);
     int vp[4];
     glGetIntegerv(GL_VIEWPORT,vp);
-    glfwSetCursorPos(wnd,vp[2]/2.0f,vp[3]/2.0f);
+    glfwSetCursorPos(wnd,vp[0]+vp[2]/2.0f,vp[1]+vp[3]/2.0f);
     _xLast=vp[2]/2.0f;
     _yLast=vp[3]/2.0f;
   }
@@ -49,7 +49,7 @@ void FirstPersonCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,i
       _inMotion=true;
       int vp[4];
       glGetIntegerv(GL_VIEWPORT,vp);
-      glfwSetCursorPos(wnd,vp[2]/2.0f,vp[3]/2.0f);
+      glfwSetCursorPos(wnd,vp[0]+vp[2]/2.0f,vp[1]+vp[3]/2.0f);
       _xLast=_xCurr=vp[2]/2.0f;
       _yLast=_yCurr=vp[3]/2.0f;
     } else if(action==GLFW_RELEASE) {

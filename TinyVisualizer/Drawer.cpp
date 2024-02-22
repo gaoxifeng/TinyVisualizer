@@ -126,20 +126,22 @@ void Drawer::draw() {
   }
 
   //draw background
-  /*glDisable(GL_DEPTH_TEST);
+  glDisable(GL_DEPTH_TEST);
   matrixMode(GLModelViewMatrix);
   loadIdentity();
-  orthof(-1,1,-1,1,0,1);
+  orthof(0,1,0,1,0,1);
   matrixMode(GLProjectionMatrix);
   loadIdentity();
   getDefaultProg()->begin();
   setupMaterial(NULL,_background[0],_background[1],_background[2]);
-  drawQuadf(Eigen::Matrix<GLfloat,3,1>(-1,-1,-1),
-            Eigen::Matrix<GLfloat,3,1>( 1,-1,-1),
-            Eigen::Matrix<GLfloat,3,1>( 1, 1,-1),
-            Eigen::Matrix<GLfloat,3,1>(-1, 1,-1));
+  setupMatrixInShader();
+  drawQuadf(
+    Eigen::Matrix<GLfloat,2,1>(0,0),
+    Eigen::Matrix<GLfloat,2,1>(1,0),
+    Eigen::Matrix<GLfloat,2,1>(1,1),
+    Eigen::Matrix<GLfloat,2,1>(0,1));
   Program::currentProgram()->end();
-  glEnable(GL_DEPTH_TEST);*/
+  glEnable(GL_DEPTH_TEST);
 
   //calculate BB
   Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();

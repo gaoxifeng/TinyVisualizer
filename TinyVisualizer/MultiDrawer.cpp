@@ -19,8 +19,7 @@ MultiDrawer::MultiDrawer(int argc,char** argv) {
   init(argc,argv);
 }
 MultiDrawer::~MultiDrawer() {
-  _viewMap.clear();
-  _views.clear();
+  clear();
   glfwDestroyWindow(_window);
 }
 //multi-viewport
@@ -68,15 +67,32 @@ void MultiDrawer::timer() {
       v->timer();
 }
 void MultiDrawer::draw() {
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  glClear(GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
+
+  //plugin pre-draw
+  for(std::shared_ptr<Plugin> pi:_plugins)
+    pi->preDraw();
+  //draw views
   for(const auto& vrow:_views)
     for(const auto& v:vrow)
       v->draw();
+  //plugin post-draw
+  for(std::shared_ptr<Plugin> pi:_plugins)
+    pi->postDraw();
 }
 void MultiDrawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  bool captured=false;
+  for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+    if(!pi->mouse(wnd,button,action,mods)) {
+      captured=true;
+      break;
+    }
+  if(captured)
+    return;
+
   double x,y;
   for(const auto& vrow:drawer->_views)
     for(const auto& v:vrow) {
@@ -91,6 +107,15 @@ void MultiDrawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
 }
 void MultiDrawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
   MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  bool captured=false;
+  for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+    if(!pi->wheel(wnd,xoffset,yoffset)) {
+      captured=true;
+      break;
+    }
+  if(captured)
+    return;
+
   double x,y;
   for(const auto& vrow:drawer->_views)
     for(const auto& v:vrow) {
@@ -105,6 +130,15 @@ void MultiDrawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
 }
 void MultiDrawer::motion(GLFWwindow* wnd,double x,double y) {
   MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  bool captured=false;
+  for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+    if(!pi->motion(wnd,x,y)) {
+      captured=true;
+      break;
+    }
+  if(captured)
+    return;
+
   for(const auto& vrow:drawer->_views)
     for(const auto& v:vrow) {
       glfwSetWindowUserPointer(wnd,v.get());
@@ -118,6 +152,15 @@ void MultiDrawer::motion(GLFWwindow* wnd,double x,double y) {
 }
 void MultiDrawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
   MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  bool captured=false;
+  for(std::shared_ptr<Plugin> pi:drawer->_plugins)
+    if(!pi->key(wnd,key,scan,action,mods)) {
+      captured=true;
+      break;
+    }
+  if(captured)
+    return;
+
   for(const auto& vrow:drawer->_views)
     for(const auto& v:vrow) {
       glfwSetWindowUserPointer(wnd,v.get());
@@ -132,6 +175,22 @@ void MultiDrawer::mainLoop() {
     timer();
     glfwSwapBuffers(_window);
   }
+}
+//getter/setter
+void MultiDrawer::addPlugin(std::shared_ptr<Plugin> pi) {
+  if(std::find(_plugins.begin(),_plugins.end(),pi)==_plugins.end())
+    _plugins.push_back(pi);
+  pi->setDrawer(NULL);
+  pi->init(_window);
+}
+void MultiDrawer::clear() {
+  for(std::shared_ptr<Plugin> pi:_plugins) {
+    pi->setDrawer(NULL);
+    pi->finalize();
+  }
+  _plugins.clear();
+  _viewMap.clear();
+  _views.clear();
 }
 //helper
 void MultiDrawer::init(int argc,char** argv) {

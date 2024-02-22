@@ -24,11 +24,15 @@ class MultiDrawer : public RTTI::Enable {
   static void motion(GLFWwindow* wnd,double x,double y);
   static void key(GLFWwindow* wnd,int key,int scan,int action,int mods);
   void mainLoop();
+  //getter/setter
+  void addPlugin(std::shared_ptr<Plugin> pi);
+  void clear();
  private:
   void init(int argc,char** argv);
   MultiDrawer(const MultiDrawer& other);
   MultiDrawer& operator=(const MultiDrawer& other);
   //data
+  std::vector<std::shared_ptr<Plugin>> _plugins;
   std::unordered_map<Drawer*,Eigen::Matrix<int,2,1>> _viewMap;
   std::vector<std::vector<std::shared_ptr<Drawer>>> _views;
   std::vector<std::string> _args;
