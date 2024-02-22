@@ -36,9 +36,9 @@ void Camera2D::motion(GLFWwindow* wnd,double x,double y,bool captured) {
   if(captured)
     return;
   else if(_inMotion) {
-    int w=0,h=0;
-    glfwGetWindowSize(wnd,&w,&h);
-    GLfloat coef=_xExt*_scale/(GLfloat)w;
+    int vp[4];
+    glGetIntegerv(GL_VIEWPORT,vp);
+    GLfloat coef=_xExt*_scale/(GLfloat)vp[2];
     _xCtr=_xCtrLast-(GLfloat)(x-_xLast)*coef;
     _yCtr=_yCtrLast+(GLfloat)(y-_yLast)*coef;
   }
