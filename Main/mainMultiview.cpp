@@ -19,13 +19,16 @@ int main(int argc,char** argv) {
   std::shared_ptr<Shape> IShape;
   std::shared_ptr<Texture> grid=drawGrid();
   std::shared_ptr<Texture> checker=drawChecker();
+  std::shared_ptr<Drawer> view00=drawer.getDrawer(0,0);
+  std::shared_ptr<Drawer> view10=drawer.getDrawer(1,0);
+  std::shared_ptr<Drawer> view01=drawer.getDrawer(0,1);
+  std::shared_ptr<Drawer> view11=drawer.getDrawer(1,1);
   //view00
   {
-    std::shared_ptr<Drawer> view00=drawer.getDrawer(0,0);
     view00->addCamera2D(10);
     view00->clearLight();
-    for(int x=0;x<5;x++)
-      for(int y=0;y<5;y++) {
+    for(int x=0; x<5; x++)
+      for(int y=0; y<5; y++) {
         std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
         std::shared_ptr<MeshShape> box=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(0.25,0.25,0.25));
         box->setTextureDiffuse(checker);
@@ -55,11 +58,10 @@ int main(int argc,char** argv) {
   }
   //view11
   {
-    std::shared_ptr<Drawer> view11=drawer.getDrawer(1,1);
     view11->addCamera2D(10);
     view11->clearLight();
-    for(int x=0;x<5;x++)
-      for(int y=0;y<5;y++) {
+    for(int x=0; x<5; x++)
+      for(int y=0; y<5; y++) {
         std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
         std::shared_ptr<MeshShape> box=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(0.25,0.25,0.25));
         box->setTextureDiffuse(checker);
@@ -89,7 +91,6 @@ int main(int argc,char** argv) {
   }
   //view10
   {
-    std::shared_ptr<Drawer> view10=drawer.getDrawer(1,0);
 #define USE_LIGHT
 #ifdef USE_LIGHT
     view10->addLightSystem(2048,20);
@@ -99,10 +100,10 @@ int main(int argc,char** argv) {
                                  Eigen::Matrix<GLfloat,3,1>(1,1,1),
                                  Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
-  
-    for(int x=0;x<5;x++)
-      for(int y=0;y<5;y++)
-        for(int z=0;z<5;z++) {
+
+    for(int x=0; x<5; x++)
+      for(int y=0; y<5; y++)
+        for(int z=0; z<5; z++) {
           std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
           std::shared_ptr<MeshShape> box=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(0.25,0.25,0.25));
           box->setTextureDiffuse(checker);
@@ -111,7 +112,7 @@ int main(int argc,char** argv) {
           shapeTB->addShape(box);
           view10->addShape(shapeTB);
         }
-  
+
     view10->addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
     view10->getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(view10->getCamera3D())));
     view10->setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
@@ -133,7 +134,6 @@ int main(int argc,char** argv) {
   }
   //view01
   {
-    std::shared_ptr<Drawer> view01=drawer.getDrawer(0,1);
 #define USE_LIGHT
 #ifdef USE_LIGHT
     view01->addLightSystem(2048,20);
@@ -143,10 +143,10 @@ int main(int argc,char** argv) {
                                  Eigen::Matrix<GLfloat,3,1>(1,1,1),
                                  Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
-  
-    for(int x=0;x<5;x++)
-      for(int y=0;y<5;y++)
-        for(int z=0;z<5;z++) {
+
+    for(int x=0; x<5; x++)
+      for(int y=0; y<5; y++)
+        for(int z=0; z<5; z++) {
           std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
           std::shared_ptr<MeshShape> box=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(0.25,0.25,0.25));
           box->setTextureDiffuse(checker);
@@ -155,7 +155,7 @@ int main(int argc,char** argv) {
           shapeTB->addShape(box);
           view01->addShape(shapeTB);
         }
-  
+
     view01->addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
     view01->getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(view01->getCamera3D())));
     view01->setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
