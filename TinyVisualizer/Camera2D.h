@@ -21,6 +21,7 @@ class Camera2D : public Camera {
   GLfloat _xCtr,_yCtr;
   GLfloat _xCtrLast,_yCtrLast;
   GLfloat _scale;
+  GLint _vp[4];
   double _xLast,_yLast;
   bool _inMotion,_debug;
   std::shared_ptr<Shape> _focus;

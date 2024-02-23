@@ -106,7 +106,7 @@ int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
   drawer.addCamera2D(10);
   drawer.clearLight();
-  std::dynamic_pointer_cast<Camera2D>(drawer.getCamera())->setTexture(drawChecker(6,Eigen::Matrix<GLfloat,3,1>(1,1,1),Eigen::Matrix<GLfloat,3,1>(0,.3,.5)),Eigen::Matrix<GLfloat,2,1>(.1,.1));
+  drawer.setBackground(drawChecker(6,Eigen::Matrix<GLfloat,3,1>(1,1,1),Eigen::Matrix<GLfloat,3,1>(0,.3,.5)),Eigen::Matrix<GLfloat,2,1>(.1,.1));
   drawer.setFrameFunc([&](std::shared_ptr<SceneNode>& root) {
     if(sim)
       world->Step(0.01f,100,100);
@@ -119,7 +119,7 @@ int main(int argc,char** argv) {
     Box2DShape::syncWorld(root,world);
     if(cb._body && root) {
       root->visit([&](std::shared_ptr<Shape> s) {
-        if(std::dynamic_pointer_cast<Box2DShape>(s) && std::dynamic_pointer_cast<Box2DShape>(s)->getBody()==cb._body) {
+        if(std::custom_pointer_cast<Box2DShape>(s) && std::custom_pointer_cast<Box2DShape>(s)->getBody()==cb._body) {
           drawer.getCamera()->focusOn(s);
           return false;
         } else return true;

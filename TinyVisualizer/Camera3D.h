@@ -32,6 +32,7 @@ class Camera3D : public Camera {
   static GLfloat clampMin(GLfloat val);
   //data
   bool _debug;
+  GLint _vp[4];
   GLfloat _angle;
   Eigen::Matrix<GLfloat,3,1> _up,_pos,_dir;
   std::shared_ptr<CameraManipulator> _manipulator;

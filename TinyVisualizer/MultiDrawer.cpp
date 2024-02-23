@@ -93,14 +93,16 @@ void MultiDrawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   if(captured)
     return;
 
+  int w,h;
   double x,y;
+  glfwGetCursorPos(wnd,&x,&y);
+  glfwGetWindowSize(wnd,&w,&h);
   for(const auto& vrow:drawer->_views)
     for(const auto& v:vrow) {
       glfwSetWindowUserPointer(wnd,v.get());
       Eigen::Matrix<int,4,1> vp=drawer->getViewport(v.get());
-      glfwGetCursorPos(wnd,&x,&y);
       if(x>=vp[0] && x<vp[0]+vp[2])
-        if(y>=vp[1] && y<vp[1]+vp[3])
+        if((h-y)>=vp[1] && (h-y)<vp[1]+vp[3])
           v->mouse(wnd,button,action,mods);
     }
   glfwSetWindowUserPointer(wnd,drawer);
@@ -116,14 +118,16 @@ void MultiDrawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
   if(captured)
     return;
 
+  int w,h;
   double x,y;
+  glfwGetCursorPos(wnd,&x,&y);
+  glfwGetWindowSize(wnd,&w,&h);
   for(const auto& vrow:drawer->_views)
     for(const auto& v:vrow) {
       glfwSetWindowUserPointer(wnd,v.get());
       Eigen::Matrix<int,4,1> vp=drawer->getViewport(v.get());
-      glfwGetCursorPos(wnd,&x,&y);
       if(x>=vp[0] && x<vp[0]+vp[2])
-        if(y>=vp[1] && y<vp[1]+vp[3])
+        if((h-y)>=vp[1] && (h-y)<vp[1]+vp[3])
           v->wheel(wnd,xoffset,yoffset);
     }
   glfwSetWindowUserPointer(wnd,drawer);
@@ -138,14 +142,15 @@ void MultiDrawer::motion(GLFWwindow* wnd,double x,double y) {
     }
   if(captured)
     return;
-
+  
+  int w,h;
+  glfwGetWindowSize(wnd,&w,&h);
   for(const auto& vrow:drawer->_views)
     for(const auto& v:vrow) {
       glfwSetWindowUserPointer(wnd,v.get());
       Eigen::Matrix<int,4,1> vp=drawer->getViewport(v.get());
-      glfwGetCursorPos(wnd,&x,&y);
       if(x>=vp[0] && x<vp[0]+vp[2])
-        if(y>=vp[1] && y<vp[1]+vp[3])
+        if((h-y)>=vp[1] && (h-y)<vp[1]+vp[3])
           v->motion(wnd,x,y);
     }
   glfwSetWindowUserPointer(wnd,drawer);
