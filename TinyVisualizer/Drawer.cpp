@@ -99,20 +99,23 @@ void Drawer::addLightSystem(int shadow,int softShadow,bool autoAdjust) {
 void Drawer::timer() {
   double t=glfwGetTime();
   if(t-_lastTime>1.0/_FPS) {
-    if(_cb)
-      _cb->frame(_root);
-    if(_camera)
-      _camera->frame(_window,1.0f/FPS());
-    _frame(_root);
-    for(std::shared_ptr<Plugin> pi:_plugins)
-      pi->frame(_root);
-    if(_root && _light && _light->autoAdjust())
-      _light->setDefaultLight(_root->getBB());
-    if(_root) {
-      _root=SceneNode::update(_root);
-      //_root->check();
-    }
+    frame();
     _lastTime=t;
+  }
+}
+void Drawer::frame() {
+  if(_cb)
+    _cb->frame(_root);
+  if(_camera)
+    _camera->frame(_window,1.0f/FPS());
+  _frame(_root);
+  for(std::shared_ptr<Plugin> pi:_plugins)
+    pi->frame(_root);
+  if(_root && _light && _light->autoAdjust())
+    _light->setDefaultLight(_root->getBB());
+  if(_root) {
+    _root=SceneNode::update(_root);
+    //_root->check();
   }
 }
 void Drawer::draw() {

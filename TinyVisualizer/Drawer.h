@@ -129,6 +129,7 @@ class Drawer : public RTTI::Enable {
   void setBackground(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,2,1>& tcMult=Eigen::Matrix<GLfloat,2,1>(1,1));
   void addLightSystem(int shadow=1024,int softShadow=10,bool autoAdjust=false);
   void timer();
+  void frame();
   void draw();
   static void mouse(GLFWwindow* wnd,int button,int action,int mods);
   static void wheel(GLFWwindow* wnd,double xoffset,double yoffset);

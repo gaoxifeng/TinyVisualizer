@@ -18,6 +18,7 @@ class MultiDrawer : public RTTI::Enable {
   //common function
   void setRes(int width,int height);
   void timer();
+  void frame();
   void draw();
   static void mouse(GLFWwindow* wnd,int button,int action,int mods);
   static void wheel(GLFWwindow* wnd,double xoffset,double yoffset);
@@ -37,6 +38,7 @@ class MultiDrawer : public RTTI::Enable {
   std::vector<std::vector<std::shared_ptr<Drawer>>> _views;
   std::vector<std::string> _args;
   GLFWwindow* _window;
+  double _lastTime;
 };
 }
 

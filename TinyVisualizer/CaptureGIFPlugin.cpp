@@ -27,10 +27,8 @@ void CaptureGIFPlugin::startRecording() {
     return;
   } else {
     //size
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT,viewport);
-    _width=viewport[2];
-    _height=viewport[3];
+    GLFWwindow* wnd=glfwGetCurrentContext();
+    glfwGetWindowSize(wnd,&_width,&_height);
 
     _recordFile=new GifWriter;
     GifBegin((GifWriter*)_recordFile,_recordFileName.c_str(),(uint32_t)_width,(uint32_t)_height,(uint32_t)(100.0/_recordFPS),8,_dither);
@@ -42,7 +40,8 @@ void CaptureGIFPlugin::addFrame() {
     return;
   //read screen
   GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT,viewport);
+  GLFWwindow* wnd=glfwGetCurrentContext();
+  glfwGetWindowSize(wnd,&viewport[2],&viewport[3]);
   if(viewport[2]!=_width || viewport[3]!=_height) {
     std::cout << "Screen resolution changed from " << _width << "x" << _height << " to " << viewport[2] << "x" << viewport[3] << " stop recording!" << std::endl;
     stopRecording();

@@ -34,10 +34,8 @@ void CaptureMPEG2Plugin::startRecording() {
     std::cout << "Starting recording to " << _recordFileName << std::endl;
 
     //size
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT,viewport);
-    _width=viewport[2];
-    _height=viewport[3];
+    GLFWwindow* wnd=glfwGetCurrentContext();
+    glfwGetWindowSize(wnd,&_width,&_height);
   }
 }
 void CaptureMPEG2Plugin::addFrame() {
@@ -45,7 +43,8 @@ void CaptureMPEG2Plugin::addFrame() {
     return;
   //read screen
   GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT,viewport);
+  GLFWwindow* wnd=glfwGetCurrentContext();
+  glfwGetWindowSize(wnd,&viewport[2],&viewport[3]);
   if(viewport[2]!=_width || viewport[3]!=_height) {
     std::cout << "Screen resolution changed from " << _width << "x" << _height << " to " << viewport[2] << "x" << viewport[3] << " stop recording!" << std::endl;
     stopRecording();

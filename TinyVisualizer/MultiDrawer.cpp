@@ -62,9 +62,19 @@ void MultiDrawer::setRes(int width,int height) {
   glfwSetWindowSize(_window,width,height);
 }
 void MultiDrawer::timer() {
+  double t=glfwGetTime();
+  if(t-_lastTime>1.0/getDrawer(0,0)->FPS()) {
+    frame();
+    _lastTime=t;
+  }
+}
+void MultiDrawer::frame() {
   for(const auto& vrow:_views)
     for(const auto& v:vrow)
       v->timer();
+  std::shared_ptr<SceneNode> nullRoot;
+  for(std::shared_ptr<Plugin> pi:_plugins)
+    pi->frame(nullRoot);
 }
 void MultiDrawer::draw() {
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -142,7 +152,7 @@ void MultiDrawer::motion(GLFWwindow* wnd,double x,double y) {
     }
   if(captured)
     return;
-  
+
   int w,h;
   glfwGetWindowSize(wnd,&w,&h);
   for(const auto& vrow:drawer->_views)
@@ -199,6 +209,8 @@ void MultiDrawer::clear() {
 }
 //helper
 void MultiDrawer::init(int argc,char** argv) {
+  _lastTime=0;
+
   ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
   glfwDefaultWindowHints();
   glfwSetErrorCallback(errFunc);
