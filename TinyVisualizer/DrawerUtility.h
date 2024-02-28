@@ -3,12 +3,18 @@
 
 #define _USE_MATH_DEFINES // for C++
 #include <cmath>
+#include <string>
+#include <typeinfo>
 #ifdef CUSTOM_RTTI_SUPPORT
 #include <rtti/rtti.hh>
 #else
 namespace RTTI {
 class Enable {};
 #define RTTI_DECLARE_TYPEINFO(T, ...)
+template <typename T>
+std::string TypeName() {
+  return typeid(T).name();
+}
 }
 #endif
 #include <memory>
