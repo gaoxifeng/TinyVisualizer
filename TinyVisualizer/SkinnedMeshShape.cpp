@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #ifdef ASSIMP_SUPPORT
 #include "SkinnedMeshShape.h"
 #include "MeshShape.h"

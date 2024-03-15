@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "CaptureGIFPlugin.h"
 #include <iostream>
 #include <gif.h>

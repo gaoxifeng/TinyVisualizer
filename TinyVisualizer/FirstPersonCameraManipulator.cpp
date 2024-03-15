@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "FirstPersonCameraManipulator.h"
 #include "Camera3D.h"
 #ifdef IMGUI_SUPPORT

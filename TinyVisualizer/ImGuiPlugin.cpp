@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "ImGuiPlugin.h"
 #ifdef IMGUI_SUPPORT
 #include <imgui/imgui.h>

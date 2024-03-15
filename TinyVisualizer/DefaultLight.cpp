@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "DefaultLight.h"
 
 namespace DRAWER {

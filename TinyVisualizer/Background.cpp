@@ -1,7 +1,6 @@
-#include <glad/gl.h>
+#include "Background.h"
 #include "Matrix.h"
 #include "Texture.h"
-#include "Background.h"
 #include "DefaultLight.h"
 
 namespace DRAWER {

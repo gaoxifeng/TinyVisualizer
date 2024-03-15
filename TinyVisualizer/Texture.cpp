@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "Texture.h"
 #ifdef ASSIMP_SUPPORT
 #include <assimp/texture.h>

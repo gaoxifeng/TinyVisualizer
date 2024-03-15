@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "MultiDrawer.h"
 #include "Camera2D.h"
 #include "Camera3D.h"

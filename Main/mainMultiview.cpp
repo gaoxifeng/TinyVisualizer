@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include <TinyVisualizer/Camera2D.h>
 #include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/MakeMesh.h>

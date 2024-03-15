@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "FBO.h"
 #include "VBO.h"
 #include "Matrix.h"

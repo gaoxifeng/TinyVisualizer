@@ -18,6 +18,7 @@ std::string TypeName() {
 }
 #endif
 #include <memory>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <string>
 #include <Eigen/Eigen>

@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "ShadowAndLight.h"
 #include "DefaultLight.h"
 #include "Matrix.h"

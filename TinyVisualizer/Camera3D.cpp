@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "Camera3D.h"
 #include <iostream>
 #include "Matrix.h"

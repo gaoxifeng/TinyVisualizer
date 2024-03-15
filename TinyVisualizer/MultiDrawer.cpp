@@ -1,4 +1,3 @@
-#include <glad/gl.h>
 #include "MultiDrawer.h"
 #include "DrawerUtility.h"
 #include <iostream>
