@@ -122,7 +122,7 @@ void Povray::Mesh::write(Povray& pov,const Material& mat) {
     pov.moreIndent();
     pov.getStream() << pov.indent() << "image_map {" << std::endl;
     pov.moreIndent();
-    pov.getStream() << pov.indent() << "png " << pov.write(mat._texDiffuse) << std::endl;
+    pov.getStream() << pov.indent() << "png \"" << pov.write(mat._texDiffuse,100,&(mat._diffuse))+"\"" << std::endl;
     pov.getStream() << pov.indent() << "map_type 0" << std::endl;
     pov.lessIndent();
     pov.getStream() << pov.indent() << "}" << std::endl;
@@ -249,15 +249,15 @@ std::string Povray::write(const Eigen::Matrix<GLuint,3,1>& v) const {
   oss << "<" << v[0] << "," << v[1] << "," << v[2] << ">";
   return oss.str();
 }
-std::string Povray::write(std::shared_ptr<Texture> t) {
+std::string Povray::write(std::shared_ptr<Texture> t,int quality,const Eigen::Matrix<GLfloat,4,1>* diffuse) {
   if(_textures.find(t)==_textures.end()) {
     int id=(int)_textures.size();
     std::string name=std::to_string(id)+".png";
-    t->save(_folder+"/"+name);
+    t->save(_folder+"/"+name,quality,diffuse);
     _textures[t]=id;
-    return "\""+name+"\"";
+    return _folder+"/"+name;
   } else {
-    return "\""+std::to_string(_textures[t])+".png\"";
+    return _folder+"/\""+std::to_string(_textures[t])+".png";
   }
 }
 template <typename T>

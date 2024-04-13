@@ -67,7 +67,7 @@ class Povray {
   std::string write(const Eigen::Matrix<GLfloat,3,1>& v) const;
   std::string write(const Eigen::Matrix<GLfloat,2,1>& v) const;
   std::string write(const Eigen::Matrix<GLuint,3,1>& v) const;
-  std::string write(std::shared_ptr<Texture> t);
+  std::string write(std::shared_ptr<Texture> t,int quality=100,const Eigen::Matrix<GLfloat,4,1>* diffuse=NULL);
   template <typename T>
   std::shared_ptr<T> getElement() const;
   std::ofstream& getStream();

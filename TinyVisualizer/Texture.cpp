@@ -108,10 +108,16 @@ void Texture::syncGPUData() {
   glTexImage2D(GL_TEXTURE_2D,0,_format,_data._width,_data._height,0,GL_RGBA,GL_UNSIGNED_BYTE,_data._data);
   end();
 }
-void Texture::save(const std::string& path,int quality) const {
+void Texture::save(const std::string& path,int quality,const Eigen::Matrix<GLfloat,4,1>* diffuse) const {
 #ifdef STB_SUPPORT
   const_cast<Texture*>(this)->loadCPUData();
   flipY(_data._width,_data._height,4,_data._data);
+  if(diffuse) {
+    //multiple channels by diffuse
+    Eigen::Map<Eigen::Matrix<unsigned char,4,-1>> d((unsigned char*)_data._data,4,_data._width*_data._height);
+    for(int c=0; c<4; c++)
+      d.row(c)=(d.row(c).template cast<GLfloat>()*diffuse->coeff(c)).template cast<unsigned char>();
+  }
   if(path.size()>4 && (path.substr(path.size()-4)==".png" || path.substr(path.size()-4)==".PNG"))
     stbi_write_png(path.c_str(),_data._width,_data._height,4,_data._data,_data._width*4);
   else if(path.size()>4 && (path.substr(path.size()-4)==".bmp" || path.substr(path.size()-4)==".BMP"))
@@ -125,15 +131,25 @@ void Texture::save(const std::string& path,int quality) const {
   }
   //flip back
   flipY(_data._width,_data._height,4,_data._data);
+  if(diffuse) {
+    //remove modified data
+    const_cast<Texture*>(this)->_data=TextureCPUData();
+  }
 #else
   ASSERT_MSG(false,"STB not supported!")
 #endif
 }
-void Texture::save(aiTexture& tex,int quality) const {
+void Texture::save(aiTexture& tex,int quality,const Eigen::Matrix<GLfloat,4,1>* diffuse) const {
 #ifdef ASSIMP_SUPPORT
   void* context=&tex;
   const_cast<Texture*>(this)->loadCPUData();
   flipY(width(),height(),4,(unsigned char*)_data._data);
+  if(diffuse) {
+    //multiple channels by diffuse
+    Eigen::Map<Eigen::Matrix<unsigned char,4,-1>> d((unsigned char*)_data._data,4,_data._width*_data._height);
+    for(int c=0; c<4; c++)
+      d.row(c)=(d.row(c).template cast<GLfloat>()*diffuse->coeff(c)).template cast<unsigned char>();
+  }
   if(strcmp(tex.achFormatHint,"png")==0)
     stbi_write_png_to_func(writeFunc,context,_data._width,_data._height,4,_data._data,_data._width*4);
   else if(strcmp(tex.achFormatHint,"bmp")==0)
@@ -147,6 +163,10 @@ void Texture::save(aiTexture& tex,int quality) const {
   }
   //flip back
   flipY(width(),height(),4,(unsigned char*)_data._data);
+  if(diffuse) {
+    //remove modified data
+    const_cast<Texture*>(this)->_data=TextureCPUData();
+  }
 #else
   ASSERT_MSG(false,"Assimp not supported!")
 #endif

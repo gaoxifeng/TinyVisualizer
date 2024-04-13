@@ -30,8 +30,8 @@ class Texture : public RTTI::Enable {
   GLuint id() const;
   TextureCPUData& loadCPUData();
   void syncGPUData();
-  void save(const std::string& path,int quality=100) const;
-  void save(aiTexture& tex,int quality=100) const;
+  void save(const std::string& path,int quality=100,const Eigen::Matrix<GLfloat,4,1>* diffuse=NULL) const;
+  void save(aiTexture& tex,int quality=100,const Eigen::Matrix<GLfloat,4,1>* diffuse=NULL) const;
   static std::shared_ptr<Texture> load(const std::string& path);
   static std::shared_ptr<Texture> load(const aiTexture& tex);
   //data channel access
