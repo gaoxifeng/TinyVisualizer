@@ -85,4 +85,12 @@ void ArrowShape::draw(PASS_TYPE passType) const {
   matrixMode(GLModelViewMatrix);
   popMatrix();
 }
+void ArrowShape::drawPovray(Povray& pov) const {
+  matrixMode(GLModelViewMatrix);
+  pushMatrix();
+  multMatrixf(_T);
+  MeshShape::drawPovray(pov);
+  matrixMode(GLModelViewMatrix);
+  popMatrix();
+}
 }

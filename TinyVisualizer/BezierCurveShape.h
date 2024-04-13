@@ -24,6 +24,7 @@ class BezierCurveShape : public MeshShape {
   void clearControlPoint();
   virtual void computeNormals() override;
   virtual void draw(PASS_TYPE passType) const override;
+  virtual void drawPovray(Povray& pov) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
  private:
   void subdivide();

@@ -67,6 +67,18 @@ void Box2DShape::draw(PASS_TYPE passType) const {
   matrixMode(GLModelViewMatrix);
   popMatrix();
 }
+void Box2DShape::drawPovray(Povray& pov) const {
+  if(!_enabled)
+    return;
+  matrixMode(GLModelViewMatrix);
+  pushMatrix();
+  //local
+  translatef(_posx,_posy,0);
+  scalef(_scale,_scale,_scale);
+  CompositeShape::drawPovray(pov);
+  matrixMode(GLModelViewMatrix);
+  popMatrix();
+}
 Eigen::Matrix<GLfloat,6,1> Box2DShape::getBB() const {
   Eigen::Matrix<GLfloat,6,1> ret=resetBB(),retL=resetBB();
   //local

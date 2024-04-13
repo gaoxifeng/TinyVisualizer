@@ -1,6 +1,7 @@
 #include "MeshShape.h"
 #include "Texture.h"
 #include "Matrix.h"
+#include "Povray.h"
 #include "MakeTexture.h"
 #include "DefaultLight.h"
 #include <fstream>
@@ -332,6 +333,37 @@ void MeshShape::draw(PASS_TYPE passType) const {
   glActiveTexture(GL_TEXTURE1);
   (_mat->_texSpecular?_mat->_texSpecular:_texWhite)->end();
   glActiveTexture(GL_TEXTURE0);
+}
+void MeshShape::drawPovray(Povray& pov) const {
+  Eigen::Matrix<GLfloat,4,4> mv;
+  getFloatv(GLModelViewMatrix,mv);
+  if(_mode==GL_TRIANGLES) {
+    std::shared_ptr<Povray::Mesh> m(new Povray::Mesh);
+    m->_vertices=_vertices;
+    m->_normals=_normals;
+    m->_texcoords=_texcoords;
+    m->_indices=_indices;
+    m->_trans=mv.template block<3,4>(0,0);
+    m->_mat=*_mat;
+    pov.addElement(m);
+  } else if(_mode==GL_POINTS) {
+    std::shared_ptr<Povray::Points> p(new Povray::Points);
+    p->_vertices=_vertices;
+    p->_indices=_indices;
+    p->_trans=mv.template block<3,4>(0,0);
+    p->_mat=*_mat;
+    pov.addElement(p);
+  } else if(_mode==GL_LINES || _mode==GL_LINE_STRIP) {
+    std::shared_ptr<Povray::Lines> l(new Povray::Lines);
+    l->_vertices=_vertices;
+    l->_indices=_indices;
+    l->_trans=mv.template block<3,4>(0,0);
+    l->_isStrip=_mode==GL_LINE_STRIP;
+    l->_mat=*_mat;
+    pov.addElement(l);
+  } else {
+    ASSERT_MSG(false,"Unsupported GL_MODE for povray!")
+  }
 }
 Eigen::Matrix<GLfloat,6,1> MeshShape::getBB() const {
   if(_dirty) {

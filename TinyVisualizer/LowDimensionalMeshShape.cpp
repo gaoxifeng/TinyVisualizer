@@ -1,4 +1,5 @@
 #include "LowDimensionalMeshShape.h"
+#include "Povray.h"
 #include <iostream>
 
 namespace DRAWER {
@@ -51,6 +52,12 @@ Eigen::Matrix<GLfloat,6,1> LowDimensionalMeshShape::getBB() const {
   }
   return _inner->getBB();
 }
+void LowDimensionalMeshShape::drawPovray(Povray& pov) const {
+  _inner->drawPovray(pov);
+  std::shared_ptr<Povray::ElementWithVertices> e=std::custom_pointer_cast<Povray::ElementWithVertices>(pov.getLastElement());
+  if(_L.size()==_DHDL.cols())
+    Eigen::Map<Eigen::Matrix<GLfloat,-1,1>>(e->_vertices.data(),e->_vertices.size())+=_DHDL*_L;
+}
 bool LowDimensionalMeshShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const {
   if(_dirtyCPU) {
     Eigen::Map<Eigen::Matrix<GLfloat,-1,1>>(_inner->_vertices.data(),_inner->_vertices.size())=_inner->_VBO->VBOVData();
@@ -61,6 +68,7 @@ bool LowDimensionalMeshShape::rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray
 void LowDimensionalMeshShape::setLowToHighDimensionalMapping(const Eigen::Matrix<GLfloat,-1,-1>& DHDL) {
   _inner->initVBO();
   ASSERT_MSG(DHDL.rows()==(int)_inner->_vertices.size(),"Vertex size mismatch!")
+  _DHDL=DHDL;
   //HMap
   _HMap.reset(new Texture((int)DHDL.rows(),(int)DHDL.cols(),GL_R32F));
   _HMap->begin();

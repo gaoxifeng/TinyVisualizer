@@ -1,4 +1,5 @@
 #include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Povray.h>
 #include <TinyVisualizer/BezierCurveShape.h>
 
 using namespace DRAWER;
@@ -25,6 +26,14 @@ int main(int argc,char** argv) {
     drawer.addShape(curve);
     i+=1;
   }
+  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+    if(captured)
+      return;
+    else if(key==GLFW_KEY_F && action==GLFW_PRESS) {
+      Povray pov("pov");
+      drawer.drawPovray(pov);
+    }
+  });
   drawer.mainLoop();
   return 0;
 }

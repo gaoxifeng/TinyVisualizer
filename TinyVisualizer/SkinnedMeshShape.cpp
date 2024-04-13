@@ -338,7 +338,7 @@ bool SkinnedMeshShape::write(const std::string& filename) const {
 void SkinnedMeshShape::setAnimatedFrame(GLuint index,GLfloat time,bool updateMesh) {
   ASSERT_MSGV(index<_scene->mNumAnimations,"Invalid animation index, maxId=%d!",index)
   Eigen::Matrix<GLfloat,4,4> identity=Eigen::Matrix<GLfloat,4,4>::Identity();
-  GLfloat animationTimeTicks=calcAnimationTimeTicks(time,index);
+  GLfloat animationTimeTicks=calcAnimationTimeTicks(_time=time,_index=index);
   const aiAnimation& animation=*_scene->mAnimations[index];
   readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
   //calc vertices
@@ -388,6 +388,17 @@ GLfloat SkinnedMeshShape::duration(GLuint index) const {
 }
 GLuint SkinnedMeshShape::nrAnimation() const {
   return _scene->mNumAnimations;
+}
+void SkinnedMeshShape::drawPovray(Povray& pov) const {
+  ASSERT_MSGV(_index<_scene->mNumAnimations,"Invalid animation index, maxId=%d!",_index)
+  Eigen::Matrix<GLfloat,4,4> identity=Eigen::Matrix<GLfloat,4,4>::Identity();
+  GLfloat animationTimeTicks=calcAnimationTimeTicks(_time,_index);
+  const aiAnimation& animation=*_scene->mAnimations[_index];
+  const_cast<SkinnedMeshShape&>(*this).readNodeHierarchy(animationTimeTicks,_scene->mRootNode,identity,animation);
+  //calc vertices
+  for(GLuint i=0; i<(GLuint)_refMeshes.size(); i++)
+    updateMeshVerticesCPU(std::custom_pointer_cast<MeshShape>(_shapes[i]),_refMeshes[i],_refMeshes[i]->getBoneData());
+  Bullet3DShape::drawPovray(pov);
 }
 //helper
 GLuint SkinnedMeshShape::getBoneId(const aiBone* bone) {

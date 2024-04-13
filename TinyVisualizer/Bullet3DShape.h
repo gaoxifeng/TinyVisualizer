@@ -23,6 +23,7 @@ class Bullet3DShape : public CompositeShape {
                         GLfloat lineWidth=5);
 #endif
   virtual void draw(PASS_TYPE passType) const override;
+  virtual void drawPovray(Povray& pov) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   void setLocalTransform(const Eigen::Matrix<GLfloat,4,4>& localTrans);

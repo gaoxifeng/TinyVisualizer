@@ -67,6 +67,17 @@ void Bullet3DShape::draw(PASS_TYPE passType) const {
   matrixMode(GLModelViewMatrix);
   popMatrix();
 }
+void Bullet3DShape::drawPovray(Povray& pov) const {
+  if(!_enabled)
+    return;
+  matrixMode(GLModelViewMatrix);
+  pushMatrix();
+  //local
+  multMatrixf(_localTrans);
+  CompositeShape::drawPovray(pov);
+  matrixMode(GLModelViewMatrix);
+  popMatrix();
+}
 Eigen::Matrix<GLfloat,6,1> Bullet3DShape::getBB() const {
   Eigen::Matrix<GLfloat,6,1> ret=resetBB(),retL=resetBB();
   //local

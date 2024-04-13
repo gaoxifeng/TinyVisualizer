@@ -1,4 +1,5 @@
 #include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Povray.h>
 #include <TinyVisualizer/Camera3D.h>
 #include <TinyVisualizer/MakeMesh.h>
 #include <TinyVisualizer/MakeTexture.h>
@@ -61,6 +62,14 @@ int main(int argc,char** argv) {
   drawer.addPlugin(std::shared_ptr<Plugin>(new ImGuiPlugin([&]() {
     drawer.getCamera3D()->getManipulator()->imGuiCallback();
   })));
+  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+    if(captured)
+      return;
+    else if(key==GLFW_KEY_F && action==GLFW_PRESS) {
+      Povray pov("pov");
+      drawer.drawPovray(pov);
+    }
+  });
   drawer.mainLoop();
   return 0;
 }

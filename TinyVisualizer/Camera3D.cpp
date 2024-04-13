@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Matrix.h"
 #include "DefaultLight.h"
+#include "Povray.h"
 #include "VBO.h"
 
 namespace DRAWER {
@@ -121,6 +122,23 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
     }
     std::cout << "zNear=" << zNear << " zFar=" << zFar << std::endl;
   }
+}
+void Camera3D::drawPovray(Povray& pov,GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
+  draw(wnd,bb);
+
+  GLfloat zNear=0,zFar=0;
+  zRangef(bb,zNear,zFar);
+  Eigen::Matrix<GLfloat,3,1> up=_dir.cross(_up).cross(_dir).normalized();
+  Eigen::Matrix<GLfloat,3,1> right=_dir.cross(_up).normalized();
+
+  std::shared_ptr<Povray::Camera> c(new Povray::Camera);
+  c->_pos=_pos;
+  c->_dir=_dir.normalized()*zFar;
+  c->_up=up*tan(_angle*M_PI/360)*zFar*2;
+  c->_right=right*tan(_angle*M_PI/360)*zFar*2*_vp[2]/_vp[3];
+  if(_manipulator)
+    c->_trans=_manipulator->postDraw(wnd,bb).inverse().template block<3,4>(0,0);
+  pov.addElement(c);
 }
 Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindow* wnd,double x,double y) const {
   int w,h;

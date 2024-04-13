@@ -11,6 +11,7 @@ class ArrowShape : public MeshShape {
   void setArrow(const Eigen::Matrix<GLfloat,3,1>& from,
                 const Eigen::Matrix<GLfloat,3,1>& to);
   virtual void draw(PASS_TYPE passType) const override;
+  virtual void drawPovray(Povray& pov) const override;
  protected:
   Eigen::Matrix<GLfloat,4,4> _T;
   Eigen::Matrix<GLfloat,6,1> _bbRef;

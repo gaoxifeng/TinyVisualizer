@@ -1,4 +1,5 @@
 #include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Povray.h>
 #include <TinyVisualizer/MakeTexture.h>
 
 using namespace DRAWER;
@@ -15,6 +16,8 @@ int main(int argc,char** argv) {
     grid->end();
     glActiveTexture(GL_TEXTURE0);
   });
+  Povray pov("pov");
+  drawer.drawPovray(pov);
   drawer.mainLoop();
   return 0;
 }

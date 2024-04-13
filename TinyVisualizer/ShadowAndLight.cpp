@@ -1,5 +1,6 @@
 #include "ShadowAndLight.h"
 #include "DefaultLight.h"
+#include "Povray.h"
 #include "Matrix.h"
 #include "VBO.h"
 #include <iostream>
@@ -204,6 +205,13 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
       }
     }
     Program::currentProgram()->end();
+  }
+}
+void ShadowLight::drawPovray(Povray& pov) const {
+  for(const auto& l:_lights) {
+    std::shared_ptr<Povray::LightSource> ls(new Povray::LightSource);
+    ls->_l=l;
+    pov.addElement(ls);
   }
 }
 void ShadowLight::begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNormal) {

@@ -67,7 +67,7 @@ void TrackballCameraManipulator::preDraw(GLFWwindow*,const Eigen::Matrix<GLfloat
   Eigen::Matrix<GLfloat,3,1> ctr=(_bb.segment<3>(0)+_bb.segment<3>(3))/2;
   _camera->setDirection(ctr-_camera->position());
 }
-void TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloat,6,1>& bb) {
+Eigen::Matrix<GLfloat,4,4> TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloat,6,1>& bb) {
   Eigen::Matrix<GLfloat,3,1> ctr=(_bb.segment<3>(0)+_bb.segment<3>(3))/2;
   Eigen::Matrix<GLfloat,4,4> mv,r;
   r.setIdentity();
@@ -78,6 +78,7 @@ void TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloa
   mv*=r;
   loadIdentity();
   multMatrixf(mv);
+  return r;
 }
 void TrackballCameraManipulator::imGuiCallback() {
   Eigen::Matrix<GLfloat,3,1> ctr=(_bb.template segment<3>(0)+_bb.template segment<3>(3))/2;

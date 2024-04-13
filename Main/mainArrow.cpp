@@ -1,4 +1,5 @@
 #include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Povray.h>
 #include <TinyVisualizer/ArrowShape.h>
 #include <TinyVisualizer/LowDimensionalMeshShape.h>
 #include <TinyVisualizer/ShadowAndLight.h>
@@ -45,6 +46,10 @@ int main(int argc,char** argv) {
       return;
     else if(key==GLFW_KEY_R && action==GLFW_PRESS)
       sim=!sim;
+    else if(key==GLFW_KEY_F && action==GLFW_PRESS) {
+      Povray pov("pov");
+      drawer.drawPovray(pov);
+    }
   });
   drawer.mainLoop();
   return 0;

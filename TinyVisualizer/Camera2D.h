@@ -14,6 +14,7 @@ class Camera2D : public Camera {
   void motion(GLFWwindow* wnd,double x,double,bool capturedy) override;
   void key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) override;
   void draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) override;
+  void drawPovray(Povray& pov,GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) override;
   Eigen::Matrix<GLfloat,-1,1> getCameraRay(GLFWwindow* wnd,double x,double y) const override;
   Eigen::Matrix<GLfloat,-1,1> getViewFrustum() const override;
  private:

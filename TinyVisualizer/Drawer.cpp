@@ -193,6 +193,31 @@ void Drawer::draw() {
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->postDraw();
 }
+void Drawer::drawPovray(Povray& pov) {
+  //update scene graph
+  if(_root)
+    _root=SceneNode::update(_root);
+  Eigen::Matrix<GLfloat,-1,1> viewFrustum;
+  if(_camera)
+    viewFrustum=_camera->getViewFrustum();
+  else return;
+  //draw camera/background/light
+  Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();
+  _camera->drawPovray(pov,_window,bb);
+  _background.drawPovray(pov);
+  _light->drawPovray(pov);
+  //draw all objects
+  matrixMode(GLModelViewMatrix);
+  pushMatrix();
+  loadIdentity();
+  if(_root)
+    _root->visit([&](std::shared_ptr<Shape> s) {
+    s->drawPovray(pov);
+    return true;
+  });
+  matrixMode(GLModelViewMatrix);
+  popMatrix();
+}
 void Drawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);

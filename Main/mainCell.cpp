@@ -1,4 +1,5 @@
 #include <TinyVisualizer/Drawer.h>
+#include <TinyVisualizer/Povray.h>
 #include <TinyVisualizer/CellShape.h>
 #include <TinyVisualizer/ShadowAndLight.h>
 
@@ -29,6 +30,8 @@ int main(int argc,char** argv) {
                                     Eigen::Matrix<GLfloat,3,1>(.7,.7,.7),
                                     Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
+  Povray pov("pov");
+  drawer.drawPovray(pov);
   drawer.mainLoop();
   return 0;
 }

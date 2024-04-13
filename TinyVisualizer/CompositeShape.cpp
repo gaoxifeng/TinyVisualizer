@@ -59,6 +59,12 @@ void CompositeShape::draw(PASS_TYPE passType) const {
   for(int i=0; i<(int)_shapes.size(); i++)
     _shapes[i]->draw(passType);
 }
+void CompositeShape::drawPovray(Povray& pov) const {
+  if(!enabled())
+    return;
+  for(int i=0; i<(int)_shapes.size(); i++)
+    _shapes[i]->drawPovray(pov);
+}
 Eigen::Matrix<GLfloat,6,1> CompositeShape::getBB() const {
   Eigen::Matrix<GLfloat,6,1> bb=resetBB();
   for(std::shared_ptr<Shape> s:_shapes)

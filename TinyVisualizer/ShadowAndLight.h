@@ -8,7 +8,7 @@
 namespace DRAWER {
 struct Material : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Material);
-public:
+ public:
   Eigen::Matrix<GLfloat,4,1> _ambient;
   Eigen::Matrix<GLfloat,4,1> _diffuse;
   Eigen::Matrix<GLfloat,4,1> _specular;
@@ -20,7 +20,7 @@ public:
 };
 struct Light : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Light);
-public:
+ public:
   Eigen::Matrix<GLfloat,4,1> _position;
   Eigen::Matrix<GLfloat,4,1> _ambient;
   Eigen::Matrix<GLfloat,4,1> _diffuse;
@@ -67,6 +67,7 @@ class ShadowLight : public RTTI::Enable {
   int nrLight() const;
   bool hasShadow() const;
   void renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func);
+  void drawPovray(Povray& pov) const;
   void begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNormal);
   void setupLightMaterial(const Material& mat);
   void end();

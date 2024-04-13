@@ -20,6 +20,7 @@ class LowDimensionalMeshShape : public Shape {
   virtual void setShininess(GLenum mode,GLfloat S) override;
   virtual bool needRecomputeNormal() const override;
   virtual void draw(PASS_TYPE passType) const override;
+  virtual void drawPovray(Povray& pov) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
   void setLowToHighDimensionalMapping(const Eigen::Matrix<GLfloat,-1,-1>& DHDL);
@@ -34,6 +35,7 @@ class LowDimensionalMeshShape : public Shape {
   Eigen::Matrix<GLfloat,-1,1> _L;
   Eigen::Matrix<GLfloat,6,1> _BBBase;
   Eigen::Matrix<GLfloat,3,-1> _DHDLMax;
+  Eigen::Matrix<GLfloat,-1,-1> _DHDL;
   bool _dirtyBB;
 };
 }

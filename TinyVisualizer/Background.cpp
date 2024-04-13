@@ -1,5 +1,6 @@
 #include "Background.h"
 #include "Matrix.h"
+#include "Povray.h"
 #include "Texture.h"
 #include "DefaultLight.h"
 
@@ -34,5 +35,12 @@ void Background::draw() {
   }
   Program::currentProgram()->end();
   glEnable(GL_DEPTH_TEST);
+}
+void Background::drawPovray(Povray& pov) const {
+  std::shared_ptr<Povray::Background> b(new Povray::Background);
+  b->_color=_color;
+  b->_tcMult=_tcMult;
+  b->_tex=_tex;
+  pov.addElement(b);
 }
 }

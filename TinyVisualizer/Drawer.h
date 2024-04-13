@@ -11,6 +11,7 @@ class Texture;
 class SceneNode;
 class ShadowLight;
 class Drawer;
+class Povray;
 class Camera2D;
 class Camera3D;
 //swig only support class-based callback
@@ -56,6 +57,7 @@ class Shape : public RTTI::Enable {
   bool castShadow() const;
   bool useLight() const;
   virtual void draw(PASS_TYPE passType) const=0;
+  virtual void drawPovray(Povray& pov) const=0;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const=0;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
  protected:
@@ -78,6 +80,7 @@ class Camera : public RTTI::Enable {
   virtual void motion(GLFWwindow*,double,double,bool) {}
   virtual void key(GLFWwindow*,int,int,int,int,bool) {}
   virtual void draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {}
+  virtual void drawPovray(Povray& pov,GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&)=0;
   virtual Eigen::Matrix<GLfloat,-1,1> getCameraRay(GLFWwindow*,double,double) const {
     return Eigen::Matrix<GLfloat,-1,1>();
   }
@@ -131,6 +134,7 @@ class Drawer : public RTTI::Enable {
   void timer();
   void frame();
   void draw();
+  void drawPovray(Povray& pov);
   static void mouse(GLFWwindow* wnd,int button,int action,int mods);
   static void wheel(GLFWwindow* wnd,double xoffset,double yoffset);
   static void motion(GLFWwindow* wnd,double x,double y);

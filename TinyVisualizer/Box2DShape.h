@@ -20,6 +20,7 @@ class Box2DShape : public CompositeShape {
                         GLfloat lineWidth=2);
 #endif
   virtual void draw(PASS_TYPE passType) const override;
+  virtual void drawPovray(Povray& pov) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   void setLocalTransform(GLfloat posx,GLfloat posy,GLfloat scale);

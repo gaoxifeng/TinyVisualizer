@@ -75,6 +75,14 @@ void BezierCurveShape::draw(PASS_TYPE passType) const {
   }
   MeshShape::draw(passType);
 }
+void BezierCurveShape::drawPovray(Povray& pov) const {
+  if(_dirty) {
+    const_cast<BezierCurveShape*>(this)->subdivide();
+    const_cast<BezierCurveShape*>(this)->refitBB();
+    const_cast<BezierCurveShape*>(this)->_dirty=false;
+  }
+  MeshShape::drawPovray(pov);
+}
 void BezierCurveShape::subdivide() {
   _vertices.clear();
   if(_isHermite) {

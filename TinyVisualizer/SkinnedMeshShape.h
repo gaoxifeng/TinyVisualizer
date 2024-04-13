@@ -26,6 +26,7 @@ class SkinnedMeshShape : public Bullet3DShape {
   std::shared_ptr<MeshShape> getMesh(int id) const;
   GLfloat duration(GLuint index) const;
   GLuint nrAnimation() const;
+  virtual void drawPovray(Povray& pov) const override;
  private:
   GLuint getBoneId(const aiBone* bone);
   GLfloat calcAnimationTimeTicks(GLfloat time,GLint index) const;
@@ -42,6 +43,9 @@ class SkinnedMeshShape : public Bullet3DShape {
   std::vector<BoneInfo> _bones;
   std::unordered_map<std::string,GLuint> _boneNameToIndexMap;
   std::vector<std::shared_ptr<MeshShape>> _refMeshes;
+  //for povray writing
+  GLuint _index=0;
+  GLfloat _time=0;
 };
 }
 

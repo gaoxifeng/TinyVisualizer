@@ -12,4 +12,7 @@ void CameraManipulator::init(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& b
     _camera->setDirection(bb.template segment<3>(0)-bb.template segment<3>(3));
   }
 }
+Eigen::Matrix<GLfloat,4,4> CameraManipulator::postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
+  return Eigen::Matrix<GLfloat,4,4>::Identity();
+}
 }

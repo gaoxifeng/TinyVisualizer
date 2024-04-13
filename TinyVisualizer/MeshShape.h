@@ -60,6 +60,7 @@ class MeshShape : public Shape {
   virtual void setDrawer(Drawer* drawer) override;
   virtual void setShininess(GLenum mode,GLfloat S) override;
   virtual void draw(PASS_TYPE passType) const override;
+  virtual void drawPovray(Povray& pov) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
   virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
  protected:

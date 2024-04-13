@@ -2,6 +2,7 @@
 #include "Texture.h"
 #include "Matrix.h"
 #include "DefaultLight.h"
+#include "Povray.h"
 #include "VBO.h"
 
 namespace DRAWER {
@@ -107,6 +108,21 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
       glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     }
   }
+}
+void Camera2D::drawPovray(Povray& pov,GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
+  draw(wnd,bb);
+
+  Eigen::Matrix<GLfloat,3,1> pos(_xCtr,_yCtr,1);
+  Eigen::Matrix<GLfloat,3,1> dir(0,0,-1);
+  Eigen::Matrix<GLfloat,3,1> up(0,_yExt*_scale*2,0);
+  Eigen::Matrix<GLfloat,3,1> right(_xExt*_scale*2,0,0);
+
+  std::shared_ptr<Povray::Camera> c(new Povray::Camera);
+  c->_pos=pos;
+  c->_dir=dir.normalized();
+  c->_up=up;
+  c->_right=right;
+  pov.addElement(c);
 }
 Eigen::Matrix<GLfloat,-1,1> Camera2D::getCameraRay(GLFWwindow* wnd,double x,double y) const {
   int w,h;

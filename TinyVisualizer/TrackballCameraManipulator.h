@@ -13,7 +13,7 @@ class TrackballCameraManipulator : public CameraManipulator {
   void wheel(GLFWwindow*,double,double yoffset,bool captured) override;
   void motion(GLFWwindow* wnd,double x,double y,bool captured) override;
   void preDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
-  void postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
+  Eigen::Matrix<GLfloat,4,4> postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
   void imGuiCallback() override;
  protected:
   Eigen::Matrix<GLfloat,6,1> _bb;
