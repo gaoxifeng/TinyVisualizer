@@ -52,6 +52,7 @@ int main(int argc,char** argv) {
   }
   std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
   std::shared_ptr<MeshShape> box=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(0.25,0.25,0.25));
+  box->setAlpha(0.1f);
   box->setTextureDiffuse(drawChecker());
   shapeTB->setLocalTranslate(Eigen::Matrix<GLfloat,3,1>(2,0.5,2));
   shapeTB->addShape(box);

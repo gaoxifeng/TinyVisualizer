@@ -205,7 +205,7 @@ void Drawer::drawPovray(Povray& pov) {
   Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();
   _camera->drawPovray(pov,_window,bb);
   _background.drawPovray(pov);
-  _light->drawPovray(pov);
+  _light->drawPovray(bb,pov);
   //draw all objects
   matrixMode(GLModelViewMatrix);
   pushMatrix();

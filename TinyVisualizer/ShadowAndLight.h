@@ -67,7 +67,7 @@ class ShadowLight : public RTTI::Enable {
   int nrLight() const;
   bool hasShadow() const;
   void renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func);
-  void drawPovray(Povray& pov) const;
+  void drawPovray(const Eigen::Matrix<GLfloat,6,1>& bb,Povray& pov) const;
   void begin(const Eigen::Matrix<GLfloat,6,1>& bb,bool recomputeNormal);
   void setupLightMaterial(const Material& mat);
   void end();

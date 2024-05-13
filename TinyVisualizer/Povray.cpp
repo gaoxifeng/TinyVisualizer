@@ -203,6 +203,19 @@ void Povray::LightSource::write(Povray& pov) const {
   pov.moreIndent();
   pov.getStream() << pov.indent() << pov.write(_l._position.template segment<3>(0).eval()) << std::endl;
   pov.getStream() << pov.indent() << "color rgb " << pov.write(_l._diffuse.template segment<3>(0).eval()) << std::endl;
+  if(_size>0) {
+    Eigen::Matrix<GLfloat,3,1> d,v1,v2;
+    d=_ctr-_l._position.template segment<3>(0);
+    if(d.isZero())
+      return;
+    int id;
+    d.cwiseAbs().minCoeff(&id);
+    v1=Eigen::Matrix<GLfloat,3,1>::Unit(id).cross(d).normalized()*_size;
+    v2=d.cross(v1).normalized()*_size;
+    pov.getStream() << pov.indent() << "area_light " << pov.write(v1) << ", " << pov.write(v2) << ", " << _nSample << ", " << _nSample << std::endl;
+    pov.getStream() << pov.indent() << "adaptive 1" << std::endl;
+    pov.getStream() << pov.indent() << "jitter" << std::endl;
+  }
   pov.lessIndent();
   pov.getStream() << pov.indent() << "}" << std::endl;
 }

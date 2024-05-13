@@ -57,6 +57,9 @@ class Povray {
   struct LightSource : public Element {
     RTTI_DECLARE_TYPEINFO(LightSource);
     void write(Povray& pov) const override;
+    static const int _nSample=10;
+    Eigen::Matrix<GLfloat,3,1> _ctr;
+    GLfloat _size;
     Light _l;
   };
   Povray(const std::string& folder);

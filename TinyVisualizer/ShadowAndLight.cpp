@@ -207,10 +207,12 @@ void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::functio
     Program::currentProgram()->end();
   }
 }
-void ShadowLight::drawPovray(Povray& pov) const {
+void ShadowLight::drawPovray(const Eigen::Matrix<GLfloat,6,1>& bb,Povray& pov) const {
   for(const auto& l:_lights) {
     std::shared_ptr<Povray::LightSource> ls(new Povray::LightSource);
     ls->_l=l;
+    ls->_size=_lightSz;
+    ls->_ctr=(bb.template segment<3>(0)+bb.template segment<3>(3))/2;
     pov.addElement(ls);
   }
 }
