@@ -39,6 +39,7 @@ class Shape : public RTTI::Enable {
   };
   Shape();
   virtual ~Shape() {}
+  virtual void setAlpha(GLfloat) {}
   virtual void setPointSize(GLfloat) {}
   virtual void setLineWidth(GLfloat) {}
   virtual void setColorDiffuse(GLenum,GLfloat,GLfloat,GLfloat) {}

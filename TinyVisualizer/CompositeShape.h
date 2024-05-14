@@ -8,6 +8,7 @@ class CompositeShape : public Shape {
   RTTI_DECLARE_TYPEINFO(CompositeShape, Shape);
  public:
   void addShape(std::shared_ptr<Shape> s);
+  virtual void setAlpha(GLfloat alpha) override;
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
   virtual void setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;

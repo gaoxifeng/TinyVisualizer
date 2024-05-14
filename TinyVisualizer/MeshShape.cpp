@@ -110,9 +110,6 @@ void MeshShape::computeNormals() {
     _VBO->setVertexNormal(_normals);
   else _VBO=NULL;
 }
-void MeshShape::setAlpha(GLfloat alpha) {
-  _mat->_diffuse[3]=alpha;
-}
 void MeshShape::setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal) {
   _dirty=true;
   if((int)_normals.size()<i*3+3) {
@@ -256,6 +253,9 @@ std::shared_ptr<VBO> MeshShape::getVBO() {
   _dirty=true;
   initVBO();
   return _VBO;
+}
+void MeshShape::setAlpha(GLfloat alpha) {
+  _mat->_diffuse[3]=alpha;
 }
 void MeshShape::setPointSize(GLfloat pointSize) {
   _mat->_pointSize=pointSize;

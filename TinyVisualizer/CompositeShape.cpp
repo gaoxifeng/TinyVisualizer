@@ -5,6 +5,10 @@ namespace DRAWER {
 void CompositeShape::addShape(std::shared_ptr<Shape> s) {
   _shapes.push_back(s);
 }
+void CompositeShape::setAlpha(GLfloat alpha) {
+  for(int i=0; i<(int)_shapes.size(); i++)
+    _shapes[i]->setAlpha(alpha);
+}
 void CompositeShape::setPointSize(GLfloat pointSize) {
   for(int i=0; i<(int)_shapes.size(); i++)
     _shapes[i]->setPointSize(pointSize);

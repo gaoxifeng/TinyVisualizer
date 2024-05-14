@@ -32,7 +32,6 @@ class MeshShape : public Shape {
   void clear();
   void clearIndex();
   virtual void computeNormals();
-  void setAlpha(GLfloat alpha);
   void setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal);
   Eigen::Matrix<GLfloat,3,1> getNormal(int i) const;
   void setVertex(int i,const Eigen::Matrix<GLfloat,3,1>& vertex);
@@ -50,6 +49,7 @@ class MeshShape : public Shape {
   const BoneData& getBoneData() const;
   void setBoneData(const BoneData& bone);
   std::shared_ptr<VBO> getVBO();    //a dangerous method, we will flag mesh as dirty when this is called
+  virtual void setAlpha(GLfloat alpha) override;
   virtual void setPointSize(GLfloat pointSize) override;
   virtual void setLineWidth(GLfloat lineWidth) override;
   virtual void setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B) override;
