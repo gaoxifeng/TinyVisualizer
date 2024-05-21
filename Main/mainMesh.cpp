@@ -10,7 +10,8 @@
 #include <ctime>
 using namespace DRAWER;
 
-int main(int argc,char** argv) {
+int main(int argc, char **argv) {
+#ifdef ASSIMP_SUPPORT
 #ifdef IMGUI_SUPPORT
   Drawer drawer(argc,argv);
   Eigen::Matrix<GLfloat,4,4> scale=Eigen::Matrix<GLfloat,4,4>::Identity();
@@ -89,6 +90,7 @@ int main(int argc,char** argv) {
     })));
   }
   drawer.mainLoop();
+#endif
 #endif
   return 0;
 }
