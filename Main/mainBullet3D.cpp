@@ -109,7 +109,7 @@ int main(int argc,char** argv) {
       dynamicsWorld->removeCollisionObject(dss.at(i));
     Bullet3DShape::syncWorld(root,dynamicsWorld,checker);
   });
-  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+  drawer.setKeyFunc([&](GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
     if(captured)
       return;
     else if(key==GLFW_KEY_R && action==GLFW_PRESS)

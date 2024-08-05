@@ -62,10 +62,10 @@ void Plugin::setDrawer(Drawer* drawer) {
 void errFunc(int error,const char* description) {
   ASSERT_MSGV(false,"GLFW error=%d, message: %s!",error,description)
 }
-void mouseNothing(GLFWwindow*,int,int,int,bool) {}
-void wheelNothing(GLFWwindow*,double,double,bool) {}
-void motionNothing(GLFWwindow*,double,double,bool) {}
-void keyNothing(GLFWwindow*,int,int,int,int,bool) {}
+void mouseNothing(GLFWwindowPtr,int,int,int,bool) {}
+void wheelNothing(GLFWwindowPtr,double,double,bool) {}
+void motionNothing(GLFWwindowPtr,double,double,bool) {}
+void keyNothing(GLFWwindowPtr,int,int,int,int,bool) {}
 void doNothing(std::shared_ptr<SceneNode>&) {}
 void drawNothing() {}
 Drawer::Drawer(const std::vector<std::string>& args,GLFWwindow* wnd,MultiDrawer* parent):_parent(parent),_window(wnd) {
@@ -283,16 +283,16 @@ void Drawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
     break;
   }
 }
-void Drawer::setMouseFunc(std::function<void(GLFWwindow*,int,int,int,bool)> mouse) {
+void Drawer::setMouseFunc(std::function<void(GLFWwindowPtr,int,int,int,bool)> mouse) {
   _mouse=mouse;
 }
-void Drawer::setWheelFunc(std::function<void(GLFWwindow*,double,double,bool)> wheel) {
+void Drawer::setWheelFunc(std::function<void(GLFWwindowPtr,double,double,bool)> wheel) {
   _wheel=wheel;
 }
-void Drawer::setMotionFunc(std::function<void(GLFWwindow*,double,double,bool)> motion) {
+void Drawer::setMotionFunc(std::function<void(GLFWwindowPtr,double,double,bool)> motion) {
   _motion=motion;
 }
-void Drawer::setKeyFunc(std::function<void(GLFWwindow*,int,int,int,int,bool)> key) {
+void Drawer::setKeyFunc(std::function<void(GLFWwindowPtr,int,int,int,int,bool)> key) {
   _key=key;
 }
 void Drawer::setFrameFunc(std::function<void(std::shared_ptr<SceneNode>&)> frame) {

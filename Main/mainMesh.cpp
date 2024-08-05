@@ -58,14 +58,14 @@ int main(int argc, char **argv) {
   //camera
   drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
   drawer.getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new TrackballCameraManipulator(drawer.getCamera3D())));
-  drawer.setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
+  drawer.setMouseFunc([&](GLFWwindowPtr wnd,int button,int action,int,bool captured) {
     if(captured)
       return;
     else if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
       double x=0,y=0;
       GLfloat IAlpha=1;
       std::shared_ptr<Shape> IShape;
-      glfwGetCursorPos(wnd,&x,&y);
+      glfwGetCursorPos(wnd._ptr,&x,&y);
       Eigen::Matrix<GLfloat,6,1> ray=drawer.getCameraRay(x,y);
       if(drawer.rayIntersect(ray,IShape,IAlpha)) {
         std::cout << "Intersection IAlpha=" << IAlpha << std::endl;

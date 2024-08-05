@@ -22,7 +22,7 @@ class LowDimensionalMeshShape : public Shape {
   virtual void draw(PASS_TYPE passType) const override;
   virtual void drawPovray(Povray& pov) const override;
   virtual Eigen::Matrix<GLfloat,6,1> getBB() const override;
-  virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const;
+  virtual bool rayIntersect(const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha) const override;
   void setLowToHighDimensionalMapping(const Eigen::Matrix<GLfloat,-1,-1>& DHDL);
   void updateHighDimensionalMapping(const Eigen::Matrix<GLfloat,-1,1>& L);
   std::shared_ptr<Program> getTransformFeedbackProg() const;

@@ -8,11 +8,11 @@ class FirstPersonCameraManipulator : public CameraManipulator {
   RTTI_DECLARE_TYPEINFO(FirstPersonCameraManipulator, CameraManipulator);
  public:
   FirstPersonCameraManipulator(std::shared_ptr<Camera3D> camera);
-  void frame(GLFWwindow* wnd,GLfloat time) override;
-  void mouse(GLFWwindow* wnd,int button,int action,int,bool captured) override;
-  void wheel(GLFWwindow*,double,double yoffset,bool captured) override;
-  void motion(GLFWwindow* wnd,double x,double y,bool captured) override;
-  void key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) override;
+  void frame(GLFWwindowPtr wnd,GLfloat time) override;
+  void mouse(GLFWwindowPtr wnd,int button,int action,int,bool captured) override;
+  void wheel(GLFWwindowPtr,double,double yoffset,bool captured) override;
+  void motion(GLFWwindowPtr wnd,double x,double y,bool captured) override;
+  void key(GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) override;
   void imGuiCallback() override;
   bool isSpeedMode() const;
  protected:

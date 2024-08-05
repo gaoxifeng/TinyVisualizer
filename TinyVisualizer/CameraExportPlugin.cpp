@@ -5,7 +5,7 @@
 
 namespace DRAWER {
 CameraExportPlugin::CameraExportPlugin(int keySave,int keyLoad,const std::string& name):_keySave(keySave),_keyLoad(keyLoad),_fileName(name) {}
-bool CameraExportPlugin::key(GLFWwindow*,int key,int,int action,int) {
+bool CameraExportPlugin::key(GLFWwindowPtr,int key,int,int action,int) {
   std::shared_ptr<Camera3D> cam=std::custom_pointer_cast<Camera3D>(_drawer->getCamera());
   if(key==_keySave && action==GLFW_PRESS)
     return saveCamera();

@@ -41,7 +41,7 @@ int main(int argc,char** argv) {
       lowDimArrow->updateHighDimensionalMapping(Eigen::Matrix<GLfloat,3,1>(std::sin(theta),0,0));
     }
   });
-  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+  drawer.setKeyFunc([&](GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
     if(captured)
       return;
     else if(key==GLFW_KEY_R && action==GLFW_PRESS)

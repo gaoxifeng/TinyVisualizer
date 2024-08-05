@@ -10,15 +10,15 @@ class CameraManipulator : public RTTI::Enable {
  public:
   CameraManipulator(std::shared_ptr<Camera3D> camera);
   virtual ~CameraManipulator() {}
-  virtual void frame(GLFWwindow* wnd,GLfloat time) {}
-  virtual void mouse(GLFWwindow* wnd,int button,int action,int mods,bool captured) {}
-  virtual void wheel(GLFWwindow* wnd,double xoffset,double yoffset,bool captured) {}
-  virtual void motion(GLFWwindow* wnd,double x,double y,bool captured) {}
-  virtual void key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {}
-  virtual void preDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {}
-  virtual Eigen::Matrix<GLfloat,4,4> postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb);
+  virtual void frame(GLFWwindowPtr wnd,GLfloat time) {}
+  virtual void mouse(GLFWwindowPtr wnd,int button,int action,int mods,bool captured) {}
+  virtual void wheel(GLFWwindowPtr wnd,double xoffset,double yoffset,bool captured) {}
+  virtual void motion(GLFWwindowPtr wnd,double x,double y,bool captured) {}
+  virtual void key(GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {}
+  virtual void preDraw(GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {}
+  virtual Eigen::Matrix<GLfloat,4,4> postDraw(GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>& bb);
   virtual void imGuiCallback() {}
-  virtual void init(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb);
+  virtual void init(GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>& bb);
  protected:
   std::shared_ptr<Camera3D> _camera;
 };

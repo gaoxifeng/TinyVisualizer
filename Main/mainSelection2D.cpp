@@ -13,8 +13,8 @@ int main(int argc,char** argv) {
   drawer.clearLight();
   std::shared_ptr<Shape> IShape;
   std::shared_ptr<Texture> checker=drawChecker();
-  for(int x=0;x<5;x++)
-    for(int y=0;y<5;y++) {
+  for(int x=0; x<5; x++)
+    for(int y=0; y<5; y++) {
       std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
       std::shared_ptr<MeshShape> box=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(0.25,0.25,0.25));
       box->setTextureDiffuse(checker);
@@ -23,13 +23,13 @@ int main(int argc,char** argv) {
       shapeTB->addShape(box);
       drawer.addShape(shapeTB);
     }
-  drawer.setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
+  drawer.setMouseFunc([&](GLFWwindowPtr wnd,int button,int action,int,bool captured) {
     if(captured)
       return;
     else if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
       double x=0,y=0;
       GLfloat IAlpha=1;
-      glfwGetCursorPos(wnd,&x,&y);
+      glfwGetCursorPos(wnd._ptr,&x,&y);
       Eigen::Matrix<GLfloat,2,1> pos=drawer.getCameraRay(x,y);
       Eigen::Matrix<GLfloat,6,1> ray;
       ray << pos[0],pos[1],1,0,0,-2;

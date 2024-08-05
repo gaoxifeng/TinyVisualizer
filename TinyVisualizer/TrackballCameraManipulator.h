@@ -8,12 +8,12 @@ class TrackballCameraManipulator : public CameraManipulator {
   RTTI_DECLARE_TYPEINFO(TrackballCameraManipulator, CameraManipulator);
  public:
   TrackballCameraManipulator(std::shared_ptr<Camera3D> camera);
-  void frame(GLFWwindow* wnd,GLfloat time) override;
-  void mouse(GLFWwindow* wnd,int button,int action,int,bool captured) override;
-  void wheel(GLFWwindow*,double,double yoffset,bool captured) override;
-  void motion(GLFWwindow* wnd,double x,double y,bool captured) override;
-  void preDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
-  Eigen::Matrix<GLfloat,4,4> postDraw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
+  void frame(GLFWwindowPtr wnd,GLfloat time) override;
+  void mouse(GLFWwindowPtr wnd,int button,int action,int,bool captured) override;
+  void wheel(GLFWwindowPtr,double,double yoffset,bool captured) override;
+  void motion(GLFWwindowPtr wnd,double x,double y,bool captured) override;
+  void preDraw(GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
+  Eigen::Matrix<GLfloat,4,4> postDraw(GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>& bb) override;
   void imGuiCallback() override;
  protected:
   Eigen::Matrix<GLfloat,6,1> _bb;

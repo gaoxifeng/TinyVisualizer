@@ -13,13 +13,13 @@ Camera2D::Camera2D(GLfloat xExt)
 void Camera2D::focusOn(std::shared_ptr<Shape> s) {
   _focus=s;
 }
-void Camera2D::mouse(GLFWwindow* wnd,int button,int action,int,bool captured) {
+void Camera2D::mouse(GLFWwindowPtr wnd,int button,int action,int,bool captured) {
   if(captured)
     return;
   else if(button==GLFW_MOUSE_BUTTON_1) {
     if(action==GLFW_PRESS) {
       _inMotion=true;
-      glfwGetCursorPos(wnd,&_xLast,&_yLast);
+      glfwGetCursorPos(wnd._ptr,&_xLast,&_yLast);
       _xCtrLast=_xCtr;
       _yCtrLast=_yCtr;
     } else if(action==GLFW_RELEASE) {
@@ -27,12 +27,12 @@ void Camera2D::mouse(GLFWwindow* wnd,int button,int action,int,bool captured) {
     }
   }
 }
-void Camera2D::wheel(GLFWwindow*,double,double yoffset,bool captured) {
+void Camera2D::wheel(GLFWwindowPtr,double,double yoffset,bool captured) {
   if(captured)
     return;
   else _scale*=(GLfloat)std::pow(1.1,-yoffset);
 }
-void Camera2D::motion(GLFWwindow* wnd,double x,double y,bool captured) {
+void Camera2D::motion(GLFWwindowPtr wnd,double x,double y,bool captured) {
   if(captured)
     return;
   else if(_inMotion) {
@@ -41,7 +41,7 @@ void Camera2D::motion(GLFWwindow* wnd,double x,double y,bool captured) {
     _yCtr=_yCtrLast+(GLfloat)(y-_yLast)*coef;
   }
 }
-void Camera2D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+void Camera2D::key(GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
   if(captured)
     return;
   else if(key==GLFW_KEY_H && action==GLFW_PRESS) {
@@ -55,7 +55,7 @@ void Camera2D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool cap
     _debug=!_debug;
   }
 }
-void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
+void Camera2D::draw(GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>&) {
   if(_focus) {
     Eigen::Matrix<GLfloat,6,1> bbF=_focus->getBB();
     _xCtr=(bbF[0]+bbF[3])/2;
@@ -109,7 +109,7 @@ void Camera2D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>&) {
     }
   }
 }
-void Camera2D::drawPovray(Povray& pov,GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
+void Camera2D::drawPovray(Povray& pov,GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   draw(wnd,bb);
 
   Eigen::Matrix<GLfloat,3,1> pos(_xCtr,_yCtr,1);
@@ -124,10 +124,10 @@ void Camera2D::drawPovray(Povray& pov,GLFWwindow* wnd,const Eigen::Matrix<GLfloa
   c->_right=right;
   pov.addElement(c);
 }
-Eigen::Matrix<GLfloat,-1,1> Camera2D::getCameraRay(GLFWwindow* wnd,double x,double y) const {
+Eigen::Matrix<GLfloat,-1,1> Camera2D::getCameraRay(GLFWwindowPtr wnd,double x,double y) const {
   int w,h;
   Eigen::Matrix<GLfloat,2,1> ret;
-  glfwGetWindowSize(wnd,&w,&h);
+  glfwGetWindowSize(wnd._ptr,&w,&h);
   ret[0]=interp1D<GLfloat,GLfloat>(_xCtr-_xExt*_scale,_xCtr+_xExt*_scale,(GLfloat)(x-_vp[0])/(GLfloat)_vp[2]);
   ret[1]=interp1D<GLfloat,GLfloat>(_yCtr-_yExt*_scale,_yCtr+_yExt*_scale,(GLfloat)(h-y-_vp[1])/(GLfloat)_vp[3]);
   return ret;

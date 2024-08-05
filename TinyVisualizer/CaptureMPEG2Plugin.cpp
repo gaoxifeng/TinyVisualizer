@@ -11,7 +11,7 @@ void CaptureMPEG2Plugin::finalize() {
 void CaptureMPEG2Plugin::frame(std::shared_ptr<SceneNode>&) {
   addFrame();
 }
-bool CaptureMPEG2Plugin::key(GLFWwindow*,int key,int,int action,int) {
+bool CaptureMPEG2Plugin::key(GLFWwindowPtr,int key,int,int action,int) {
   if(key==_key && action==GLFW_PRESS) {
     if(!_recordFile)
       startRecording();
@@ -33,8 +33,8 @@ void CaptureMPEG2Plugin::startRecording() {
     std::cout << "Starting recording to " << _recordFileName << std::endl;
 
     //size
-    GLFWwindow* wnd=glfwGetCurrentContext();
-    glfwGetWindowSize(wnd,&_width,&_height);
+    GLFWwindowPtr wnd=glfwGetCurrentContext();
+    glfwGetWindowSize(wnd._ptr,&_width,&_height);
   }
 }
 void CaptureMPEG2Plugin::addFrame() {
@@ -42,8 +42,8 @@ void CaptureMPEG2Plugin::addFrame() {
     return;
   //read screen
   GLint viewport[4];
-  GLFWwindow* wnd=glfwGetCurrentContext();
-  glfwGetWindowSize(wnd,&viewport[2],&viewport[3]);
+  GLFWwindowPtr wnd=glfwGetCurrentContext();
+  glfwGetWindowSize(wnd._ptr,&viewport[2],&viewport[3]);
   if(viewport[2]!=_width || viewport[3]!=_height) {
     std::cout << "Screen resolution changed from " << _width << "x" << _height << " to " << viewport[2] << "x" << viewport[3] << " stop recording!" << std::endl;
     stopRecording();

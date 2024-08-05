@@ -8,7 +8,7 @@ class CameraExportPlugin : public Plugin {
   RTTI_DECLARE_TYPEINFO(CameraExportPlugin, Plugin);
  public:
   CameraExportPlugin(int keySave,int keyLoad,const std::string& name);
-  virtual bool key(GLFWwindow* wnd,int key,int scan,int action,int mods) override;
+  virtual bool key(GLFWwindowPtr wnd,int key,int scan,int action,int mods) override;
   bool saveCamera();
   bool loadCamera();
  private:

@@ -42,7 +42,7 @@ void defaultImGuiSetup() {
 }
 ImGuiPlugin::ImGuiPlugin(PythonCallback* cb):_cb(cb),_ImGuiSetup(defaultImGuiSetup) {}
 ImGuiPlugin::ImGuiPlugin(std::function<void()> ImGuiSetup):_cb(NULL),_ImGuiSetup(ImGuiSetup) {}
-void ImGuiPlugin::init(GLFWwindow* window) {
+void ImGuiPlugin::init(GLFWwindowPtr window) {
 #ifdef IMGUI_SUPPORT
   //Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -102,7 +102,7 @@ void ImGuiPlugin::init(GLFWwindow* window) {
   //ImGui::StyleColorsClassic();
 
   //Setup Platform/Renderer backends
-  ImGui_ImplGlfw_InitForOpenGL(window,true);
+  ImGui_ImplGlfw_InitForOpenGL(window._ptr,true);
   ImGui_ImplOpenGL3_Init(glsl_version);
 #else
   ASSERT_MSG(false,"ImGui not supported!")
@@ -140,28 +140,28 @@ void ImGuiPlugin::postDraw() {
   ASSERT_MSG(false,"ImGui not supported!")
 #endif
 }
-bool ImGuiPlugin::mouse(GLFWwindow*,int,int,int)  {
+bool ImGuiPlugin::mouse(GLFWwindowPtr,int,int,int)  {
 #ifdef IMGUI_SUPPORT
   return !ImGui::GetIO().WantCaptureMouse;
 #else
   ASSERT_MSG(false,"ImGui not supported!")
 #endif
 }
-bool ImGuiPlugin::wheel(GLFWwindow*,double,double) {
+bool ImGuiPlugin::wheel(GLFWwindowPtr,double,double) {
 #ifdef IMGUI_SUPPORT
   return !ImGui::GetIO().WantCaptureMouse;
 #else
   ASSERT_MSG(false,"ImGui not supported!")
 #endif
 }
-bool ImGuiPlugin::motion(GLFWwindow*,double,double) {
+bool ImGuiPlugin::motion(GLFWwindowPtr,double,double) {
 #ifdef IMGUI_SUPPORT
   return !ImGui::GetIO().WantCaptureMouse;
 #else
   ASSERT_MSG(false,"ImGui not supported!")
 #endif
 }
-bool ImGuiPlugin::key(GLFWwindow*,int,int,int,int) {
+bool ImGuiPlugin::key(GLFWwindowPtr,int,int,int,int) {
 #ifdef IMGUI_SUPPORT
   return !ImGui::GetIO().WantCaptureKeyboard;
 #else

@@ -21,11 +21,11 @@ std::shared_ptr<CameraManipulator> Camera3D::getManipulator() const {
 void Camera3D::focusOn(std::shared_ptr<Shape> s) {
   _focus=s;
 }
-void Camera3D::frame(GLFWwindow* wnd,GLfloat time) {
+void Camera3D::frame(GLFWwindowPtr wnd,GLfloat time) {
   if(_manipulator)
     _manipulator->frame(wnd,time);
 }
-void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int mods,bool captured) {
+void Camera3D::mouse(GLFWwindowPtr wnd,int button,int action,int mods,bool captured) {
   if(_manipulator)
     _manipulator->mouse(wnd,button,action,mods,captured);
   if(captured)
@@ -34,20 +34,20 @@ void Camera3D::mouse(GLFWwindow* wnd,int button,int action,int mods,bool capture
     if(action==GLFW_PRESS) {
       double x=0,y=0;
       loadCamera();
-      glfwGetCursorPos(wnd,&x,&y);
+      glfwGetCursorPos(wnd._ptr,&x,&y);
       _debugLine=getCameraRay(wnd,x,y);
     }
   }
 }
-void Camera3D::wheel(GLFWwindow* wnd,double xoffset,double yoffset,bool captured) {
+void Camera3D::wheel(GLFWwindowPtr wnd,double xoffset,double yoffset,bool captured) {
   if(_manipulator)
     _manipulator->wheel(wnd,xoffset,yoffset,captured);
 }
-void Camera3D::motion(GLFWwindow* wnd,double x,double y,bool captured) {
+void Camera3D::motion(GLFWwindowPtr wnd,double x,double y,bool captured) {
   if(_manipulator)
     _manipulator->motion(wnd,x,y,captured);
 }
-void Camera3D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+void Camera3D::key(GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
   if(_manipulator)
     _manipulator->key(wnd,key,scan,action,mods,captured);
   if(captured)
@@ -58,7 +58,7 @@ void Camera3D::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool cap
   } else if(key==GLFW_KEY_B && action==GLFW_PRESS)
     _debug=!_debug;
 }
-void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
+void Camera3D::draw(GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   if(!std::isfinite(_pos[0]) && _manipulator)
     _manipulator->init(wnd,bb);
   if(_focus) {
@@ -123,7 +123,7 @@ void Camera3D::draw(GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
     std::cout << "zNear=" << zNear << " zFar=" << zFar << std::endl;
   }
 }
-void Camera3D::drawPovray(Povray& pov,GLFWwindow* wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
+void Camera3D::drawPovray(Povray& pov,GLFWwindowPtr wnd,const Eigen::Matrix<GLfloat,6,1>& bb) {
   draw(wnd,bb);
 
   GLfloat zNear=0,zFar=0;
@@ -140,9 +140,9 @@ void Camera3D::drawPovray(Povray& pov,GLFWwindow* wnd,const Eigen::Matrix<GLfloa
     c->_trans=_manipulator->postDraw(wnd,bb).inverse().template block<3,4>(0,0);
   pov.addElement(c);
 }
-Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindow* wnd,double x,double y) const {
+Eigen::Matrix<GLfloat,-1,1> Camera3D::getCameraRay(GLFWwindowPtr wnd,double x,double y) const {
   int w,h;
-  glfwGetWindowSize(wnd,&w,&h);
+  glfwGetWindowSize(wnd._ptr,&w,&h);
   GLfloat ratioX=((GLfloat)(x-_vp[0])-(GLfloat)_vp[2]/2)/(GLfloat)(_vp[2]/2);
   GLfloat ratioY=-((GLfloat)(h-y-_vp[1])-(GLfloat)_vp[3]/2)/(GLfloat)(_vp[3]/2);
 

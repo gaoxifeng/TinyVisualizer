@@ -11,7 +11,7 @@ TrackballCameraManipulator::TrackballCameraManipulator(std::shared_ptr<Camera3D>
   :CameraManipulator(camera),_scaleCoef(1.1f),_sensitive(.01f),_scaleMode(true),_inMotion(false) {
   _rot.setIdentity();
 }
-void TrackballCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
+void TrackballCameraManipulator::frame(GLFWwindowPtr wnd,GLfloat time) {
   if(_inMotion) {
     Eigen::AngleAxis<GLfloat> rotUp,rotRight;
     rotUp.angle()=(GLfloat)(_xCurr-_posX)*_sensitive;
@@ -25,14 +25,14 @@ void TrackballCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
     _rot.col(1)=_rot.col(2).cross(_rot.col(0)).normalized();
   }
 }
-void TrackballCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int,bool captured) {
+void TrackballCameraManipulator::mouse(GLFWwindowPtr wnd,int button,int action,int,bool captured) {
   if(captured) {
     _inMotion=false;
     return;
   } else if(button==GLFW_MOUSE_BUTTON_1) {
     if(action==GLFW_PRESS) {
       _inMotion=true;
-      glfwGetCursorPos(wnd,&_posX,&_posY);
+      glfwGetCursorPos(wnd._ptr,&_posX,&_posY);
       _xCurr=_posX;
       _yCurr=_posY;
       _rot0=_rot;
@@ -43,7 +43,7 @@ void TrackballCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int
       _scaleMode=!_scaleMode;
   }
 }
-void TrackballCameraManipulator::wheel(GLFWwindow*,double,double yoffset,bool captured) {
+void TrackballCameraManipulator::wheel(GLFWwindowPtr,double,double yoffset,bool captured) {
   if(captured) {
     _inMotion=false;
     return;
@@ -53,7 +53,7 @@ void TrackballCameraManipulator::wheel(GLFWwindow*,double,double yoffset,bool ca
     _camera->setPosition(ctr+dir*std::pow(_scaleCoef,-yoffset));
   } else _sensitive*=(GLfloat)std::pow(1.1f,yoffset);
 }
-void TrackballCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool captured) {
+void TrackballCameraManipulator::motion(GLFWwindowPtr wnd,double x,double y,bool captured) {
   if(captured) {
     _inMotion=false;
     return;
@@ -62,12 +62,12 @@ void TrackballCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool c
     _yCurr=y;
   }
 }
-void TrackballCameraManipulator::preDraw(GLFWwindow*,const Eigen::Matrix<GLfloat,6,1>& bb) {
+void TrackballCameraManipulator::preDraw(GLFWwindowPtr,const Eigen::Matrix<GLfloat,6,1>& bb) {
   _bb=bb;
   Eigen::Matrix<GLfloat,3,1> ctr=(_bb.segment<3>(0)+_bb.segment<3>(3))/2;
   _camera->setDirection(ctr-_camera->position());
 }
-Eigen::Matrix<GLfloat,4,4> TrackballCameraManipulator::postDraw(GLFWwindow*,const Eigen::Matrix<GLfloat,6,1>& bb) {
+Eigen::Matrix<GLfloat,4,4> TrackballCameraManipulator::postDraw(GLFWwindowPtr,const Eigen::Matrix<GLfloat,6,1>& bb) {
   Eigen::Matrix<GLfloat,3,1> ctr=(_bb.segment<3>(0)+_bb.segment<3>(3))/2;
   Eigen::Matrix<GLfloat,4,4> mv,r;
   r.setIdentity();

@@ -126,7 +126,7 @@ int main(int argc,char** argv) {
       });
     } else drawer.getCamera()->focusOn(NULL);
   });
-  drawer.setMouseFunc([&](GLFWwindow*,int button,int action,int,bool captured) {
+  drawer.setMouseFunc([&](GLFWwindowPtr,int button,int action,int,bool captured) {
     if(captured)
       return;
     else if(button==GLFW_MOUSE_BUTTON_1 && action==GLFW_PRESS) {
@@ -138,7 +138,7 @@ int main(int argc,char** argv) {
       world->QueryAABB(&cb,bb);
     }
   });
-  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+  drawer.setKeyFunc([&](GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
     if(captured)
       return;
     else if(key==GLFW_KEY_R && action==GLFW_PRESS)

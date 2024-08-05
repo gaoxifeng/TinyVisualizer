@@ -26,11 +26,11 @@ int main(int argc,char** argv) {
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
-  
+
   std::shared_ptr<Texture> checker=drawChecker();
-  for(int x=0;x<5;x++)
-    for(int y=0;y<5;y++)
-      for(int z=0;z<5;z++) {
+  for(int x=0; x<5; x++)
+    for(int y=0; y<5; y++)
+      for(int z=0; z<5; z++) {
         std::shared_ptr<Bullet3DShape> shapeTB(new Bullet3DShape);
         std::shared_ptr<MeshShape> box=makeBox(1,true,Eigen::Matrix<GLfloat,3,1>(0.25,0.25,0.25));
         box->setTextureDiffuse(checker);
@@ -39,20 +39,20 @@ int main(int argc,char** argv) {
         shapeTB->addShape(box);
         drawer.addShape(shapeTB);
       }
-  
+
   std::shared_ptr<Shape> IShape;
   drawer.addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
   drawer.getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(drawer.getCamera3D())));
   drawer.addPlugin(std::shared_ptr<Plugin>(new ImGuiPlugin([&]() {
     drawer.getCamera3D()->getManipulator()->imGuiCallback();
   })));
-  drawer.setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
+  drawer.setMouseFunc([&](GLFWwindowPtr wnd,int button,int action,int,bool captured) {
     if(captured)
       return;
     else if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
       double x=0,y=0;
       GLfloat IAlpha=1;
-      glfwGetCursorPos(wnd,&x,&y);
+      glfwGetCursorPos(wnd._ptr,&x,&y);
       Eigen::Matrix<GLfloat,6,1> ray=drawer.getCameraRay(x,y);
       if(IShape)
         IShape->setColorDiffuse(GL_TRIANGLES,.5,.5,.5);

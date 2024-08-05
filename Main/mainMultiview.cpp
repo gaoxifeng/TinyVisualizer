@@ -36,13 +36,13 @@ int main(int argc,char** argv) {
         shapeTB->addShape(box);
         view00->addShape(shapeTB);
       }
-    view00->setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
+    view00->setMouseFunc([&](GLFWwindowPtr wnd,int button,int action,int,bool captured) {
       if(captured)
         return;
       else if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
         double x=0,y=0;
         GLfloat IAlpha=1;
-        glfwGetCursorPos(wnd,&x,&y);
+        glfwGetCursorPos(wnd._ptr,&x,&y);
         Eigen::Matrix<GLfloat,2,1> pos=view00->getCameraRay(x,y);
         Eigen::Matrix<GLfloat,6,1> ray;
         ray << pos[0],pos[1],1,0,0,-2;
@@ -69,13 +69,13 @@ int main(int argc,char** argv) {
         shapeTB->addShape(box);
         view11->addShape(shapeTB);
       }
-    view11->setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
+    view11->setMouseFunc([&](GLFWwindowPtr wnd,int button,int action,int,bool captured) {
       if(captured)
         return;
       else if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
         double x=0,y=0;
         GLfloat IAlpha=1;
-        glfwGetCursorPos(wnd,&x,&y);
+        glfwGetCursorPos(wnd._ptr,&x,&y);
         Eigen::Matrix<GLfloat,2,1> pos=view11->getCameraRay(x,y);
         Eigen::Matrix<GLfloat,6,1> ray;
         ray << pos[0],pos[1],1,0,0,-2;
@@ -114,13 +114,13 @@ int main(int argc,char** argv) {
 
     view10->addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
     view10->getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(view10->getCamera3D())));
-    view10->setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
+    view10->setMouseFunc([&](GLFWwindowPtr wnd,int button,int action,int,bool captured) {
       if(captured)
         return;
       else if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
         double x=0,y=0;
         GLfloat IAlpha=1;
-        glfwGetCursorPos(wnd,&x,&y);
+        glfwGetCursorPos(wnd._ptr,&x,&y);
         Eigen::Matrix<GLfloat,6,1> ray=view10->getCameraRay(x,y);
         if(IShape)
           IShape->setColorDiffuse(GL_TRIANGLES,.5,.5,.5);
@@ -157,13 +157,13 @@ int main(int argc,char** argv) {
 
     view01->addCamera3D(90,Eigen::Matrix<GLfloat,3,1>(0,1,0));
     view01->getCamera3D()->setManipulator(std::shared_ptr<CameraManipulator>(new FirstPersonCameraManipulator(view01->getCamera3D())));
-    view01->setMouseFunc([&](GLFWwindow* wnd,int button,int action,int,bool captured) {
+    view01->setMouseFunc([&](GLFWwindowPtr wnd,int button,int action,int,bool captured) {
       if(captured)
         return;
       else if(button==GLFW_MOUSE_BUTTON_2 && action==GLFW_PRESS) {
         double x=0,y=0;
         GLfloat IAlpha=1;
-        glfwGetCursorPos(wnd,&x,&y);
+        glfwGetCursorPos(wnd._ptr,&x,&y);
         Eigen::Matrix<GLfloat,6,1> ray=view01->getCameraRay(x,y);
         if(IShape)
           IShape->setColorDiffuse(GL_TRIANGLES,.5,.5,.5);

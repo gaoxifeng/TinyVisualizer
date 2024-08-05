@@ -67,7 +67,7 @@ int main(int argc,char** argv) {
                               Eigen::Matrix<GLfloat,3,1>(1,1,1),
                               Eigen::Matrix<GLfloat,3,1>(0,0,0));
 #endif
-  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+  drawer.setKeyFunc([&](GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
     if(captured)
       return;
     else if(key==GLFW_KEY_F && action==GLFW_PRESS) {

@@ -13,7 +13,7 @@ FirstPersonCameraManipulator::FirstPersonCameraManipulator(std::shared_ptr<Camer
   _t1=Eigen::Matrix<GLfloat,3,1>::Unit(id).cross(_camera->up()).normalized();
   _t2=_camera->up().cross(_t1);
 }
-void FirstPersonCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
+void FirstPersonCameraManipulator::frame(GLFWwindowPtr wnd,GLfloat time) {
   if(_inMotion) {
     GLfloat theta=0,phi=0;
     begin(theta,phi);
@@ -22,7 +22,7 @@ void FirstPersonCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
     end(theta,phi);
     int vp[4];
     glGetIntegerv(GL_VIEWPORT,vp);
-    glfwSetCursorPos(wnd,vp[0]+vp[2]/2.0f,vp[1]+vp[3]/2.0f);
+    glfwSetCursorPos(wnd._ptr,vp[0]+vp[2]/2.0f,vp[1]+vp[3]/2.0f);
     _xLast=vp[2]/2.0f;
     _yLast=vp[3]/2.0f;
   }
@@ -39,7 +39,7 @@ void FirstPersonCameraManipulator::frame(GLFWwindow* wnd,GLfloat time) {
   if(_dive)
     _camera->setPosition(_camera->position()-_camera->up()*_speed*time);
 }
-void FirstPersonCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,int,bool captured) {
+void FirstPersonCameraManipulator::mouse(GLFWwindowPtr wnd,int button,int action,int,bool captured) {
   if(captured) {
     _inMotion=false;
     return;
@@ -48,7 +48,7 @@ void FirstPersonCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,i
       _inMotion=true;
       int vp[4];
       glGetIntegerv(GL_VIEWPORT,vp);
-      glfwSetCursorPos(wnd,vp[0]+vp[2]/2.0f,vp[1]+vp[3]/2.0f);
+      glfwSetCursorPos(wnd._ptr,vp[0]+vp[2]/2.0f,vp[1]+vp[3]/2.0f);
       _xLast=_xCurr=vp[2]/2.0f;
       _yLast=_yCurr=vp[3]/2.0f;
     } else if(action==GLFW_RELEASE) {
@@ -59,7 +59,7 @@ void FirstPersonCameraManipulator::mouse(GLFWwindow* wnd,int button,int action,i
       _speedMode=!_speedMode;
   }
 }
-void FirstPersonCameraManipulator::wheel(GLFWwindow*,double,double yoffset,bool captured) {
+void FirstPersonCameraManipulator::wheel(GLFWwindowPtr,double,double yoffset,bool captured) {
   if(captured) {
     _inMotion=false;
     return;
@@ -67,7 +67,7 @@ void FirstPersonCameraManipulator::wheel(GLFWwindow*,double,double yoffset,bool 
     _speed*=(GLfloat)std::pow(1.1f,yoffset);
   else _sensitive*=(GLfloat)std::pow(1.1f,yoffset);
 }
-void FirstPersonCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool captured) {
+void FirstPersonCameraManipulator::motion(GLFWwindowPtr wnd,double x,double y,bool captured) {
   if(captured) {
     _inMotion=false;
     return;
@@ -78,7 +78,7 @@ void FirstPersonCameraManipulator::motion(GLFWwindow* wnd,double x,double y,bool
     _yCurr=(GLfloat)y-vp[1];
   }
 }
-void FirstPersonCameraManipulator::key(GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+void FirstPersonCameraManipulator::key(GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
   if(captured) {
     _inMotion=false;
     return;

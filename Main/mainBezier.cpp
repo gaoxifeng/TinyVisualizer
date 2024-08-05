@@ -26,7 +26,7 @@ int main(int argc,char** argv) {
     drawer.addShape(curve);
     i+=1;
   }
-  drawer.setKeyFunc([&](GLFWwindow* wnd,int key,int scan,int action,int mods,bool captured) {
+  drawer.setKeyFunc([&](GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
     if(captured)
       return;
     else if(key==GLFW_KEY_F && action==GLFW_PRESS) {
