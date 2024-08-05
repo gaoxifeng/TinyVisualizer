@@ -1,5 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include <pybind11/functional.h>
 //essential components
 #include <TinyVisualizer/SceneStructure.h>
 #include <TinyVisualizer/Texture.h>
@@ -46,7 +48,6 @@ void initSceneNode(py::module& m) {
   .def("remove",static_cast<bool(SceneNode::*)(std::shared_ptr<Shape>)>(&SceneNode::remove))
   .def("tryAssign",static_cast<void(SceneNode::*)(std::shared_ptr<SceneNode>)>(&SceneNode::tryAssign))
   .def("tryAssign",static_cast<bool(SceneNode::*)(std::shared_ptr<Shape>,const Eigen::Matrix<GLfloat,6,1>&)>(&SceneNode::tryAssign))
-  .def("tryAssignInner",static_cast<void(SceneNode::*)(std::shared_ptr<Shape>,const Eigen::Matrix<GLfloat,6,1>&)>(&SceneNode::tryAssignInner))
   .def("merge",&SceneNode::merge)
   .def("nrShape",&SceneNode::nrShape)
   .def("nrChildren",&SceneNode::nrChildren)
@@ -459,7 +460,7 @@ void initTrackballCameraManipulator(py::module& m) {
   std::shared_ptr<TrackballCameraManipulator>>(m,"TrackballCameraManipulator")
   .def(py::init<std::shared_ptr<Camera3D>>());
 }
-PYBIND11_MODULE(TinyVisualizer, m) {
+PYBIND11_MODULE(pyTinyVisualizer, m) {
   //essential components
   initGLFWwindowPtr(m);
   initSceneNode(m);
@@ -471,6 +472,7 @@ PYBIND11_MODULE(TinyVisualizer, m) {
   initCameraManipulator(m);
   initCamera2D(m);
   initCamera3D(m);
+  initPlugin(m);
   initDrawer(m);
   initMultiDrawer(m);
   initShadowAndLight(m);

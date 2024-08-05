@@ -17,7 +17,6 @@ class SceneNode : public RTTI::Enable {
   bool remove(std::shared_ptr<Shape> s);
   void tryAssign(std::shared_ptr<SceneNode> s);
   bool tryAssign(std::shared_ptr<Shape> s,const Eigen::Matrix<GLfloat,6,1>& bb);
-  void tryAssignInner(std::shared_ptr<Shape> s,const Eigen::Matrix<GLfloat,6,1>& bb);
   void merge(std::shared_ptr<SceneNode> s);
   int nrShape() const;
   int nrChildren() const;
