@@ -2,6 +2,7 @@
 #define CAPTURE_GIF_PLUGIN_H
 
 #include "Drawer.h"
+#include "Texture.h"
 
 namespace DRAWER {
 class CaptureGIFPlugin : public Plugin {
@@ -11,12 +12,14 @@ class CaptureGIFPlugin : public Plugin {
   virtual void finalize() override;
   virtual void frame(std::shared_ptr<SceneNode>&) override;
   virtual bool key(GLFWwindowPtr wnd,int key,int scan,int action,int mods) override;
+  void getScreenshot(int& width,int& height,std::vector<unsigned char>& data);
   void takeScreenshot();
   void startRecording();
   void addFrame();
   void stopRecording();
   bool recording() const;
  private:
+  void readScreenshot();
   int _key;
   int _recordFPS;
   void* _recordFile;

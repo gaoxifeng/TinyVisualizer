@@ -24,6 +24,13 @@ bool CaptureGIFPlugin::key(GLFWwindowPtr,int key,int,int action,int) {
   } else return true;
 }
 //helper
+void CaptureGIFPlugin::getScreenshot(int& width,int& height,std::vector<unsigned char>& data) {
+  //read screen size
+  GLFWwindowPtr wnd=glfwGetCurrentContext();
+  glfwGetWindowSize(wnd._ptr,&width,&height);
+  readScreenshot();
+  data=_recordFrame;    //data copy
+}
 void CaptureGIFPlugin::takeScreenshot() {
   startRecording();
   addFrame();
@@ -46,7 +53,6 @@ void CaptureGIFPlugin::startRecording() {
 void CaptureGIFPlugin::addFrame() {
   if(!_recordFile)
     return;
-  //read screen
   GLint viewport[4];
   GLFWwindowPtr wnd=glfwGetCurrentContext();
   glfwGetWindowSize(wnd._ptr,&viewport[2],&viewport[3]);
@@ -55,6 +61,25 @@ void CaptureGIFPlugin::addFrame() {
     stopRecording();
     return;
   }
+  readScreenshot();
+  GifWriteFrame((GifWriter*)_recordFile,&_recordFrame[0],(GLuint)viewport[2],(GLuint)viewport[3],(GLuint)(100.0f/_recordFPS),8,_dither);
+}
+void CaptureGIFPlugin::stopRecording() {
+  if(_recordFile) {
+    GifEnd((GifWriter*)_recordFile);
+    std::cout << "Stopped recording to " << _recordFileName << std::endl;
+    _recordFile=NULL;
+  }
+}
+bool CaptureGIFPlugin::recording() const {
+  return _recordFile!=NULL;
+}
+void CaptureGIFPlugin::readScreenshot() {
+  //read screen size
+  GLint viewport[4];
+  GLFWwindowPtr wnd=glfwGetCurrentContext();
+  glfwGetWindowSize(wnd._ptr,&viewport[2],&viewport[3]);
+  //allocate space
   _tmpFrameLine.resize(viewport[2]*4);
   _recordFrame.resize(viewport[2]*viewport[3]*4);
   glReadPixels(0,0,viewport[2],viewport[3],GL_RGBA,GL_UNSIGNED_BYTE,&_recordFrame[0]);
@@ -67,16 +92,5 @@ void CaptureGIFPlugin::addFrame() {
       memcpy(&_recordFrame[off],&_recordFrame[off2],viewport[2]*4);
       memcpy(&_recordFrame[off2],&_tmpFrameLine[0],viewport[2]*4);
     } else break;
-  GifWriteFrame((GifWriter*)_recordFile,&_recordFrame[0],(GLuint)viewport[2],(GLuint)viewport[3],(GLuint)(100.0f/_recordFPS),8,_dither);
-}
-void CaptureGIFPlugin::stopRecording() {
-  if(_recordFile) {
-    GifEnd((GifWriter*)_recordFile);
-    std::cout << "Stopped recording to " << _recordFileName << std::endl;
-    _recordFile=NULL;
-  }
-}
-bool CaptureGIFPlugin::recording() const {
-  return _recordFile!=NULL;
 }
 }
