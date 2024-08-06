@@ -19,6 +19,7 @@ int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
   drawer.addPlugin(std::shared_ptr<Plugin>(new CameraExportPlugin(GLFW_KEY_2,GLFW_KEY_3,"camera.dat")));
   drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureGIFPlugin(GLFW_KEY_1,"record.gif",drawer.FPS())));
+  drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureGIFPlugin(GLFW_KEY_4,"screenshot.gif",drawer.FPS(),true)));
 #define USE_LIGHT
 #ifdef USE_LIGHT
   drawer.addLightSystem(2048,20);

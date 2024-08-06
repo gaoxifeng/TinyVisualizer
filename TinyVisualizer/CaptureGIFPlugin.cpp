@@ -3,8 +3,8 @@
 #include <gif.h>
 
 namespace DRAWER {
-CaptureGIFPlugin::CaptureGIFPlugin(int hotkey,const std::string& name,int FPS)
-  :_key(hotkey),_recordFPS(FPS),_recordFile(NULL),_recordFileName(name),_dither(false) {}
+CaptureGIFPlugin::CaptureGIFPlugin(int hotkey,const std::string& name,int FPS,bool screenshot)
+  :_key(hotkey),_recordFPS(FPS),_recordFile(NULL),_recordFileName(name),_screenshot(screenshot),_dither(false) {}
 void CaptureGIFPlugin::finalize() {
   stopRecording();
 }
@@ -13,9 +13,15 @@ void CaptureGIFPlugin::frame(std::shared_ptr<SceneNode>&) {
 }
 bool CaptureGIFPlugin::key(GLFWwindowPtr,int key,int,int action,int) {
   if(key==_key && action==GLFW_PRESS) {
-    if(!_recordFile)
+    if(_screenshot) {
       startRecording();
-    else stopRecording();
+      addFrame();
+      stopRecording();
+    } else {
+      if(!_recordFile)
+        startRecording();
+      else stopRecording();
+    }
     return false;
   } else return true;
 }

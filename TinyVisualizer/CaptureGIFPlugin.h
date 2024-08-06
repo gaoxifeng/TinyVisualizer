@@ -7,7 +7,7 @@ namespace DRAWER {
 class CaptureGIFPlugin : public Plugin {
   RTTI_DECLARE_TYPEINFO(CaptureGIFPlugin, Plugin);
  public:
-  CaptureGIFPlugin(int hotkey,const std::string& name,int FPS);
+  CaptureGIFPlugin(int hotkey,const std::string& name,int FPS,bool screenshot=false);
   virtual void finalize() override;
   virtual void frame(std::shared_ptr<SceneNode>&) override;
   virtual bool key(GLFWwindowPtr wnd,int key,int scan,int action,int mods) override;
@@ -23,6 +23,7 @@ class CaptureGIFPlugin : public Plugin {
   std::vector<unsigned char> _recordFrame;
   std::vector<unsigned char> _tmpFrameLine;
   GLint _width,_height;
+  bool _screenshot;
   bool _dither;
 };
 }
