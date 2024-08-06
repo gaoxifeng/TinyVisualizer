@@ -14,9 +14,7 @@ void CaptureGIFPlugin::frame(std::shared_ptr<SceneNode>&) {
 bool CaptureGIFPlugin::key(GLFWwindowPtr,int key,int,int action,int) {
   if(key==_key && action==GLFW_PRESS) {
     if(_screenshot) {
-      startRecording();
-      addFrame();
-      stopRecording();
+      takeScreenshot();
     } else {
       if(!_recordFile)
         startRecording();
@@ -26,6 +24,11 @@ bool CaptureGIFPlugin::key(GLFWwindowPtr,int key,int,int action,int) {
   } else return true;
 }
 //helper
+void CaptureGIFPlugin::takeScreenshot() {
+  startRecording();
+  addFrame();
+  stopRecording();
+}
 void CaptureGIFPlugin::startRecording() {
   if(_recordFile!=NULL) {
     std::cout << "Alreading started recording, cannot accept duplicate calls!" << std::endl;

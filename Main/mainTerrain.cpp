@@ -17,9 +17,10 @@ using namespace DRAWER;
 
 int main(int argc,char** argv) {
   Drawer drawer(argc,argv);
+  std::shared_ptr<CaptureGIFPlugin> ss(new CaptureGIFPlugin(GLFW_KEY_4,"screenshot.gif",drawer.FPS(),true));
   drawer.addPlugin(std::shared_ptr<Plugin>(new CameraExportPlugin(GLFW_KEY_2,GLFW_KEY_3,"camera.dat")));
   drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureGIFPlugin(GLFW_KEY_1,"record.gif",drawer.FPS())));
-  drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureGIFPlugin(GLFW_KEY_4,"screenshot.gif",drawer.FPS(),true)));
+  drawer.addPlugin(ss);
 #define USE_LIGHT
 #ifdef USE_LIGHT
   drawer.addLightSystem(2048,20);

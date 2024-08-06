@@ -11,6 +11,7 @@ class CaptureGIFPlugin : public Plugin {
   virtual void finalize() override;
   virtual void frame(std::shared_ptr<SceneNode>&) override;
   virtual bool key(GLFWwindowPtr wnd,int key,int scan,int action,int mods) override;
+  void takeScreenshot();
   void startRecording();
   void addFrame();
   void stopRecording();

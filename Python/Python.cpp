@@ -314,6 +314,7 @@ void initCaptureGIFPlugin(py::module& m) {
   py::class_<CaptureGIFPlugin,Plugin,
   std::shared_ptr<CaptureGIFPlugin>>(m,"CaptureGIFPlugin")
   .def(py::init<int,const std::string&,int,bool>())
+  .def("takeScreenshot",&CaptureGIFPlugin::takeScreenshot)
   .def("startRecording",&CaptureGIFPlugin::startRecording)
   .def("addFrame",&CaptureGIFPlugin::addFrame)
   .def("stopRecording",&CaptureGIFPlugin::stopRecording)
