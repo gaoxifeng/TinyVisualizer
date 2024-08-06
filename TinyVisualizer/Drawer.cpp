@@ -83,6 +83,9 @@ Drawer::~Drawer() {
     //we are not using viewport
     glfwDestroyWindow(_window);
 }
+bool Drawer::isVisible() const {
+  return glfwGetWindowAttrib(_window, GLFW_VISIBLE);
+}
 void Drawer::setRes(int width,int height) {
   glfwSetWindowSize(_window,width,height);
 }
@@ -364,6 +367,9 @@ std::shared_ptr<Camera2D> Drawer::getCamera2D() {
 std::shared_ptr<Camera3D> Drawer::getCamera3D() {
   ASSERT(_camera);
   return std::custom_pointer_cast<Camera3D>(_camera);
+}
+GLFWwindow* Drawer::getWindow() const {
+  return _window;
 }
 void Drawer::mainLoop() {
   ASSERT_MSG(_parent==NULL,"mainLoop() of a multi-viewport Drawer cannot be called!")

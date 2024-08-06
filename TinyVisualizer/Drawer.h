@@ -133,6 +133,7 @@ class Drawer : public RTTI::Enable {
   Drawer(const std::vector<std::string>& args,GLFWwindow* wnd=NULL,MultiDrawer* parent=NULL);
   Drawer(int argc,char** argv,GLFWwindow* wnd=NULL,MultiDrawer* parent=NULL);
   virtual ~Drawer();
+  bool isVisible() const;
   void setRes(int width,int height);
   void setBackground(GLfloat r=1,GLfloat g=1,GLfloat b=1);
   void setBackground(std::shared_ptr<Texture> tex,const Eigen::Matrix<GLfloat,2,1>& tcMult=Eigen::Matrix<GLfloat,2,1>(1,1));
@@ -165,6 +166,7 @@ class Drawer : public RTTI::Enable {
   std::shared_ptr<Camera> getCamera();
   std::shared_ptr<Camera2D> getCamera2D();
   std::shared_ptr<Camera3D> getCamera3D();
+  GLFWwindow* getWindow() const;
   void mainLoop();
   int FPS();
   //getter/setter
