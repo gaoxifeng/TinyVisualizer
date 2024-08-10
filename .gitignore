@@ -2,4 +2,6 @@ include/
 lib/
 Debug/
 Release/
+pyTinyVisualizer.egg-info/
+build/
 *.bak
