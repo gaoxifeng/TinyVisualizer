@@ -35,6 +35,7 @@
 namespace py=pybind11;
 using namespace DRAWER;
 //essential components
+#include "Constants.h"
 void initGLFWwindowPtr(py::module& m) {
   py::class_<GLFWwindowPtr>(m,"GLFWwindowPtr")
   .def(py::init());
@@ -462,6 +463,9 @@ void initTrackballCameraManipulator(py::module& m) {
   .def(py::init<std::shared_ptr<Camera3D>>());
 }
 PYBIND11_MODULE(pyTinyVisualizer, m) {
+  //constants
+  initDefineGLConstants(m);
+  initDefineGLFWConstants(m);
   //essential components
   initGLFWwindowPtr(m);
   initSceneNode(m);
