@@ -1,4 +1,4 @@
-#define DEF_CONSTANT(NAME) m.def(#NAME,[](){return NAME;});
+#define DEF_CONSTANT(NAME) m.attr(#NAME)=py::int_(NAME);
 
 void initDefineGLConstants(py::module& m) {
   DEF_CONSTANT(GL_POINTS)
