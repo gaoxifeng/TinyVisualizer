@@ -222,13 +222,9 @@ void Povray::LightSource::write(Povray& pov) const {
 Povray::Povray(const std::string& folder):_folder(folder),_indents(0) {}
 Povray::~Povray() {
   //remove everything in folder
-  try {
-    std::filesystem::remove_all(_folder);
-  } catch(...) {}
+  std::filesystem::remove_all(_folder);
   //recreate folder
-  try {
-    std::filesystem::create_directory(_folder);
-  } catch(...) {}
+  std::filesystem::create_directory(_folder);
   //write elements
   _os=std::ofstream(_folder+"/scene.pov");
   for(const auto& e:_elements)

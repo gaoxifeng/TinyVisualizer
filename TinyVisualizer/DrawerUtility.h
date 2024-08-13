@@ -21,8 +21,12 @@ std::string TypeName() {
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#define EIGEN_UE_OVERRIDE_ALLOCATORS 0
 #include <Eigen/Eigen>
 #include <set>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327950288
+#endif
 
 namespace std {
 inline std::string to_string(const std::string& str) {

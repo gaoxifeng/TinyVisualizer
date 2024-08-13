@@ -170,9 +170,12 @@ int ShadowLight::nrLight() const {
   return (int)_lights.size();
 }
 bool ShadowLight::hasShadow() const {
-  return _shadow;
+  return (bool)_shadow;
 }
 void ShadowLight::renderShadow(const Eigen::Matrix<GLfloat,6,1>& bb,std::function<void(const Eigen::Matrix<GLfloat,-1,1>&)> func) {
+#ifdef far
+#undef far
+#endif
   if(_shadow>0) {
     GLfloat zNear,zFar,far=calculateFarPlane(bb);
     getShadowProg()->begin();

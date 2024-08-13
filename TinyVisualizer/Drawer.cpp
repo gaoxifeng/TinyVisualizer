@@ -84,7 +84,7 @@ Drawer::~Drawer() {
     glfwDestroyWindow(_window);
 }
 bool Drawer::isVisible() const {
-  return glfwGetWindowAttrib(_window, GLFW_VISIBLE);
+  return (bool)glfwGetWindowAttrib(_window, GLFW_VISIBLE);
 }
 void Drawer::setRes(int width,int height) {
   glfwSetWindowSize(_window,width,height);
@@ -507,7 +507,7 @@ void Drawer::init(int argc,char** argv) {
   if(argparseRange(argc,argv,"defaultLight",1,Eigen::Matrix<int,2,1>(0,2))) {
     addLightSystem(argparseRange(argc,argv,"defaultShadow",0,Eigen::Matrix<int,2,1>(0,2049)),
                    argparseRange(argc,argv,"defaultShadowSoftness",20,Eigen::Matrix<int,2,1>(0,21)),
-                   argparseRange(argc,argv,"defaultAutoAdjust",1,Eigen::Matrix<int,2,1>(0,2)));
+                   (bool)argparseRange(argc,argv,"defaultAutoAdjust",1,Eigen::Matrix<int,2,1>(0,2)));
     getLight()->lightSz(argparseRange(argc,argv,"defaultLightSz",20,Eigen::Matrix<int,2,1>(0,101)));
   }
   //add default camera

@@ -10,26 +10,33 @@ namespace DRAWER {
 class Povray {
  public:
   struct Element : public RTTI::Enable {
+    RTTI_DECLARE_TYPEINFO(Element);
+  public:
+    virtual ~Element() {}
     virtual void write(Povray& pov) const=0;
   };
   struct Camera : public Element {
     RTTI_DECLARE_TYPEINFO(Camera);
+  public:
     void write(Povray& pov) const override;
     Eigen::Matrix<GLfloat,3,1> _pos,_dir,_up,_right;
     Eigen::Matrix<GLfloat,3,4> _trans=Eigen::Matrix<GLfloat,3,4>::Identity();
   };
   struct Background : public Element {
     RTTI_DECLARE_TYPEINFO(Background);
+  public:
     void write(Povray& pov) const override;
     Eigen::Matrix<GLfloat,3,1> _color;
     Eigen::Matrix<GLfloat,2,1> _tcMult;
     std::shared_ptr<Texture> _tex;
   };
   struct ElementWithVertices {
+  public:
     std::vector<GLfloat> _vertices;
   };
   struct Mesh : public Element, public ElementWithVertices {
     RTTI_DECLARE_TYPEINFO(Mesh);
+  public:
     void write(Povray& pov) const override;
     static void write(Povray& pov,const Material& mat);
     Eigen::Matrix<GLfloat,3,4> _trans=Eigen::Matrix<GLfloat,3,4>::Identity();
@@ -39,6 +46,7 @@ class Povray {
   };
   struct Points : public Element, public ElementWithVertices {
     RTTI_DECLARE_TYPEINFO(Points);
+  public:
     void write(Povray& pov) const override;
     Eigen::Matrix<GLfloat,3,4> _trans=Eigen::Matrix<GLfloat,3,4>::Identity();
     std::vector<GLuint> _indices;
@@ -47,6 +55,7 @@ class Povray {
   };
   struct Lines : public Element, public ElementWithVertices {
     RTTI_DECLARE_TYPEINFO(Lines);
+  public:
     void write(Povray& pov) const override;
     Eigen::Matrix<GLfloat,3,4> _trans=Eigen::Matrix<GLfloat,3,4>::Identity();
     std::vector<GLuint> _indices;
@@ -56,6 +65,7 @@ class Povray {
   };
   struct LightSource : public Element {
     RTTI_DECLARE_TYPEINFO(LightSource);
+  public:
     void write(Povray& pov) const override;
     static const int _nSample=10;
     Eigen::Matrix<GLfloat,3,1> _ctr;

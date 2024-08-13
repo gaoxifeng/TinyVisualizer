@@ -193,6 +193,12 @@ void lookAtf(GLfloat eyex,GLfloat eyey,GLfloat eyez,
   multMatrixf(m);
   translatef(-eyex,-eyey,-eyez);
 }
+#ifdef near
+#undef near
+#endif
+#ifdef far
+#undef far
+#endif
 void orthof(GLfloat left,GLfloat right,
             GLfloat bottom,GLfloat top,
             GLfloat near,GLfloat far) {

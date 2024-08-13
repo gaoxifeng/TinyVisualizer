@@ -39,7 +39,7 @@ std::string fileDialogOpen() {
     }
   }
 #elif defined _WIN32
-
+#ifndef UNICODE
   // Use native windows file dialog box
   // (code contributed by Tino Weinkauf)
 
@@ -71,6 +71,7 @@ std::string fileDialogOpen() {
     }
   }
   buffer[pos] = 0;
+#endif
 #else
 
   // For linux use zenity
@@ -126,7 +127,7 @@ std::string fileDialogSave() {
     }
   }
 #elif defined _WIN32
-
+#ifndef UNICODE
   // Use native windows file dialog box
   // (code contributed by Tino Weinkauf)
 
@@ -158,7 +159,7 @@ std::string fileDialogSave() {
     }
     buffer[pos] = 0;
   }
-
+#endif
 #else
   // For every other machine type use zenity
   FILE * output = popen("/usr/bin/zenity --file-selection --save","r");
