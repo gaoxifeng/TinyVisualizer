@@ -168,7 +168,7 @@ class Drawer : public RTTI::Enable {
   std::shared_ptr<Camera3D> getCamera3D();
   GLFWwindow* getWindow() const;
   void mainLoop();
-  int FPS();
+  int FPS() const;
   //getter/setter
   void addPlugin(std::shared_ptr<Plugin> pi);
   bool contain(std::shared_ptr<Shape> s) const;

@@ -380,7 +380,7 @@ void Drawer::mainLoop() {
     glfwSwapBuffers(_window);
   }
 }
-int Drawer::FPS() {
+int Drawer::FPS() const {
   return _FPS;
 }
 //getter/setter
