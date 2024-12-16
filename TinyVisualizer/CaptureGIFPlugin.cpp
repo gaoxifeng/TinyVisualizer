@@ -1,4 +1,5 @@
 #include "CaptureGIFPlugin.h"
+#include "FBO.h"
 #include <iostream>
 #include <gif.h>
 
@@ -82,7 +83,7 @@ void CaptureGIFPlugin::readScreenshot() {
   //allocate space
   _tmpFrameLine.resize(viewport[2]*4);
   _recordFrame.resize(viewport[2]*viewport[3]*4);
-  glReadPixels(0,0,viewport[2],viewport[3],GL_RGBA,GL_UNSIGNED_BYTE,&_recordFrame[0]);
+  readPixels();
   //flip upside down
   for(int y=0,y2=viewport[3]-1; y<viewport[3]; y++,y2--)
     if(y<y2) {
@@ -92,5 +93,22 @@ void CaptureGIFPlugin::readScreenshot() {
       memcpy(&_recordFrame[off],&_recordFrame[off2],viewport[2]*4);
       memcpy(&_recordFrame[off2],&_tmpFrameLine[0],viewport[2]*4);
     } else break;
+}
+void CaptureGIFPlugin::readPixels() {
+  GLint viewport[4];
+  GLFWwindowPtr wnd=glfwGetCurrentContext();
+  glfwGetWindowSize(wnd._ptr,&viewport[2],&viewport[3]);
+
+  //if we have FBO bound, start using the FBO
+  FBO* offScreen=(FBO*)glfwGetWindowUserPointer(wnd._ptr);
+  if(offScreen) {
+    offScreen->begin();
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+  }
+  //get pixels
+  glReadPixels(0,0,viewport[2],viewport[3],GL_RGB,GL_UNSIGNED_BYTE,&_recordFrame[0]);
+  //if we have FBO bound, end using the FBO
+  if(offScreen)
+    offScreen->end();
 }
 }

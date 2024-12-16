@@ -38,6 +38,7 @@ class MultiDrawer : public RTTI::Enable {
   std::unordered_map<Drawer*,Eigen::Matrix<int,2,1>> _viewMap;
   std::vector<std::vector<std::shared_ptr<Drawer>>> _views;
   std::vector<std::string> _args;
+  std::shared_ptr<FBO> _offScreen;
   GLFWwindow* _window;
   double _lastTime;
 };

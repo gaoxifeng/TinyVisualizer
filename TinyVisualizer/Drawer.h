@@ -126,6 +126,7 @@ class Plugin : public RTTI::Enable {
   Drawer* _drawer;
 };
 //Drawer
+class FBO;
 class MultiDrawer;
 class Drawer : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Drawer);
@@ -195,6 +196,7 @@ class Drawer : public RTTI::Enable {
   std::function<void(std::shared_ptr<SceneNode>&)> _frame;
   std::function<void()> _draw;
   MultiDrawer* _parent=NULL;    //this is the multi-viewport pointer
+  std::shared_ptr<FBO> _offScreen;
   GLFWwindow* _window=NULL;
   PythonCallback* _cb;
   double _lastTime;

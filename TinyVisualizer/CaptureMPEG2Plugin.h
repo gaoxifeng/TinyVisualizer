@@ -16,6 +16,7 @@ class CaptureMPEG2Plugin : public Plugin {
   void stopRecording();
   bool recording() const;
  private:
+  void readPixels();
   int _key;
   int _recordFPS;
   FILE* _recordFile;

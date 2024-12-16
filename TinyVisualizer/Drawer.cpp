@@ -3,6 +3,7 @@
 #include "Camera2D.h"
 #include "Camera3D.h"
 #include "Matrix.h"
+#include "FBO.h"
 #include "MeshShape.h"
 #include "DrawerUtility.h"
 #include "DefaultLight.h"
@@ -79,9 +80,12 @@ Drawer::Drawer(int argc,char** argv,GLFWwindow* wnd,MultiDrawer* parent):_parent
 }
 Drawer::~Drawer() {
   clear();
-  if(_parent==NULL)
+  if(_parent==NULL) {
+    //If this is offscreen window, associated with FBO, destroy it first
+    _offScreen=NULL;
     //we are not using viewport
     glfwDestroyWindow(_window);
+  }
 }
 bool Drawer::isVisible() const {
   return (bool)glfwGetWindowAttrib(_window, GLFW_VISIBLE);
@@ -151,6 +155,10 @@ void Drawer::draw() {
       s->draw(MeshShape::SHADOW_PASS);
     },&viewFrustum);
   });
+  //if we have FBO bound, start using the FBO
+  FBO* offScreen=(FBO*)glfwGetWindowUserPointer(_window);
+  if(offScreen!=NULL)
+    offScreen->begin();
   //plugin predraw
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->preDraw();
@@ -195,6 +203,9 @@ void Drawer::draw() {
     _cb->draw();
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->postDraw();
+  //if we have FBO bound, end using the FBO
+  if(offScreen!=NULL)
+    offScreen->end();
 }
 void Drawer::drawPovray(Povray& pov) {
   //update scene graph
@@ -465,6 +476,7 @@ void Drawer::init(int argc,char** argv) {
 
   if(_window==NULL) {
     ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
+    bool visible=argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0;
     glfwDefaultWindowHints();
     glfwSetErrorCallback(errFunc);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
@@ -472,7 +484,7 @@ void Drawer::init(int argc,char** argv) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
-    glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
+    glfwWindowHint(GLFW_VISIBLE,visible);
     std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
     _window=glfwCreateWindow(argparseRange(argc,argv,"width",512),
                              argparseRange(argc,argv,"height",512),
@@ -481,6 +493,11 @@ void Drawer::init(int argc,char** argv) {
     glfwMakeContextCurrent(_window);
     int version=gladLoadGL(glfwGetProcAddress);
     ASSERT_MSG(version!=0,"Failed initializing GLAD!")
+    //add offscreen render target
+    int width,height;
+    glfwGetWindowSize(_window,&width,&height);
+    _offScreen.reset(new FBO(width,height,GL_RGBA));
+    glfwSetWindowUserPointer(_window,visible?NULL:_offScreen.get());
   }
   glfwSwapInterval(1);
   glClearDepth(1.0f);

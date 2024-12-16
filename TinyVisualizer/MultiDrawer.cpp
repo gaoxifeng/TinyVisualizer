@@ -1,5 +1,6 @@
 #include "MultiDrawer.h"
 #include "DrawerUtility.h"
+#include "FBO.h"
 #include <iostream>
 
 namespace DRAWER {
@@ -19,6 +20,7 @@ MultiDrawer::MultiDrawer(int argc,char** argv) {
 }
 MultiDrawer::~MultiDrawer() {
   clear();
+  _offScreen=NULL;
   glfwDestroyWindow(_window);
 }
 //multi-viewport
@@ -80,16 +82,32 @@ void MultiDrawer::draw() {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
 
+  //if we have FBO bound, start using the FBO
+  FBO* offScreen=(FBO*)glfwGetWindowUserPointer(_window);
+  if(offScreen!=NULL)
+    offScreen->begin();
   //plugin pre-draw
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->preDraw();
+  //if we have FBO bound, end using the FBO
+  if(offScreen!=NULL)
+    offScreen->end();
+
   //draw views
   for(const auto& vrow:_views)
     for(const auto& v:vrow)
       v->draw();
+
+  //if we have FBO bound, start using the FBO
+  offScreen=(FBO*)glfwGetWindowUserPointer(_window);
+  if(offScreen!=NULL)
+    offScreen->begin();
   //plugin post-draw
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->postDraw();
+  //if we have FBO bound, end using the FBO
+  if(offScreen!=NULL)
+    offScreen->end();
 }
 void MultiDrawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
@@ -213,6 +231,7 @@ void MultiDrawer::init(int argc,char** argv) {
   _lastTime=0;
 
   ASSERT_MSG(glfwInit()==GLFW_TRUE,"Failed initializing GLFW!")
+  bool visible=argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0;
   glfwDefaultWindowHints();
   glfwSetErrorCallback(errFunc);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
@@ -220,7 +239,7 @@ void MultiDrawer::init(int argc,char** argv) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_SAMPLES,argparseRange(argc,argv,"MSAA",4));
-  glfwWindowHint(GLFW_VISIBLE,argparseRange(argc,argv,"headless",0,Eigen::Matrix<int,2,1>(0,2))==0);
+  glfwWindowHint(GLFW_VISIBLE,visible);
   std::string windowTitle=argparseRange(argc,argv,"title","Drawer");
   _window=glfwCreateWindow(argparseRange(argc,argv,"width",512),
                            argparseRange(argc,argv,"height",512),
@@ -229,6 +248,11 @@ void MultiDrawer::init(int argc,char** argv) {
   glfwMakeContextCurrent(_window);
   int version=gladLoadGL(glfwGetProcAddress);
   ASSERT_MSG(version!=0,"Failed initializing GLAD!")
+  //add offscreen render target
+  int width,height;
+  glfwGetWindowSize(_window,&width,&height);
+  _offScreen.reset(new FBO(width,height,GL_RGBA));
+  glfwSetWindowUserPointer(_window,visible?NULL:_offScreen.get());
   //function override
   glfwSetWindowUserPointer(_window,this);
   glfwSetMouseButtonCallback(_window,MultiDrawer::mouse);

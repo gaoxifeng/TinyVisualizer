@@ -20,6 +20,7 @@ class CaptureGIFPlugin : public Plugin {
   bool recording() const;
  private:
   void readScreenshot();
+  void readPixels();
   int _key;
   int _recordFPS;
   void* _recordFile;

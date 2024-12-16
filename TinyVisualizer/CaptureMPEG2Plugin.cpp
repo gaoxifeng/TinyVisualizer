@@ -1,4 +1,5 @@
 #include "CaptureMPEG2Plugin.h"
+#include "FBO.h"
 #include <jo_mpeg.h>
 #include <iostream>
 
@@ -51,7 +52,7 @@ void CaptureMPEG2Plugin::addFrame() {
   }
   _tmpFrameLine.resize(viewport[2]*3);
   _recordFrame.resize(viewport[2]*viewport[3]*3);
-  glReadPixels(0,0,viewport[2],viewport[3],GL_RGB,GL_UNSIGNED_BYTE,&_recordFrame[0]);
+  readPixels();
   //flip upside down
   for(int y=0,y2=viewport[3]-1; y<viewport[3]; y++,y2--)
     if(y<y2) {
@@ -72,5 +73,22 @@ void CaptureMPEG2Plugin::stopRecording() {
 }
 bool CaptureMPEG2Plugin::recording() const {
   return _recordFile!=NULL;
+}
+void CaptureMPEG2Plugin::readPixels() {
+  GLint viewport[4];
+  GLFWwindowPtr wnd=glfwGetCurrentContext();
+  glfwGetWindowSize(wnd._ptr,&viewport[2],&viewport[3]);
+
+  //if we have FBO bound, start using the FBO
+  FBO* offScreen=(FBO*)glfwGetWindowUserPointer(wnd._ptr);
+  if(offScreen) {
+    offScreen->begin();
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+  }
+  //get pixels
+  glReadPixels(0,0,viewport[2],viewport[3],GL_RGB,GL_UNSIGNED_BYTE,&_recordFrame[0]);
+  //if we have FBO bound, end using the FBO
+  if(offScreen)
+    offScreen->end();
 }
 }
