@@ -80,7 +80,7 @@ void CaptureMPEG2Plugin::readPixels() {
   glfwGetWindowSize(wnd._ptr,&viewport[2],&viewport[3]);
 
   //if we have FBO bound, start using the FBO
-  FBO* offScreen=(FBO*)glfwGetWindowUserPointer(wnd._ptr);
+  FBO* offScreen=((Drawer*)glfwGetWindowUserPointer(wnd._ptr))->getOffScreenFBO();
   if(offScreen) {
     offScreen->begin();
     glReadBuffer(GL_COLOR_ATTACHMENT0);

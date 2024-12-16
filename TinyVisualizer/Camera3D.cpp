@@ -170,6 +170,9 @@ Eigen::Matrix<GLfloat,3,1> Camera3D::direction() const {
 Eigen::Matrix<GLfloat,3,1> Camera3D::up() const {
   return _up;
 }
+const GLint* Camera3D::getViewport() const {
+  return _vp;
+}
 void Camera3D::setPosition(const Eigen::Matrix<GLfloat,3,1>& pos) {
   _pos=pos;
 }

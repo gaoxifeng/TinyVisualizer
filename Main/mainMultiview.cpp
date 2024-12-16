@@ -6,6 +6,8 @@
 #include <TinyVisualizer/Bullet3DShape.h>
 #include <TinyVisualizer/ShadowAndLight.h>
 #include <TinyVisualizer/FirstPersonCameraManipulator.h>
+#include <TinyVisualizer/CameraExportPlugin.h>
+#include <TinyVisualizer/CaptureGIFPlugin.h>
 #include <TinyVisualizer/ImGuiPlugin.h>
 #include <iostream>
 #include <imgui.h>
@@ -174,6 +176,10 @@ int main(int argc,char** argv) {
       }
     });
   }
+  //plugins
+  std::shared_ptr<CaptureGIFPlugin> ss(new CaptureGIFPlugin(GLFW_KEY_4,"screenshot.gif",view00->FPS(),true));
+  drawer.addPlugin(std::shared_ptr<Plugin>(new CaptureGIFPlugin(GLFW_KEY_1,"record.gif",view00->FPS())));
+  drawer.addPlugin(ss);
   drawer.mainLoop();
   return 0;
 }

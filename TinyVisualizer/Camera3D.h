@@ -24,6 +24,7 @@ class Camera3D : public Camera {
   Eigen::Matrix<GLfloat,3,1> position() const;
   Eigen::Matrix<GLfloat,3,1> direction() const;
   Eigen::Matrix<GLfloat,3,1> up() const;
+  const GLint* getViewport() const;
   void setPosition(const Eigen::Matrix<GLfloat,3,1>& pos);
   void setDirection(const Eigen::Matrix<GLfloat,3,1>& dir);
   void setUp(const Eigen::Matrix<GLfloat,3,1>& up);

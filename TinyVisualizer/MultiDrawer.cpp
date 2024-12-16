@@ -36,6 +36,7 @@ void MultiDrawer::setViewportLayout(int rows,int cols) {
       _viewMap[_views[r][c].get()]=Eigen::Matrix<int,2,1>(r,c);
     }
   }
+  glfwSetWindowUserPointer(_window,_views[0][0].get());
 }
 std::shared_ptr<Drawer> MultiDrawer::getDrawer(int row,int col) const {
   return _views[row][col];
@@ -78,12 +79,19 @@ void MultiDrawer::frame() {
     pi->frame(nullRoot);
 }
 void MultiDrawer::draw() {
+  FBO* offScreen=getOffScreenFBO();
+  //if we have FBO bound, start using the FBO
+  if(offScreen!=NULL)
+    offScreen->begin();
+  //Initialize
   glClear(GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
+  //if we have FBO bound, end using the FBO
+  if(offScreen!=NULL)
+    offScreen->end();
 
   //if we have FBO bound, start using the FBO
-  FBO* offScreen=(FBO*)glfwGetWindowUserPointer(_window);
   if(offScreen!=NULL)
     offScreen->begin();
   //plugin pre-draw
@@ -95,11 +103,12 @@ void MultiDrawer::draw() {
 
   //draw views
   for(const auto& vrow:_views)
-    for(const auto& v:vrow)
+    for(const auto& v:vrow) {
+      glfwSetWindowUserPointer(_window,v.get());
       v->draw();
+    }
 
   //if we have FBO bound, start using the FBO
-  offScreen=(FBO*)glfwGetWindowUserPointer(_window);
   if(offScreen!=NULL)
     offScreen->begin();
   //plugin post-draw
@@ -109,8 +118,11 @@ void MultiDrawer::draw() {
   if(offScreen!=NULL)
     offScreen->end();
 }
+FBO* MultiDrawer::getOffScreenFBO() const {
+  return _offScreen.get();
+}
 void MultiDrawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
-  MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  MultiDrawer* drawer=((Drawer*)glfwGetWindowUserPointer(wnd))->getParent();
   bool captured=false;
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->mouse(wnd,button,action,mods)) {
@@ -132,10 +144,9 @@ void MultiDrawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
         if((h-y)>=vp[1] && (h-y)<vp[1]+vp[3])
           v->mouse(wnd,button,action,mods);
     }
-  glfwSetWindowUserPointer(wnd,drawer);
 }
 void MultiDrawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
-  MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  MultiDrawer* drawer=((Drawer*)glfwGetWindowUserPointer(wnd))->getParent();
   bool captured=false;
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->wheel(wnd,xoffset,yoffset)) {
@@ -157,10 +168,9 @@ void MultiDrawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
         if((h-y)>=vp[1] && (h-y)<vp[1]+vp[3])
           v->wheel(wnd,xoffset,yoffset);
     }
-  glfwSetWindowUserPointer(wnd,drawer);
 }
 void MultiDrawer::motion(GLFWwindow* wnd,double x,double y) {
-  MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  MultiDrawer* drawer=((Drawer*)glfwGetWindowUserPointer(wnd))->getParent();
   bool captured=false;
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->motion(wnd,x,y)) {
@@ -180,10 +190,9 @@ void MultiDrawer::motion(GLFWwindow* wnd,double x,double y) {
         if((h-y)>=vp[1] && (h-y)<vp[1]+vp[3])
           v->motion(wnd,x,y);
     }
-  glfwSetWindowUserPointer(wnd,drawer);
 }
 void MultiDrawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
-  MultiDrawer* drawer=(MultiDrawer*)glfwGetWindowUserPointer(wnd);
+  MultiDrawer* drawer=((Drawer*)glfwGetWindowUserPointer(wnd))->getParent();
   bool captured=false;
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->key(wnd,key,scan,action,mods)) {
@@ -198,7 +207,6 @@ void MultiDrawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
       glfwSetWindowUserPointer(wnd,v.get());
       v->key(wnd,key,scan,action,mods);
     }
-  glfwSetWindowUserPointer(wnd,drawer);
 }
 void MultiDrawer::nextFrame() {
   glfwPollEvents();
@@ -251,10 +259,10 @@ void MultiDrawer::init(int argc,char** argv) {
   //add offscreen render target
   int width,height;
   glfwGetWindowSize(_window,&width,&height);
-  _offScreen.reset(new FBO(width,height,GL_RGBA));
-  glfwSetWindowUserPointer(_window,visible?NULL:_offScreen.get());
+  if(!visible)
+    _offScreen.reset(new FBO(width,height,GL_RGBA));
   //function override
-  glfwSetWindowUserPointer(_window,this);
+  glfwSetWindowUserPointer(_window,NULL);
   glfwSetMouseButtonCallback(_window,MultiDrawer::mouse);
   glfwSetScrollCallback(_window,MultiDrawer::wheel);
   glfwSetCursorPosCallback(_window,MultiDrawer::motion);

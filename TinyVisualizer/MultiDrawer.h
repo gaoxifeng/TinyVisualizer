@@ -20,6 +20,7 @@ class MultiDrawer : public RTTI::Enable {
   void timer();
   void frame();
   void draw();
+  FBO* getOffScreenFBO() const;
   static void mouse(GLFWwindow* wnd,int button,int action,int mods);
   static void wheel(GLFWwindow* wnd,double xoffset,double yoffset);
   static void motion(GLFWwindow* wnd,double x,double y);

@@ -17,6 +17,10 @@ class Camera3D;
 struct GLFWwindowPtr {
   GLFWwindowPtr() {}
   GLFWwindowPtr(GLFWwindow* ptr):_ptr(ptr) {}
+  GLFWwindowPtr& operator=(GLFWwindow* ptr) {
+    _ptr=ptr;
+    return *this;
+  }
   GLFWwindow* _ptr=NULL;
 };
 //swig only support class-based callback
@@ -143,6 +147,7 @@ class Drawer : public RTTI::Enable {
   void frame();
   void draw();
   void drawPovray(Povray& pov);
+  FBO* getOffScreenFBO() const;
   static void mouse(GLFWwindow* wnd,int button,int action,int mods);
   static void wheel(GLFWwindow* wnd,double xoffset,double yoffset);
   static void motion(GLFWwindow* wnd,double x,double y);
@@ -167,6 +172,7 @@ class Drawer : public RTTI::Enable {
   std::shared_ptr<Camera> getCamera();
   std::shared_ptr<Camera2D> getCamera2D();
   std::shared_ptr<Camera3D> getCamera3D();
+  MultiDrawer* getParent() const;
   GLFWwindow* getWindow() const;
   void nextFrame();
   void mainLoop();

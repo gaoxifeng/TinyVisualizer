@@ -126,6 +126,23 @@ void Drawer::frame() {
   }
 }
 void Drawer::draw() {
+  //calculate BB
+  Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();
+  //draw shadow
+  if(_light)
+    _light->renderShadow(bb,[&](const Eigen::Matrix<GLfloat,-1,1>& viewFrustum) {
+    if(_root)
+      _root->draw([&](std::shared_ptr<Shape> s) {
+      s->setDrawer(this);
+      s->draw(MeshShape::SHADOW_PASS);
+    },&viewFrustum);
+  });
+
+  FBO* offScreen=getOffScreenFBO();
+  //if we have FBO bound, start using the FBO
+  if(offScreen!=NULL)
+    offScreen->begin();
+  //initialize
   if(_parent) {
     Eigen::Matrix<int,4,1> vp=_parent->getViewport(this);
     glViewport(vp[0],vp[1],vp[2],vp[3]);
@@ -138,27 +155,11 @@ void Drawer::draw() {
     glfwGetFramebufferSize(_window,&width,&height);
     glViewport(0,0,width,height);
   }
-
   //draw background
   _background.draw();
-  //calculate BB
-  Eigen::Matrix<GLfloat,6,1> bb=_root?_root->getBB():resetBB();
   //setup camera
   if(_camera)
     _camera->draw(_window,bb);
-  //draw shadow
-  if(_light)
-    _light->renderShadow(bb,[&](const Eigen::Matrix<GLfloat,-1,1>& viewFrustum) {
-    if(_root)
-      _root->draw([&](std::shared_ptr<Shape> s) {
-      s->setDrawer(this);
-      s->draw(MeshShape::SHADOW_PASS);
-    },&viewFrustum);
-  });
-  //if we have FBO bound, start using the FBO
-  FBO* offScreen=(FBO*)glfwGetWindowUserPointer(_window);
-  if(offScreen!=NULL)
-    offScreen->begin();
   //plugin predraw
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->preDraw();
@@ -231,6 +232,9 @@ void Drawer::drawPovray(Povray& pov) {
   });
   matrixMode(GLModelViewMatrix);
   popMatrix();
+}
+FBO* Drawer::getOffScreenFBO() const {
+  return _parent?_parent->getOffScreenFBO():_offScreen.get();
 }
 void Drawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   bool captured=false;
@@ -379,6 +383,9 @@ std::shared_ptr<Camera3D> Drawer::getCamera3D() {
   ASSERT(_camera);
   return std::custom_pointer_cast<Camera3D>(_camera);
 }
+MultiDrawer* Drawer::getParent() const {
+  return _parent;
+}
 GLFWwindow* Drawer::getWindow() const {
   return _window;
 }
@@ -496,8 +503,8 @@ void Drawer::init(int argc,char** argv) {
     //add offscreen render target
     int width,height;
     glfwGetWindowSize(_window,&width,&height);
-    _offScreen.reset(new FBO(width,height,GL_RGBA));
-    glfwSetWindowUserPointer(_window,visible?NULL:_offScreen.get());
+    if(!visible)
+      _offScreen.reset(new FBO(width,height,GL_RGB));
   }
   glfwSwapInterval(1);
   glClearDepth(1.0f);

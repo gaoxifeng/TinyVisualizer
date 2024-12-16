@@ -18,11 +18,12 @@ void FirstPersonCameraManipulator::frame(GLFWwindowPtr wnd,GLfloat time) {
     GLfloat theta=0,phi=0;
     begin(theta,phi);
     theta-=clampMin(_xCurr-_xLast)*_sensitive*time;
-    phi-=clampMin(_yCurr-_yLast)*_sensitive*time;
+    phi-=clampMin(-(_yCurr-_yLast))*_sensitive*time;    //TODO: add option for vertical inversion
     end(theta,phi);
-    int vp[4];
-    glGetIntegerv(GL_VIEWPORT,vp);
-    glfwSetCursorPos(wnd._ptr,vp[0]+vp[2]/2.0f,vp[1]+vp[3]/2.0f);
+    int w,h;
+    glfwGetWindowSize(wnd._ptr,&w,&h);
+    const GLint* vp=_camera->getViewport();
+    glfwSetCursorPos(wnd._ptr,vp[0]+vp[2]/2.0f,h-vp[1]-vp[3]/2.0f);
     _xLast=vp[2]/2.0f;
     _yLast=vp[3]/2.0f;
   }
@@ -46,9 +47,10 @@ void FirstPersonCameraManipulator::mouse(GLFWwindowPtr wnd,int button,int action
   } else if(button==GLFW_MOUSE_BUTTON_1) {
     if(action==GLFW_PRESS) {
       _inMotion=true;
-      int vp[4];
-      glGetIntegerv(GL_VIEWPORT,vp);
-      glfwSetCursorPos(wnd._ptr,vp[0]+vp[2]/2.0f,vp[1]+vp[3]/2.0f);
+      int w,h;
+      glfwGetWindowSize(wnd._ptr,&w,&h);
+      const GLint* vp=_camera->getViewport();
+      glfwSetCursorPos(wnd._ptr,vp[0]+vp[2]/2.0f,h-vp[1]-vp[3]/2.0f);
       _xLast=_xCurr=vp[2]/2.0f;
       _yLast=_yCurr=vp[3]/2.0f;
     } else if(action==GLFW_RELEASE) {
@@ -72,10 +74,11 @@ void FirstPersonCameraManipulator::motion(GLFWwindowPtr wnd,double x,double y,bo
     _inMotion=false;
     return;
   } else if(_inMotion) {
-    int vp[4];
-    glGetIntegerv(GL_VIEWPORT,vp);
+    int w,h;
+    glfwGetWindowSize(wnd._ptr,&w,&h);
+    const GLint* vp=_camera->getViewport();
     _xCurr=(GLfloat)x-vp[0];
-    _yCurr=(GLfloat)y-vp[1];
+    _yCurr=(GLfloat)(h-y)-vp[1];
   }
 }
 void FirstPersonCameraManipulator::key(GLFWwindowPtr wnd,int key,int scan,int action,int mods,bool captured) {
