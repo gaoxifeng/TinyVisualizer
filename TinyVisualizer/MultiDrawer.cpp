@@ -182,13 +182,15 @@ void MultiDrawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
     }
   glfwSetWindowUserPointer(wnd,drawer);
 }
+void MultiDrawer::nextFrame() {
+  glfwPollEvents();
+  draw();
+  timer();
+  glfwSwapBuffers(_window);
+}
 void MultiDrawer::mainLoop() {
-  while (!glfwWindowShouldClose(_window)) {
-    glfwPollEvents();
-    draw();
-    timer();
-    glfwSwapBuffers(_window);
-  }
+  while (!glfwWindowShouldClose(_window))
+    nextFrame();
 }
 //getter/setter
 void MultiDrawer::addPlugin(std::shared_ptr<Plugin> pi) {

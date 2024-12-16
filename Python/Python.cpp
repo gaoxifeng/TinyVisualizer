@@ -219,6 +219,7 @@ void initDrawer(py::module& m) {
   .def("getCamera",&Drawer::getCamera)
   .def("getCamera2D",&Drawer::getCamera2D)
   .def("getCamera3D",&Drawer::getCamera3D)
+  .def("nextFrame",&Drawer::nextFrame)
   .def("mainLoop",&Drawer::mainLoop)
   .def("FPS",&Drawer::FPS)
   .def("addPlugin",&Drawer::addPlugin)
@@ -240,6 +241,7 @@ void initMultiDrawer(py::module& m) {
   .def("timer",&MultiDrawer::timer)
   .def("frame",&MultiDrawer::frame)
   .def("draw",&MultiDrawer::draw)
+  .def("nextFrame",&MultiDrawer::nextFrame)
   .def("mainLoop",&MultiDrawer::mainLoop)
   .def("addPlugin",&MultiDrawer::addPlugin)
   .def("clear",&MultiDrawer::clear);
@@ -315,6 +317,12 @@ void initCaptureGIFPlugin(py::module& m) {
   py::class_<CaptureGIFPlugin,Plugin,
   std::shared_ptr<CaptureGIFPlugin>>(m,"CaptureGIFPlugin")
   .def(py::init<int,const std::string&,int,bool>())
+  .def("getScreenshot",[&](std::shared_ptr<CaptureGIFPlugin> plugin)->std::tuple<int,int,std::vector<unsigned char>> {
+    int w,h;
+    std::vector<unsigned char> data;
+    plugin->getScreenshot(w,h,data);
+    return std::make_tuple(w,h,data);
+  })
   .def("takeScreenshot",&CaptureGIFPlugin::takeScreenshot)
   .def("startRecording",&CaptureGIFPlugin::startRecording)
   .def("addFrame",&CaptureGIFPlugin::addFrame)

@@ -24,6 +24,7 @@ class MultiDrawer : public RTTI::Enable {
   static void wheel(GLFWwindow* wnd,double xoffset,double yoffset);
   static void motion(GLFWwindow* wnd,double x,double y);
   static void key(GLFWwindow* wnd,int key,int scan,int action,int mods);
+  void nextFrame();
   void mainLoop();
   //getter/setter
   void addPlugin(std::shared_ptr<Plugin> pi);

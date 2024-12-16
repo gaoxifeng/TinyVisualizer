@@ -371,14 +371,16 @@ std::shared_ptr<Camera3D> Drawer::getCamera3D() {
 GLFWwindow* Drawer::getWindow() const {
   return _window;
 }
+void Drawer::nextFrame() {
+  glfwPollEvents();
+  draw();
+  timer();
+  glfwSwapBuffers(_window);
+}
 void Drawer::mainLoop() {
   ASSERT_MSG(_parent==NULL,"mainLoop() of a multi-viewport Drawer cannot be called!")
-  while (!glfwWindowShouldClose(_window)) {
-    glfwPollEvents();
-    draw();
-    timer();
-    glfwSwapBuffers(_window);
-  }
+  while (!glfwWindowShouldClose(_window))
+    nextFrame();
 }
 int Drawer::FPS() const {
   return _FPS;
