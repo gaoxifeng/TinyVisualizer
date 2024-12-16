@@ -4,5 +4,6 @@ Debug/
 Release/
 pyTinyVisualizer.egg-info/
 build/
+dist/
 *.txt
 *.bak
