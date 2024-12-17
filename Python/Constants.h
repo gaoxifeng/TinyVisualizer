@@ -11,6 +11,10 @@ void initDefineGLConstants(py::module& m) {
   DEF_CONSTANT(GL_QUADS)
   //DEF_CONSTANT(GL_QUAD_STRIP)
   //DEF_CONSTANT(GL_POLYGON)
+
+  DEF_CONSTANT(GL_RGB)
+  DEF_CONSTANT(GL_RGBA)
+  DEF_CONSTANT(GL_DEPTH_COMPONENT)
 }
 
 void initDefineGLFWConstants(py::module& m) {
