@@ -350,7 +350,12 @@ void initMeshShape(py::module& m) {
   std::shared_ptr<MeshShape>>(m,"MeshShape")
   .def(py::init())
   .def(py::init<const std::vector<GLfloat>&,const std::vector<GLuint>&,GLenum>())
-  .def("addVertex",&MeshShape::addVertex)
+  .def("addVertex",[](std::shared_ptr<MeshShape> m,const Eigen::Matrix<GLfloat,-1,1>& v) {
+    m->addVertex(v);
+  })
+  .def("addVertex",[](std::shared_ptr<MeshShape> m,const Eigen::Matrix<GLfloat,-1,1>& v,const Eigen::Matrix<GLfloat,-1,1>& tc) {
+    m->addVertex(v,&tc);
+  })
   .def("addIndex",&MeshShape::addIndex)
   .def("addIndexSingle",&MeshShape::addIndexSingle)
   .def("setMode",&MeshShape::setMode)
