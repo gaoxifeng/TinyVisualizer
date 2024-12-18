@@ -189,6 +189,9 @@ void initDrawer(py::module& m) {
   .def("timer",&Drawer::timer)
   .def("frame",&Drawer::frame)
   .def("draw",&Drawer::draw)
+  .def("drawPovray",[](std::shared_ptr<Drawer> drawer,std::shared_ptr<Povray> pov) {
+    drawer->drawPovray(*pov);
+  })
   .def("setMouseFunc",&Drawer::setMouseFunc)
   .def("setWheelFunc",&Drawer::setWheelFunc)
   .def("setMotionFunc",&Drawer::setMotionFunc)
