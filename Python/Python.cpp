@@ -113,7 +113,10 @@ void initShape(py::module& m) {
   .def("draw",&Shape::draw)
   .def("drawPovray",&Shape::drawPovray)
   .def("getBB",&Shape::getBB)
-  .def("rayIntersect",&Shape::rayIntersect);
+  .def("rayIntersect",[](std::shared_ptr<Shape> shape,const Eigen::Matrix<GLfloat,6,1>& ray,GLfloat& alpha)->std::tuple<bool,GLfloat> {
+    bool ret=shape->rayIntersect(ray,alpha);
+    return std::make_tuple(ret,alpha);
+  });
 }
 void initCamera(py::module& m) {
   py::class_<Camera,
