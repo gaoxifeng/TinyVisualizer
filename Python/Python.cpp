@@ -36,6 +36,7 @@ namespace py=pybind11;
 using namespace DRAWER;
 //essential components
 #include "Constants.h"
+#include "PythonImgui.h"
 void initGLFWwindowPtr(py::module& m) {
   py::class_<GLFWwindowPtr>(m,"GLFWwindowPtr")
   .def(py::init());
@@ -60,18 +61,6 @@ void initSceneNode(py::module& m) {
   .def("visit",static_cast<bool(SceneNode::*)(std::function<bool(std::shared_ptr<Shape>)>)const>(&SceneNode::visit))
   .def("rayIntersect",&SceneNode::rayIntersect)
   .def("draw",&SceneNode::draw);
-}
-void initPythonCallback(py::module& m) {
-  py::class_<PythonCallback,
-  std::shared_ptr<PythonCallback>>(m,"PythonCallback")
-  .def(py::init())
-  .def("mouse",&PythonCallback::mouse)
-  .def("wheel",&PythonCallback::wheel)
-  .def("motion",&PythonCallback::motion)
-  .def("key",&PythonCallback::key)
-  .def("frame",&PythonCallback::frame)
-  .def("draw",&PythonCallback::draw)
-  .def("setup",&PythonCallback::setup);
 }
 void initTexture(py::module& m) {
   py::class_<Texture,
@@ -206,7 +195,6 @@ void initDrawer(py::module& m) {
   .def("setKeyFunc",&Drawer::setKeyFunc)
   .def("setFrameFunc",&Drawer::setFrameFunc)
   .def("setDrawFunc",&Drawer::setDrawFunc)
-  .def("setPythonCallback",&Drawer::setPythonCallback)
   .def("addCamera2D",&Drawer::addCamera2D)
   .def("addCamera3D",static_cast<void(Drawer::*)(GLfloat,const Eigen::Matrix<GLfloat,3,1>&)>(&Drawer::addCamera3D))
   .def("addCamera3D",static_cast<void(Drawer::*)(GLfloat,const Eigen::Matrix<GLfloat,3,1>&,const Eigen::Matrix<GLfloat,3,1>&,const Eigen::Matrix<GLfloat,3,1>&)>(&Drawer::addCamera3D))
@@ -341,8 +329,8 @@ void initCaptureMPEG2Plugin(py::module& m) {
 void initImGuiPlugin(py::module& m) {
   py::class_<ImGuiPlugin,Plugin,
   std::shared_ptr<ImGuiPlugin>>(m,"ImGuiPlugin")
-  .def(py::init<PythonCallback*>())
   .def(py::init<std::function<void()>>());
+  initImgui(m);
 }
 //extra components
 void initMeshShape(py::module& m) {
@@ -482,7 +470,6 @@ PYBIND11_MODULE(pyTinyVisualizer, m) {
   //essential components
   initGLFWwindowPtr(m);
   initSceneNode(m);
-  initPythonCallback(m);
   initTexture(m);
   initPovray(m);
   initShape(m);

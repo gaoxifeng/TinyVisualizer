@@ -111,8 +111,6 @@ void Drawer::timer() {
   }
 }
 void Drawer::frame() {
-  if(_cb)
-    _cb->frame(_root);
   if(_camera)
     _camera->frame(_window,1.0f/FPS());
   _frame(_root);
@@ -200,8 +198,6 @@ void Drawer::draw() {
   }
   //custom
   _draw();
-  if(_cb)
-    _cb->draw();
   for(std::shared_ptr<Plugin> pi:_plugins)
     pi->postDraw();
   //if we have FBO bound, end using the FBO
@@ -239,8 +235,6 @@ FBO* Drawer::getOffScreenFBO() const {
 void Drawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
-  if(drawer->_cb)
-    drawer->_cb->mouse(button,action,mods);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->mouse(wnd,button,action,mods)) {
       captured=true;
@@ -253,8 +247,6 @@ void Drawer::mouse(GLFWwindow* wnd,int button,int action,int mods) {
 void Drawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
-  if(drawer->_cb)
-    drawer->_cb->wheel(xoffset,yoffset);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->wheel(wnd,xoffset,yoffset)) {
       captured=true;
@@ -267,8 +259,6 @@ void Drawer::wheel(GLFWwindow* wnd,double xoffset,double yoffset) {
 void Drawer::motion(GLFWwindow* wnd,double x,double y) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
-  if(drawer->_cb)
-    drawer->_cb->motion(x,y);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->motion(wnd,x,y)) {
       captured=true;
@@ -281,8 +271,6 @@ void Drawer::motion(GLFWwindow* wnd,double x,double y) {
 void Drawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
   bool captured=false;
   Drawer* drawer=(Drawer*)glfwGetWindowUserPointer(wnd);
-  if(drawer->_cb)
-    drawer->_cb->key(key,scan,action,mods);
   for(std::shared_ptr<Plugin> pi:drawer->_plugins)
     if(!pi->key(wnd,key,scan,action,mods)) {
       captured=true;
@@ -318,9 +306,6 @@ void Drawer::setFrameFunc(std::function<void(std::shared_ptr<SceneNode>&)> frame
 }
 void Drawer::setDrawFunc(std::function<void()> draw) {
   _draw=draw;
-}
-void Drawer::setPythonCallback(PythonCallback* cb) {
-  _cb=cb;
 }
 void Drawer::addCamera2D(GLfloat xExt) {
   _camera.reset(new Camera2D(xExt));
@@ -477,7 +462,6 @@ void Drawer::init(int argc,char** argv) {
   _key=keyNothing;
   _frame=doNothing;
   _draw=drawNothing;
-  _cb=NULL;
   _lastTime=0;
   _debugBB=false;
 

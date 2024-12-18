@@ -3,12 +3,12 @@ import numpy as np
 import math
 
 if __name__=='__main__':
-    drawer=vis.Drawer(0,None)
-    drawer.addPlugin(vis.CaptureGIFPlugin(vis.GLFW_KEY_1,'record.gif',drawer.FPS()))
+    drawer=vis.Drawer([])
+    drawer.addPlugin(vis.CaptureGIFPlugin(vis.GLFW_KEY_1,'record.gif',drawer.FPS(),False))
     
     USE_LIGHT=True
     if USE_LIGHT:
-        drawer.addLightSystem(2048,20)
+        drawer.addLightSystem(2048,20,False)
         drawer.getLight().lightSz(10)
         drawer.getLight().addLight(np.array([2.,2.,2.],dtype=np.single),
                                    np.array([1.,1.,1.],dtype=np.single),
@@ -17,7 +17,7 @@ if __name__=='__main__':
 
     height=np.array([[math.sin(x*.25)*math.sin(y*.25) for y in range(128)] for x in range(64)],dtype=np.single)
     terrain=vis.TerrainShape(height,1,np.array([1/16.,1/8.,1/16.],dtype=np.single),np.array([1/16.,1/16.],dtype=np.single))
-    terrain.setTexture(vis.drawGrid())
+    terrain.setTextureDiffuse(vis.drawGrid(10,0.01,0.03,[1.,1.,1.],[.7,.7,.7],9,11,vis.GL_RGB))
     drawer.addShape(terrain)
 
     #this is currently not supported by swig
@@ -27,7 +27,7 @@ if __name__=='__main__':
 
     shapeTB=vis.Bullet3DShape()
     box=vis.makeBox(1,True,np.array([0.25,0.25,0.25],dtype=np.single))
-    box.setTexture(vis.drawChecker())
+    box.setTextureDiffuse(vis.drawChecker(5,[1.,1.,1.],[.7,.7,.7],9,11,vis.GL_RGB))
     shapeTB.setLocalTranslate(np.array([2,0.5,2],dtype=np.single))
     shapeTB.addShape(box)
     drawer.addShape(shapeTB)

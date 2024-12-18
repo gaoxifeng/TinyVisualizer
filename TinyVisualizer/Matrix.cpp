@@ -90,14 +90,14 @@ void scalef(GLfloat x,GLfloat y,GLfloat z) {
 }
 void zRangef(const Eigen::Matrix<GLfloat,6,1>& bb,
              GLfloat& zNear,GLfloat& zFar,
-             GLfloat minZNear,GLfloat maxZFar) {
+             GLfloat minZNearRelative,GLfloat maxZFar) {
   if(!std::isfinite(bb[0]) || std::abs(bb[0])==std::numeric_limits<GLfloat>::max()) {
-    zNear=minZNear;
     zFar=maxZFar;
+    zNear=minZNearRelative*zFar;
     return;
   }
   zNear=maxZFar;
-  zFar=minZNear;
+  zFar=0;
   Eigen::Matrix<GLfloat,4,4> mv;
   getFloatv(GLModelViewMatrix,mv);
   for(GLfloat x: {
@@ -114,8 +114,8 @@ void zRangef(const Eigen::Matrix<GLfloat,6,1>& bb,
         zNear=std::min(zNear,-posZ);
         zFar=std::max(zFar,-posZ);
       }
-  zNear=std::max<GLfloat>(minZNear,zNear);
   zFar=std::min<GLfloat>(maxZFar,zFar);
+  zNear=std::max<GLfloat>(minZNearRelative*zFar,zNear);
 }
 void lookAtf(GLfloat eyex,GLfloat eyey,GLfloat eyez,
              GLfloat centerx,GLfloat centery,GLfloat centerz,

@@ -4,18 +4,19 @@ import numpy as np
 import math
 
 if __name__=='__main__':
-    drawer=vis.Drawer(0,None)
-    drawer.addPlugin(vis.CaptureGIFPlugin(vis.GLFW_KEY_1,'record.gif',drawer.FPS()))
+    drawer=vis.Drawer([])
+    drawer.addPlugin(vis.CaptureGIFPlugin(vis.GLFW_KEY_1,'record.gif',drawer.FPS(),False))
     
-    arrow=vis.ArrowShape(60,.1,.2)
-    arrow.setArrow(np.array([-.5,-.5,-.5],dtype=np.single),
-                   np.array([.5,.5,.5],dtype=np.single))
+    afrom=[-.5,-.5,-.5]
+    ato=[.5,.5,.5]
+    arrow=vis.ArrowShape(60,.1,.2,32)
+    arrow.setArrow(afrom,ato)
     arrow.setColorAmbient(vis.GL_TRIANGLES,1,1,1)
     drawer.addShape(arrow)
     
     USE_LIGHT=True
     if USE_LIGHT:
-        drawer.addLightSystem(2048,20)
+        drawer.addLightSystem(2048,20,False)
         drawer.getLight().lightSz(10)
         for x in [-1,1]:
             for y in [-1,1]:
@@ -25,33 +26,18 @@ if __name__=='__main__':
                                                np.array([.2,.2,.2],dtype=np.single),
                                                np.array([0.,0.,0.],dtype=np.single))
         
+    def setup():
+        global afrom,ato
+        vis.imgui.Begin("Arrow Direction",0)
+        _,afrom=vis.imgui.DragFloat3("from",afrom,.01,-1.,1.,"%.3f",0)
+        _,ato=vis.imgui.DragFloat3("from",ato,.01,-1.,1.,"%.3f",0)
+        vis.imgui.End()
     
-    class CustomPythonCallback(vis.PythonCallback):
-        def __init__(self):
-            vis.PythonCallback.__init__(self)
-            self.fromX=-.5
-            self.fromY=-.5
-            self.fromZ=-.5
-            self.toX=.5
-            self.toY=.5
-            self.toZ=.5
-        
-        def frame(self, root):
-            arrow.setArrow(np.array([self.fromX,self.fromY,self.fromZ],dtype=np.single),
-                           np.array([self.toX,self.toY,self.toZ],dtype=np.single))
-        
-        def setup(self):
-            vis.Begin("Arrow Direction")
-            self.fromX=vis.DragFloat("fromX",self.fromX,.01,-1.,1.,"%.3f",0)[1]
-            self.fromY=vis.DragFloat("fromY",self.fromY,.01,-1.,1.,"%.3f",0)[1]
-            self.fromZ=vis.DragFloat("fromZ",self.fromZ,.01,-1.,1.,"%.3f",0)[1]
-            self.toX=vis.DragFloat("toX",self.toX,.01,-1.,1.,"%.3f",0)[1]
-            self.toY=vis.DragFloat("toY",self.toY,.01,-1.,1.,"%.3f",0)[1]
-            self.toZ=vis.DragFloat("toZ",self.toZ,.01,-1.,1.,"%.3f",0)[1]
-            vis.End()
-
-    setup=CustomPythonCallback()
-    drawer.setPythonCallback(setup)
+    def frame(node):
+        global afrom,ato
+        arrow.setArrow(afrom,ato)
+    
     drawer.addPlugin(vis.ImGuiPlugin(setup))
+    drawer.setFrameFunc(frame)
     drawer.getCamera3D().setManipulator(vis.FirstPersonCameraManipulator(drawer.getCamera3D()))
     drawer.mainLoop()

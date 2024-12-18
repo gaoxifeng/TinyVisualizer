@@ -23,19 +23,6 @@ struct GLFWwindowPtr {
   }
   GLFWwindow* _ptr=NULL;
 };
-//swig only support class-based callback
-class PythonCallback : public RTTI::Enable {
-  RTTI_DECLARE_TYPEINFO(PythonCallback);
- public:
-  virtual ~PythonCallback() {}
-  virtual void mouse(int button,int action,int mods) {}
-  virtual void wheel(double xoffset,double yoffset) {}
-  virtual void motion(double x,double y) {}
-  virtual void key(int key,int scan,int action,int mods) {}
-  virtual void frame(std::shared_ptr<SceneNode>& root) {}
-  virtual void draw() {}
-  virtual void setup() {}
-};
 //Shape for OpenGL drawing
 class Shape : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Shape);
@@ -158,7 +145,6 @@ class Drawer : public RTTI::Enable {
   void setKeyFunc(std::function<void(GLFWwindowPtr,int,int,int,int,bool)> key);
   void setFrameFunc(std::function<void(std::shared_ptr<SceneNode>&)> frame);
   void setDrawFunc(std::function<void()> draw);
-  void setPythonCallback(PythonCallback* cb);
   void addCamera2D(GLfloat xExt);
   //addCamera3D-FirstPerson/TrackBall
   void addCamera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up=Eigen::Matrix<GLfloat,3,1>(0,0,1));
@@ -204,7 +190,6 @@ class Drawer : public RTTI::Enable {
   MultiDrawer* _parent=NULL;    //this is the multi-viewport pointer
   std::shared_ptr<FBO> _offScreen;
   GLFWwindow* _window=NULL;
-  PythonCallback* _cb;
   double _lastTime;
   bool _debugBB;
   int _FPS;

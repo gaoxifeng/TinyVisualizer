@@ -7,7 +7,6 @@ namespace DRAWER {
 class ImGuiPlugin : public Plugin {
   RTTI_DECLARE_TYPEINFO(ImGuiPlugin, Plugin);
  public:
-  ImGuiPlugin(PythonCallback* cb);
   ImGuiPlugin(std::function<void()> ImGuiSetup);
   virtual void init(GLFWwindowPtr window) override;
   virtual void finalize() override;
@@ -18,7 +17,6 @@ class ImGuiPlugin : public Plugin {
   virtual bool motion(GLFWwindowPtr wnd,double x,double y) override;
   virtual bool key(GLFWwindowPtr wnd,int key,int scan,int action,int mods) override;
  private:
-  PythonCallback* _cb;
   std::function<void()> _ImGuiSetup;
 };
 }

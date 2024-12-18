@@ -40,8 +40,7 @@ namespace DRAWER {
 void defaultImGuiSetup() {
   ASSERT_MSG(false,"Empty ImGuiSetup!")
 }
-ImGuiPlugin::ImGuiPlugin(PythonCallback* cb):_cb(cb),_ImGuiSetup(defaultImGuiSetup) {}
-ImGuiPlugin::ImGuiPlugin(std::function<void()> ImGuiSetup):_cb(NULL),_ImGuiSetup(ImGuiSetup) {}
+ImGuiPlugin::ImGuiPlugin(std::function<void()> ImGuiSetup):_ImGuiSetup(ImGuiSetup) {}
 void ImGuiPlugin::init(GLFWwindowPtr window) {
 #ifdef IMGUI_SUPPORT
   //Decide GL+GLSL versions
@@ -124,9 +123,7 @@ void ImGuiPlugin::preDraw() {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
-  if(_cb)
-    _cb->setup();
-  else _ImGuiSetup();
+  _ImGuiSetup();
 #else
   ASSERT_MSG(false,"ImGui not supported!")
 #endif

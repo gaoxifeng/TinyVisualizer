@@ -24,7 +24,7 @@ extern void rotatef(GLfloat angle,GLfloat x,GLfloat y,GLfloat z);
 extern void scalef(GLfloat x,GLfloat y,GLfloat z);
 extern void zRangef(const Eigen::Matrix<GLfloat,6,1>& bb,
                     GLfloat& zNear,GLfloat& zFar,
-                    GLfloat minZNear = std::numeric_limits<GLfloat>::min(),
+                    GLfloat minZNearRelative = 0.01f,
                     GLfloat maxZFar = std::numeric_limits<GLfloat>::max());
 extern void lookAtf(GLfloat eyex,GLfloat eyey,GLfloat eyez,
                     GLfloat centerx,GLfloat centery,GLfloat centerz,
