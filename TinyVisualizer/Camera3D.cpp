@@ -132,6 +132,7 @@ void Camera3D::drawPovray(Povray& pov,GLFWwindowPtr wnd,const Eigen::Matrix<GLfl
   Eigen::Matrix<GLfloat,3,1> right=_dir.cross(_up).normalized();
 
   std::shared_ptr<Povray::Camera> c(new Povray::Camera);
+  c->_is2D=false;
   c->_pos=_pos;
   c->_dir=_dir.normalized()*zFar;
   c->_up=up*tan(_angle*M_PI/360)*zFar*2;

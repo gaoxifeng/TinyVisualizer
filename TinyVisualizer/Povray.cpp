@@ -5,6 +5,9 @@ namespace DRAWER {
 void Povray::Camera::write(Povray& pov) const {
   pov.getStream() << pov.indent() << "camera {" << std::endl;
   pov.moreIndent();
+  if(_is2D)
+    pov.getStream() << pov.indent() << "orthographic" << std::endl;
+  else pov.getStream() << pov.indent() << "perspective" << std::endl;
   pov.getStream() << pov.indent() << "location " << pov.write(_pos) << std::endl;
   pov.getStream() << pov.indent() << "direction " << pov.write(_dir) << std::endl;
   pov.getStream() << pov.indent() << "right " << pov.write(_right) << std::endl;

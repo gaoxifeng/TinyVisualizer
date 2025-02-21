@@ -118,6 +118,7 @@ void Camera2D::drawPovray(Povray& pov,GLFWwindowPtr wnd,const Eigen::Matrix<GLfl
   Eigen::Matrix<GLfloat,3,1> right(_xExt*_scale*2,0,0);
 
   std::shared_ptr<Povray::Camera> c(new Povray::Camera);
+  c->_is2D=true;
   c->_pos=pos;
   c->_dir=dir.normalized();
   c->_up=up;
