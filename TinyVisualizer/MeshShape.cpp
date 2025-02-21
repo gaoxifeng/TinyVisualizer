@@ -266,7 +266,7 @@ void MeshShape::setLineWidth(GLfloat lineWidth) {
 void MeshShape::setColorDiffuse(GLenum mode,GLfloat R,GLfloat G,GLfloat B) {
   if(_mode!=mode)
     return;
-  _mat->_diffuse=Eigen::Matrix<GLfloat,4,1>(R,G,B,1);
+  _mat->_diffuse.template segment<3>(0)=Eigen::Matrix<GLfloat,3,1>(R,G,B);
 }
 void MeshShape::setColorAmbient(GLenum mode,GLfloat RA,GLfloat GA,GLfloat BA) {
   if(_mode!=mode)
