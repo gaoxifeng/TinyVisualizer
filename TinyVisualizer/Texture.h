@@ -34,6 +34,7 @@ class Texture : public RTTI::Enable {
   void save(aiTexture& tex,int quality=100,const Eigen::Matrix<GLfloat,4,1>* diffuse=NULL) const;
   static std::shared_ptr<Texture> load(const std::string& path);
   static std::shared_ptr<Texture> load(const aiTexture& tex);
+  static void setActiveTexture(GLenum texId);
   //data channel access
   void setDataChannel(int cid,const Eigen::Matrix<GLfloat,-1,-1>& data);
   template <typename T>

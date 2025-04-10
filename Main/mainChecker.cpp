@@ -9,12 +9,12 @@ int main(int argc,char** argv) {
   std::shared_ptr<Texture> grid=drawGrid();
   drawer.addCamera2D(10);
   drawer.setDrawFunc([&]() {
-    glActiveTexture(GL_TEXTURE0);
+    Texture::setActiveTexture(GL_TEXTURE0);
     grid->begin();
-    glActiveTexture(GL_TEXTURE1);
+    Texture::setActiveTexture(GL_TEXTURE1);
     FBO::screenQuad(grid);
     grid->end();
-    glActiveTexture(GL_TEXTURE0);
+    Texture::setActiveTexture(GL_TEXTURE0);
   });
   Povray pov("pov");
   drawer.drawPovray(pov);

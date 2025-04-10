@@ -81,6 +81,7 @@ Drawer::Drawer(int argc,char** argv,GLFWwindow* wnd,MultiDrawer* parent):_parent
 Drawer::~Drawer() {
   clear();
   if(_parent==NULL) {
+    MeshShape::clearTexWhite();
     //If this is offscreen window, associated with FBO, destroy it first
     _offScreen=NULL;
     //we are not using viewport

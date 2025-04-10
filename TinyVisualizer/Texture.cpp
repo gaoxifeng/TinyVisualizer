@@ -232,6 +232,9 @@ std::shared_ptr<Texture> Texture::load(const aiTexture& tex) {
 #endif
   return ret;
 }
+void Texture::setActiveTexture(GLenum texId) {
+    glActiveTexture(texId);
+}
 //data channel access
 void Texture::setDataChannel(int cid,const Eigen::Matrix<GLfloat,-1,-1>& data) {
   setDataChannel<GLfloat>(cid,data);

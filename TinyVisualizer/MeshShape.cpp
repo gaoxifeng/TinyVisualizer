@@ -89,6 +89,9 @@ void MeshShape::clearIndex() {
   _indices.clear();
   _VBO=NULL;
 }
+void MeshShape::clearTexWhite() {
+    _texWhite = NULL;
+}
 void MeshShape::computeNormals() {
   ASSERT_MSGV(_mode==GL_TRIANGLES,"Compute normals is only available when mode(%d)=GL_TRIANGLES!",_mode)
   _normals.assign(_vertices.size(),0);
@@ -433,7 +436,8 @@ void MeshShape::initMaterial() {
   _mat->_drawer=NULL;
   if(!glad_glGenTextures)
     return; //this is CPU only, just return
-  _texWhite=getWhiteTexture();
+  if(!_texWhite)
+    _texWhite=getWhiteTexture();
 }
 std::shared_ptr<Texture> MeshShape::_texWhite;
 }

@@ -31,6 +31,7 @@ class MeshShape : public Shape {
   int nrIndex() const;
   void clear();
   void clearIndex();
+  static void clearTexWhite();
   virtual void computeNormals();
   void setNormal(int i,const Eigen::Matrix<GLfloat,3,1>& normal);
   Eigen::Matrix<GLfloat,3,1> getNormal(int i) const;
