@@ -5,7 +5,7 @@
 #include <unordered_set>
 
 namespace DRAWER {
-class EXPORT CellShape : public MeshShape {
+class CellShape : public MeshShape {
   RTTI_DECLARE_TYPEINFO(CellShape, MeshShape);
  public:
   CellShape();

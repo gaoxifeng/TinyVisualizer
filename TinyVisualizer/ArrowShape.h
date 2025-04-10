@@ -4,7 +4,7 @@
 #include "MeshShape.h"
 
 namespace DRAWER {
-class EXPORT ArrowShape : public MeshShape {
+class ArrowShape : public MeshShape {
   RTTI_DECLARE_TYPEINFO(ArrowShape, MeshShape);
  public:
   ArrowShape(GLfloat angle,GLfloat thickness,GLfloat thicknessOuter,int RES=32);

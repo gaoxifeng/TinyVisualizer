@@ -6,7 +6,7 @@
 #include "FBO.h"
 
 namespace DRAWER {
-struct EXPORT Material : public RTTI::Enable {
+struct Material : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Material);
  public:
   Eigen::Matrix<GLfloat,4,1> _ambient;
@@ -18,7 +18,7 @@ struct EXPORT Material : public RTTI::Enable {
   GLfloat _shininess;
   Drawer* _drawer;
 };
-struct EXPORT Light : public RTTI::Enable {
+struct Light : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Light);
  public:
   Eigen::Matrix<GLfloat,4,1> _position;
@@ -30,7 +30,7 @@ struct EXPORT Light : public RTTI::Enable {
   Eigen::Matrix<GLfloat,4,4> _MV[6],_invMV[6];
   Eigen::Matrix<GLfloat,-1,1> _viewFrustum[6];
 };
-class EXPORT ShadowLight : public RTTI::Enable {
+class ShadowLight : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(ShadowLight);
  public:
   ShadowLight(int shadow,int softShadow,bool autoAdjust=true);

@@ -4,7 +4,7 @@
 #include "Drawer.h"
 
 namespace DRAWER {
-class EXPORT CameraExportPlugin : public Plugin {
+class CameraExportPlugin : public Plugin {
   RTTI_DECLARE_TYPEINFO(CameraExportPlugin, Plugin);
  public:
   CameraExportPlugin(int keySave,int keyLoad,const std::string& name);

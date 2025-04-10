@@ -6,7 +6,7 @@
 namespace DRAWER {
 class Texture;
 class Povray;
-struct EXPORT Background {
+struct Background {
   void draw();
   void drawPovray(Povray& pov) const;
   Eigen::Matrix<GLfloat,3,1> _color=Eigen::Matrix<GLfloat,3,1>(1,1,1);

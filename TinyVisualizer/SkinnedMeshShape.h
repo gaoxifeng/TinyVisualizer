@@ -7,7 +7,7 @@
 #include <assimp/Importer.hpp>
 
 namespace DRAWER {
-class EXPORT SkinnedMeshShape : public Bullet3DShape {
+class SkinnedMeshShape : public Bullet3DShape {
   RTTI_DECLARE_TYPEINFO(SkinnedMeshShape, Bullet3DShape);
  public:
   struct BoneInfo {

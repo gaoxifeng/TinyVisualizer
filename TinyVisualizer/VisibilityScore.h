@@ -7,7 +7,7 @@
 #include "Shader.h"
 
 namespace DRAWER {
-class EXPORT VisibilityScore : public RTTI::Enable {
+class VisibilityScore : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(VisibilityScore);
  public:
   VisibilityScore(int levelMax,GLenum formatColor,GLenum formatDepth=GL_DEPTH_COMPONENT);

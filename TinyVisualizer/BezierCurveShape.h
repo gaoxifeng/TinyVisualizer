@@ -4,7 +4,7 @@
 #include "MeshShape.h"
 
 namespace DRAWER {
-class EXPORT BezierCurveShape : public MeshShape {
+class BezierCurveShape : public MeshShape {
   RTTI_DECLARE_TYPEINFO(BezierCurveShape, MeshShape);
  public:
   BezierCurveShape(GLfloat thickness,bool isHermite=true,int RES=8);

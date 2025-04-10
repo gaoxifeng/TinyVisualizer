@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace DRAWER {
-class EXPORT FBO : public RTTI::Enable {
+class FBO : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(FBO);
  public:
   FBO(int width,int height,GLenum formatColor=GL_RGB,GLenum formatDepth=GL_DEPTH_COMPONENT);
@@ -36,7 +36,7 @@ class EXPORT FBO : public RTTI::Enable {
   GLuint _fbo,_dbo;
   GLint _vp[4];
 };
-class EXPORT FBOShadow : public RTTI::Enable {
+class FBOShadow : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(FBOShadow);
  public:
   FBOShadow(int res,GLenum formatDepth=GL_DEPTH_COMPONENT);
@@ -58,7 +58,7 @@ class EXPORT FBOShadow : public RTTI::Enable {
   GLuint _fbo,_dbo;
   GLint _vp[4];
 };
-class EXPORT FBOPingPong : public RTTI::Enable {
+class FBOPingPong : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(FBOPingPong);
  public:
   FBOPingPong(int levelMin,int levelMax,GLenum formatColor=GL_RGB,GLenum formatDepth=GL_DEPTH_COMPONENT);

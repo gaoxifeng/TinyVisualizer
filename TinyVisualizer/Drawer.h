@@ -24,7 +24,7 @@ struct GLFWwindowPtr {
   GLFWwindow* _ptr=NULL;
 };
 //Shape for OpenGL drawing
-class EXPORT Shape : public RTTI::Enable {
+class Shape : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Shape);
  public:
   enum PASS_TYPE {
@@ -66,7 +66,7 @@ class EXPORT Shape : public RTTI::Enable {
   std::shared_ptr<Shape> _next;
 };
 //Camera
-class EXPORT Camera : public RTTI::Enable {
+class Camera : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Camera);
  public:
   virtual ~Camera() {}
@@ -90,7 +90,7 @@ class EXPORT Camera : public RTTI::Enable {
   Eigen::Matrix<GLfloat,4,4> _mv,_p;
 };
 //Plugin
-class EXPORT Plugin : public RTTI::Enable {
+class Plugin : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Plugin);
  public:
   Plugin();
@@ -119,7 +119,7 @@ class EXPORT Plugin : public RTTI::Enable {
 //Drawer
 class FBO;
 class MultiDrawer;
-class EXPORT Drawer : public RTTI::Enable {
+class Drawer : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Drawer);
  public:
   Drawer(const std::vector<std::string>& args,GLFWwindow* wnd=NULL,MultiDrawer* parent=NULL);

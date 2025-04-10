@@ -5,7 +5,7 @@
 
 namespace DRAWER {
 class Camera3D;
-class EXPORT CameraManipulator : public RTTI::Enable {
+class CameraManipulator : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(CameraManipulator);
  public:
   CameraManipulator(std::shared_ptr<Camera3D> camera);
