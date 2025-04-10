@@ -455,6 +455,7 @@ void Drawer::clear() {
   clearLight();
   clearScene();
   clearVBO();
+  _background._tex = NULL;
   Program::clearProgram();
 }
 //helper
