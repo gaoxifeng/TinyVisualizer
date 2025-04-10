@@ -4,7 +4,7 @@
 #include "MeshShape.h"
 
 namespace DRAWER {
-class TerrainShape : public MeshShape {
+class EXPORT TerrainShape : public MeshShape {
   RTTI_DECLARE_TYPEINFO(TerrainShape, MeshShape);
  public:
   TerrainShape(const Eigen::Matrix<GLfloat,-1,-1>& height,int upAxis,

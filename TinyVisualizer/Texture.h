@@ -9,7 +9,7 @@ extern "C" {
 }
 
 namespace DRAWER {
-class Texture : public RTTI::Enable {
+class EXPORT Texture : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Texture);
  public:
   struct TextureCPUData {

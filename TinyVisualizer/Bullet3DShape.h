@@ -11,7 +11,7 @@ class btCollisionObject;
 class btDiscreteDynamicsWorld;
 namespace DRAWER {
 class Texture;
-class Bullet3DShape : public CompositeShape {
+class EXPORT Bullet3DShape : public CompositeShape {
   RTTI_DECLARE_TYPEINFO(Bullet3DShape, CompositeShape);
  public:
   Bullet3DShape();

@@ -5,7 +5,7 @@
 
 namespace DRAWER {
 //Drawer
-class MultiDrawer : public RTTI::Enable {
+class EXPORT MultiDrawer : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(MultiDrawer);
  public:
   MultiDrawer(const std::vector<std::string>& args);

@@ -4,7 +4,7 @@
 #include "MeshShape.h"
 
 namespace DRAWER {
-class LowDimensionalMeshShape : public Shape {
+class EXPORT LowDimensionalMeshShape : public Shape {
   RTTI_DECLARE_TYPEINFO(LowDimensionalMeshShape, Shape);
  public:
   LowDimensionalMeshShape(std::shared_ptr<MeshShape> inner);

@@ -4,7 +4,7 @@
 #include "CameraManipulator.h"
 
 namespace DRAWER {
-class TrackballCameraManipulator : public CameraManipulator {
+class EXPORT TrackballCameraManipulator : public CameraManipulator {
   RTTI_DECLARE_TYPEINFO(TrackballCameraManipulator, CameraManipulator);
  public:
   TrackballCameraManipulator(std::shared_ptr<Camera3D> camera);

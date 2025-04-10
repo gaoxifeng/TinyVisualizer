@@ -5,7 +5,7 @@
 #include "Texture.h"
 
 namespace DRAWER {
-class CaptureGIFPlugin : public Plugin {
+class EXPORT CaptureGIFPlugin : public Plugin {
   RTTI_DECLARE_TYPEINFO(CaptureGIFPlugin, Plugin);
  public:
   CaptureGIFPlugin(int hotkey,const std::string& name,int FPS,bool screenshot=false);

@@ -4,7 +4,7 @@
 #include "Drawer.h"
 
 namespace DRAWER {
-class Camera2D : public Camera {
+class EXPORT Camera2D : public Camera {
   RTTI_DECLARE_TYPEINFO(Camera2D, Camera);
  public:
   Camera2D(GLfloat xExt);

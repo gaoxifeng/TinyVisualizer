@@ -4,7 +4,7 @@
 #include "Drawer.h"
 
 namespace DRAWER {
-class CaptureMPEG2Plugin : public Plugin {
+class EXPORT CaptureMPEG2Plugin : public Plugin {
   RTTI_DECLARE_TYPEINFO(CaptureMPEG2Plugin, Plugin);
  public:
   CaptureMPEG2Plugin(int hotkey,const std::string& name,int FPS);

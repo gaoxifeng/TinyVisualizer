@@ -7,7 +7,7 @@
 #include <fstream>
 
 namespace DRAWER {
-class Povray {
+class EXPORT Povray {
  public:
   struct Element : public RTTI::Enable {
     RTTI_DECLARE_TYPEINFO(Element);

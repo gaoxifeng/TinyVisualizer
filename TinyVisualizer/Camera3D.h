@@ -5,7 +5,7 @@
 #include "CameraManipulator.h"
 
 namespace DRAWER {
-class Camera3D : public Camera {
+class EXPORT Camera3D : public Camera {
   RTTI_DECLARE_TYPEINFO(Camera3D, Camera);
  public:
   Camera3D(GLfloat angle,const Eigen::Matrix<GLfloat,3,1>& up);

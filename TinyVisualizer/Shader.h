@@ -5,7 +5,7 @@
 #include <memory>
 
 namespace DRAWER {
-class Shader : public RTTI::Enable {
+class EXPORT Shader : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Shader);
  public:
   static void clearShader();
@@ -32,7 +32,7 @@ class Shader : public RTTI::Enable {
   std::string _name,_vert,_geom,_frag,_compute;
   GLint _vertS,_geomS,_fragS,_computeS;
 };
-class Program : public RTTI::Enable {
+class EXPORT Program : public RTTI::Enable {
   RTTI_DECLARE_TYPEINFO(Program);
  public:
   static void clearProgram();

@@ -4,7 +4,7 @@
 #include "Drawer.h"
 
 namespace DRAWER {
-class CompositeShape : public Shape {
+class EXPORT CompositeShape : public Shape {
   RTTI_DECLARE_TYPEINFO(CompositeShape, Shape);
  public:
   void addShape(std::shared_ptr<Shape> s);
