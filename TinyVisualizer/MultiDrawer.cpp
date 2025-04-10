@@ -1,5 +1,6 @@
 #include "MultiDrawer.h"
 #include "DrawerUtility.h"
+#include "MeshShape.h"
 #include "FBO.h"
 #include <iostream>
 
@@ -21,6 +22,7 @@ MultiDrawer::MultiDrawer(int argc,char** argv) {
 MultiDrawer::~MultiDrawer() {
   clear();
   _offScreen=NULL;
+  MeshShape::clearTexWhite();
   glfwDestroyWindow(_window);
 }
 //multi-viewport
