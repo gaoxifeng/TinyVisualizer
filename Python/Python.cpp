@@ -244,13 +244,13 @@ void initShadowAndLight(py::module& m) {
   py::class_<Material>(m,"Material")
   .def(py::init<>())
   .def_readwrite("_ambient",&Material::_ambient)
-  .def_readwrite("_ambient",&Material::_diffuse)
-  .def_readwrite("_ambient",&Material::_specular)
-  .def_readwrite("_ambient",&Material::_texDiffuse)
-  .def_readwrite("_ambient",&Material::_texSpecular)
-  .def_readwrite("_ambient",&Material::_pointSize)
-  .def_readwrite("_ambient",&Material::_lineWidth)
-  .def_readwrite("_ambient",&Material::_shininess);
+  .def_readwrite("_diffuse",&Material::_diffuse)
+  .def_readwrite("_specular",&Material::_specular)
+  .def_readwrite("_texDiffuse",&Material::_texDiffuse)
+  .def_readwrite("_texSpecular",&Material::_texSpecular)
+  .def_readwrite("_pointSize",&Material::_pointSize)
+  .def_readwrite("_lineWidth",&Material::_lineWidth)
+  .def_readwrite("_shininess",&Material::_shininess);
 
   py::class_<ShadowLight,
   std::shared_ptr<ShadowLight>>(m,"ShadowLight")
