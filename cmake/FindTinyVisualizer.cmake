@@ -8,6 +8,8 @@ FIND_PATH(TinyVisualizer_INCLUDE_DIR TinyVisualizer/Drawer.h
   /usr/include
   /usr/local/include
   C:/TinyVisualizer/include
+  "C:/Program Files/include"
+  "C:/Program Files (x86)/include"
   )
 
 FIND_PATH(ImGui_INCLUDE_DIR TinyVisualizer/imgui/imgui.h
@@ -18,6 +20,8 @@ FIND_PATH(ImGui_INCLUDE_DIR TinyVisualizer/imgui/imgui.h
   /usr/include
   /usr/local/include
   C:/TinyVisualizer/include
+  "C:/Program Files/include"
+  "C:/Program Files (x86)/include"
   )
 
 FIND_LIBRARY(TinyVisualizer_LIBRARY NAMES TinyVisualizer PATHS 
@@ -28,6 +32,8 @@ FIND_LIBRARY(TinyVisualizer_LIBRARY NAMES TinyVisualizer PATHS
   /usr/lib/${CMAKE_BUILD_TYPE}
   /usr/local/lib/${CMAKE_BUILD_TYPE}
   C:/TinyVisualizer/lib/${CMAKE_BUILD_TYPE}
+  "C:/Program Files/TinyVisualizer/lib/${CMAKE_BUILD_TYPE}"
+  "C:/Program Files (x86)/TinyVisualizer/lib/${CMAKE_BUILD_TYPE}"
   NO_CACHE)
   
 FIND_PACKAGE(GLFW QUIET REQUIRED)
