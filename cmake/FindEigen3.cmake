@@ -17,6 +17,37 @@
 
 include(FindPackageHandleStandardArgs)
 
+# First, try config-mode lookup (works with vcpkg which ships Eigen3Config.cmake).
+find_package(Eigen3 CONFIG QUIET)
+if(Eigen3_FOUND OR TARGET Eigen3::Eigen)
+    if(TARGET Eigen3::Eigen)
+        get_target_property(_eigen3_inc Eigen3::Eigen INTERFACE_INCLUDE_DIRECTORIES)
+        if(_eigen3_inc)
+            set(EIGEN3_INCLUDE_DIR "${_eigen3_inc}" CACHE PATH "Eigen3 include directory" FORCE)
+        endif()
+        if(NOT EIGEN3_VERSION AND EIGEN3_INCLUDE_DIR)
+            if(EXISTS "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h")
+                file(READ "${EIGEN3_INCLUDE_DIR}/Eigen/src/Core/util/Macros.h" _eigen3_version_header)
+                string(REGEX MATCH "define[ \t]+EIGEN_WORLD_VERSION[ \t]+([0-9]+)" _ "${_eigen3_version_header}")
+                set(EIGEN3_WORLD_VERSION "${CMAKE_MATCH_1}")
+                string(REGEX MATCH "define[ \t]+EIGEN_MAJOR_VERSION[ \t]+([0-9]+)" _ "${_eigen3_version_header}")
+                set(EIGEN3_MAJOR_VERSION "${CMAKE_MATCH_1}")
+                string(REGEX MATCH "define[ \t]+EIGEN_MINOR_VERSION[ \t]+([0-9]+)" _ "${_eigen3_version_header}")
+                set(EIGEN3_MINOR_VERSION "${CMAKE_MATCH_1}")
+                set(EIGEN3_VERSION ${EIGEN3_WORLD_VERSION}.${EIGEN3_MAJOR_VERSION}.${EIGEN3_MINOR_VERSION})
+            endif()
+        endif()
+        set(EIGEN3_FOUND TRUE)
+        find_package_handle_standard_args(Eigen3
+            REQUIRED_VARS EIGEN3_INCLUDE_DIR
+            VERSION_VAR EIGEN3_VERSION)
+        mark_as_advanced(EIGEN3_INCLUDE_DIR)
+        return()
+    endif()
+endif()
+
+# Fallback: manual search for header paths.
+
 if(NOT Eigen3_FIND_VERSION)
   if(NOT Eigen3_FIND_VERSION_MAJOR)
     set(Eigen3_FIND_VERSION_MAJOR 2)
@@ -53,7 +84,7 @@ if (EIGEN3_INCLUDE_DIR)
     _eigen3_get_version()
     set(EIGEN3_FOUND ${EIGEN3_VERSION_OK})
 
-    find_package_handle_standard_args(Eigen3 
+    find_package_handle_standard_args(Eigen3
       REQUIRED_VARS EIGEN3_INCLUDE_DIR
       VERSION_VAR EIGEN3_VERSION)
 
@@ -79,7 +110,7 @@ else (EIGEN3_INCLUDE_DIR)
     _eigen3_get_version()
   endif(EIGEN3_INCLUDE_DIR)
 
-  find_package_handle_standard_args(Eigen3 
+  find_package_handle_standard_args(Eigen3
     REQUIRED_VARS EIGEN3_INCLUDE_DIR
     VERSION_VAR EIGEN3_VERSION)
 

@@ -335,21 +335,21 @@ void initImgui(py::module& mSuper) {
   // - If you want to use InputText() with std::string or any custom dynamic string type, see misc/cpp/imgui_stdlib.h and comments in imgui_demo.cpp.
   // - Most of the ImGuiInputTextFlags flags are only useful for InputText() and not for InputFloatX, InputIntX, InputDouble etc.
   m.def("InputText",[](const char* label,const std::string& bufStr,ImGuiInputTextFlags flags=0) {
-    size_t buf_size=1024;
+    constexpr size_t buf_size=1024;
     char buf[buf_size];
     strcpy(buf,bufStr.c_str());
     bool ret=ImGui::InputText(label,buf,buf_size,flags);
     return std::make_tuple(ret,std::string(buf));
   });
   m.def("InputTextMultiline",[](const char* label,const std::string& bufStr,const ImVec2& size=ImVec2(0,0),ImGuiInputTextFlags flags=0) {
-    size_t buf_size=1024;
+    constexpr size_t buf_size=1024;
     char buf[buf_size];
     strcpy(buf,bufStr.c_str());
     bool ret=ImGui::InputTextMultiline(label,buf,buf_size,size,flags);
     return std::make_tuple(ret,std::string(buf));
   });
   m.def("InputTextWithHint",[](const char* label,const char* hint,const std::string& bufStr,ImGuiInputTextFlags flags=0) {
-    size_t buf_size=1024;
+    constexpr size_t buf_size=1024;
     char buf[buf_size];
     strcpy(buf,bufStr.c_str());
     bool ret=ImGui::InputTextWithHint(label,hint,buf,buf_size,flags);

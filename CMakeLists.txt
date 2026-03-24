@@ -12,7 +12,7 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
   MESSAGE(STATUS "Build type: Debug")
   IF(MSVC)
-    SET(CMAKE_CXX_FLAGS "/openmp /bigobj /Wall /std:c++17 ${CMAKE_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "/openmp /bigobj /Wall /std:c++17 /MP /EHsc ${CMAKE_CXX_FLAGS}")
   ELSE(MSVC)
     ADD_COMPILE_DEFINITIONS(_GLIBCXX_DEBUG=1)
     ADD_COMPILE_DEFINITIONS(_GLIBCXX_USE_CXX11_ABI=1)
@@ -21,7 +21,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 ELSE()
   MESSAGE(STATUS "Build type: Release")
   IF(MSVC)
-    SET(CMAKE_CXX_FLAGS "/openmp /bigobj /Wall /std:c++17 ${CMAKE_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "/openmp /bigobj /Wall /std:c++17 /MP /EHsc ${CMAKE_CXX_FLAGS}")
   ELSE(MSVC)
     ADD_COMPILE_DEFINITIONS(_GLIBCXX_USE_CXX11_ABI=1)
     SET(CMAKE_CXX_FLAGS "-fopenmp -O3 -Wall -fPIC -std=c++17 -Wno-unused-function -Wno-unused-local-typedefs ${CMAKE_CXX_FLAGS}")
@@ -50,6 +50,11 @@ IF(NOT ${USE_CXX11_ABI})
 ELSE()
   MESSAGE(STATUS "Enabling C++11's ABI")
 ENDIF()
+
+#MSVC WARNING SUPPRESSION
+IF(MSVC)
+  INCLUDE("${PROJECT_SOURCE_DIR}/cmake/DisableWarning.cmake")
+ENDIF(MSVC)
 
 #LIBRARY
 INCLUDE("${PROJECT_SOURCE_DIR}/cmake/LoadLibs.cmake")
@@ -93,7 +98,7 @@ INSTALL(TARGETS TinyVisualizer
 #  DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/TinyVisualizer/cmake
 #  FILES_MATCHING PATTERN FindTinyVisualizer.cmake)
 #INSTALL HEADER
-INSTALL(DIRECTORY extern/glad/include 
+INSTALL(DIRECTORY extern/glad/include
   DESTINATION ${CMAKE_INSTALL_PREFIX}
   FILES_MATCHING PATTERN gl.h PATTERN khrplatform.h)
 INSTALL(DIRECTORY extern/imgui

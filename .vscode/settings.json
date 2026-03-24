@@ -1,0 +1,15 @@
+{
+  "cmake.cmakePath": "C:/Program Files/CMake/bin/cmake.exe",
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/build/debug/compile_commands.json",
+  "cmake.parseBuildDiagnostics": true,
+  "C_Cpp.errorSquiggles": "enabled",
+  "editor.formatOnSave": true,
+  "[cpp]": {
+    "editor.defaultFormatter": "xaver.clang-format"
+  },
+  "[c]": {
+    "editor.defaultFormatter": "xaver.clang-format"
+  },
+  "clang-format.style": "file",
+  "clang-format.executable": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin/clang-format.exe"
+}

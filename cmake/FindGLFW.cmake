@@ -30,6 +30,51 @@
 # GLFW_LIBRARIES
 #
 
+# First, try config-mode lookup (works with vcpkg and system installs that
+# ship glfw3Config.cmake).
+find_package(glfw3 CONFIG QUIET)
+if(glfw3_FOUND)
+    # glfw3Config.cmake defines the imported target "glfw".
+    # Extract the legacy variables that the rest of the project expects.
+    if(TARGET glfw)
+        get_target_property(_glfw_include glfw INTERFACE_INCLUDE_DIRECTORIES)
+        # The target property may contain a wrong prefix (vcpkg fixup issue)
+        # or generator expressions that don't resolve at configure time.
+        # Validate the path actually contains the header; fall back to find_path.
+        if(_glfw_include AND EXISTS "${_glfw_include}/GLFW/glfw3.h")
+            set(GLFW_INCLUDE_DIR "${_glfw_include}" CACHE PATH "GLFW include directory" FORCE)
+        else()
+            find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h)
+        endif()
+        set(GLFW_LIBRARIES glfw CACHE STRING "GLFW libraries" FORCE)
+        set(GLFW_FOUND TRUE)
+        set(GLFW_LIBRARY "${GLFW_LIBRARIES}")
+        set(GLFW_INCLUDE_PATH "${GLFW_INCLUDE_DIR}")
+
+        # Try to parse version from the header
+        if(GLFW_INCLUDE_DIR AND EXISTS "${GLFW_INCLUDE_DIR}/GLFW/glfw3.h")
+            file(STRINGS "${GLFW_INCLUDE_DIR}/GLFW/glfw3.h" _glfw_ver_major REGEX "^#define GLFW_VERSION_MAJOR.*$")
+            file(STRINGS "${GLFW_INCLUDE_DIR}/GLFW/glfw3.h" _glfw_ver_minor REGEX "^#define GLFW_VERSION_MINOR.*$")
+            file(STRINGS "${GLFW_INCLUDE_DIR}/GLFW/glfw3.h" _glfw_ver_rev   REGEX "^#define GLFW_VERSION_REVISION.*$")
+            string(REGEX MATCHALL "[0-9]+" GLFW_VERSION_MAJOR "${_glfw_ver_major}")
+            string(REGEX MATCHALL "[0-9]+" GLFW_VERSION_MINOR "${_glfw_ver_minor}")
+            string(REGEX MATCHALL "[0-9]+" GLFW_VERSION_REVISION "${_glfw_ver_rev}")
+            set(GLFW_VERSION "${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}.${GLFW_VERSION_REVISION}")
+            set(GLFW_VERSION_STRING "${GLFW_VERSION}")
+        endif()
+
+        include(FindPackageHandleStandardArgs)
+        find_package_handle_standard_args(GLFW
+            REQUIRED_VARS GLFW_INCLUDE_DIR GLFW_LIBRARIES
+            VERSION_VAR GLFW_VERSION
+        )
+
+        mark_as_advanced(GLFW_INCLUDE_DIR GLFW_LIBRARIES)
+        return()
+    endif()
+endif()
+
+# Fallback: manual search for header/library paths.
 if(NOT NO_GLFW_X11)
     set(GLFW_X11_INCLUDE_DIRS
             "/usr/X11R6/include"
@@ -43,7 +88,7 @@ else()
     set(GLFW_X11_LIB_DIRS "")
 endif()
 
-find_path( GLFW_INCLUDE_DIR 
+find_path( GLFW_INCLUDE_DIR
     NAMES
         GLFW/glfw3.h
     HINTS
@@ -60,14 +105,14 @@ find_path( GLFW_INCLUDE_DIR
         /usr/local/include
         /usr/include/GL
         /usr/include
-    DOC 
+    DOC
         "The directory where GLFW/glfw3.h resides"
 )
 
 #
 # XXX: Do we still need to search for GL/glfw.h?
 #
-find_path( GLFW_INCLUDE_DIR 
+find_path( GLFW_INCLUDE_DIR
     NAMES
         GL/glfw.h
 		GLFW/glfw3.h
@@ -85,13 +130,13 @@ find_path( GLFW_INCLUDE_DIR
         /usr/local/include
         /usr/include/GL
         /usr/include
-    DOC 
+    DOC
         "The directory where GL/glfw.h resides"
 )
 
 if (WIN32)
     if(CYGWIN)
-        find_library( GLFW_glfw_LIBRARY 
+        find_library( GLFW_glfw_LIBRARY
             NAMES
                 glfw32
             HINTS
@@ -104,14 +149,14 @@ if (WIN32)
                 /usr/lib/w32api
                 /usr/local/lib
                 "${GLFW_X11_LIB_DIRS}"
-            DOC 
+            DOC
                 "The GLFW library"
         )
     else()
         find_library( GLFW_glfw_LIBRARY
-            NAMES 
-                glfw32 
-                glfw32s 
+            NAMES
+                glfw32
+                glfw32s
                 glfw
                 glfw3
                 glfw3dll
@@ -127,14 +172,14 @@ if (WIN32)
             PATHS
                 "$ENV{PROGRAMFILES}/GLFW/lib"
                 "${OPENGL_LIBRARY_DIR}"
-            DOC 
+            DOC
                 "The GLFW library"
         )
     endif()
 else ()
     if (APPLE)
         find_library( GLFW_glfw_LIBRARY glfw
-            NAMES 
+            NAMES
                 glfw
                 glfw3
             HINTS
@@ -150,7 +195,7 @@ else ()
         set(GLFW_iokit_LIBRARY "-framework IOKit" CACHE STRING "IOKit framework for OSX")
     else ()
         # (*)NIX
-        
+
         find_package(Threads REQUIRED)
 
         if(NOT NO_GLFW_X11)
@@ -180,7 +225,7 @@ else ()
         endif (NOT NO_GLFW_X11)
 
         find_library( GLFW_glfw_LIBRARY
-            NAMES 
+            NAMES
                 glfw
                 glfw3
             HINTS
@@ -197,7 +242,7 @@ else ()
                 /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
                 /usr/openwin/lib
                 "${GLFW_X11_LIB_DIRS}"
-            DOC 
+            DOC
                 "The GLFW library"
         )
     endif (APPLE)
@@ -221,15 +266,15 @@ if(GLFW_INCLUDE_DIR)
 
     # Tease the GLFW_VERSION numbers from the lib headers
     function(parseVersion FILENAME VARNAME)
-            
+
         set(PATTERN "^#define ${VARNAME}.*$")
-        
+
         file(STRINGS "${GLFW_INCLUDE_DIR}/${FILENAME}" TMP REGEX ${PATTERN})
-        
+
         string(REGEX MATCHALL "[0-9]+" TMP ${TMP})
-        
+
         set(${VARNAME} ${TMP} PARENT_SCOPE)
-        
+
     endfunction()
 
 
@@ -244,7 +289,7 @@ if(GLFW_INCLUDE_DIR)
         parseVersion(GLFW/glfw3.h GLFW_VERSION_MAJOR)
         parseVersion(GLFW/glfw3.h GLFW_VERSION_MINOR)
         parseVersion(GLFW/glfw3.h GLFW_VERSION_REVISION)
- 
+
     endif()
 
     if(${GLFW_VERSION_MAJOR} OR ${GLFW_VERSION_MINOR} OR ${GLFW_VERSION_REVISION})
@@ -252,12 +297,12 @@ if(GLFW_INCLUDE_DIR)
         set(GLFW_VERSION_STRING "${GLFW_VERSION}")
         mark_as_advanced(GLFW_VERSION)
     endif()
-    
+
 endif(GLFW_INCLUDE_DIR)
 
 include(FindPackageHandleStandardArgs)
 
-find_package_handle_standard_args(GLFW 
+find_package_handle_standard_args(GLFW
     REQUIRED_VARS
         GLFW_INCLUDE_DIR
         GLFW_LIBRARIES

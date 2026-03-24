@@ -100,7 +100,6 @@ void CaptureGIFPlugin::readPixels() {
   glfwGetWindowSize(wnd._ptr,&viewport[2],&viewport[3]);
 
   //if we have FBO bound, start using the FBO
-  Drawer* dd=((Drawer*)glfwGetWindowUserPointer(wnd._ptr));
   FBO* offScreen=((Drawer*)glfwGetWindowUserPointer(wnd._ptr))->getOffScreenFBO();
   if(offScreen) {
     offScreen->begin();

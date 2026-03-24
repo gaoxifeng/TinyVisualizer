@@ -5,6 +5,27 @@
 #  BOX2D_LIBRARIES   - List of libraries when using libTmxParser.
 #  BOX2D_FOUND       - True if libTmxParser found.
 
+# First, try config-mode lookup (works with vcpkg which ships box2dConfig.cmake).
+find_package(box2d CONFIG QUIET)
+if(box2d_FOUND)
+    if(TARGET box2d::box2d)
+        get_target_property(_box2d_inc box2d::box2d INTERFACE_INCLUDE_DIRECTORIES)
+        if(_box2d_inc)
+            set(BOX2D_INCLUDE_DIR "${_box2d_inc}" CACHE PATH "Box2D include directory" FORCE)
+        endif()
+        set(BOX2D_LIBRARY box2d::box2d)
+        set(BOX2D_LIBRARY_RELEASE box2d::box2d)
+        set(BOX2D_LIBRARY_DEBUG box2d::box2d)
+        set(BOX2D_FOUND TRUE)
+        if(NOT BOX2D_FIND_QUIETLY)
+            message(STATUS "Box2D found (config mode): ${BOX2D_INCLUDE_DIR}")
+        endif()
+        return()
+    endif()
+endif()
+
+# Fallback: manual search for header/library paths.
+
 if(BOX2D_INCLUDE_DIR)
   # Already in cache, be silent
   set(BOX2D_FIND_QUIETLY TRUE)

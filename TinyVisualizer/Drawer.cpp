@@ -286,6 +286,7 @@ void Drawer::key(GLFWwindow* wnd,int key,int scan,int action,int mods) {
   case GLFW_KEY_ESCAPE:
     if(action==GLFW_PRESS)
       glfwSetWindowShouldClose(wnd,GLFW_TRUE);
+    break;
   case GLFW_KEY_N:
     if(action==GLFW_PRESS)
       drawer->_debugBB=!drawer->_debugBB;

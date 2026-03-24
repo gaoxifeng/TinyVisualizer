@@ -39,6 +39,33 @@
 #   DEALINGS IN THE SOFTWARE.
 #
 
+# First, try config-mode lookup (works with vcpkg which ships assimpConfig.cmake).
+find_package(assimp CONFIG QUIET)
+if(assimp_FOUND)
+    if(TARGET assimp::assimp)
+        set(ASSIMP_INCLUDE_DIR "${ASSIMP_INCLUDE_DIRS}" CACHE PATH "Assimp include directory")
+        set(ASSIMP_LIBRARIES "${ASSIMP_LIBRARIES}" CACHE STRING "Assimp libraries")
+        set(ASSIMP_LIBRARY_RELEASE "${ASSIMP_LIBRARIES}")
+        set(ASSIMP_LIBRARY_DEBUG "${ASSIMP_LIBRARIES}")
+        set(ASSIMP_LIBRARY "${ASSIMP_LIBRARIES}")
+        set(Assimp_FOUND TRUE)
+
+        if(NOT TARGET Assimp::Assimp)
+            add_library(Assimp::Assimp INTERFACE IMPORTED)
+            set_target_properties(Assimp::Assimp PROPERTIES
+                INTERFACE_LINK_LIBRARIES assimp::assimp)
+        endif()
+
+        include(FindPackageHandleStandardArgs)
+        find_package_handle_standard_args(Assimp DEFAULT_MSG
+            ASSIMP_LIBRARIES ASSIMP_INCLUDE_DIR)
+        mark_as_advanced(ASSIMP_INCLUDE_DIR ASSIMP_LIBRARIES)
+        return()
+    endif()
+endif()
+
+# Fallback: manual search for header/library paths.
+
 find_path(ASSIMP_INCLUDE_DIR NAMES assimp/anim.h HINTS include)
 
 if(WIN32 AND MSVC)
@@ -51,19 +78,19 @@ if(WIN32 AND MSVC)
     endif()
 
 	message(STATUS "Detected msvc version: ${MSVC_TOOLSET_VERSION}")
-    find_library(ASSIMP_LIBRARY_RELEASE 
+    find_library(ASSIMP_LIBRARY_RELEASE
 		NAMES 	assimp-vc${MSVC_TOOLSET_VERSION}-mt
 				assimp-vc140-mt
 				assimp-vc142-mt
 				assimp-vc143-mt
-		PATHS 	${ASSIMP_LIBRARY_DIR} 
+		PATHS 	${ASSIMP_LIBRARY_DIR}
 				"C:/vcpkg/installed/${ASSIMP_LIBRARY_TYPE}-windows/lib")
-    find_library(ASSIMP_LIBRARY_DEBUG 
-		NAMES 	assimp-vc${MSVC_TOOLSET_VERSION}-mtd 
+    find_library(ASSIMP_LIBRARY_DEBUG
+		NAMES 	assimp-vc${MSVC_TOOLSET_VERSION}-mtd
 				assimp-vc140-mtd
 				assimp-vc142-mtd
 				assimp-vc143-mtd
-		PATHS 	${ASSIMP_LIBRARY_DIR} 
+		PATHS 	${ASSIMP_LIBRARY_DIR}
 				"C:/vcpkg/installed/${ASSIMP_LIBRARY_TYPE}-windows/debug/lib")
 
     # Static build of Assimp (built with Vcpkg) depends on IrrXML, find that
