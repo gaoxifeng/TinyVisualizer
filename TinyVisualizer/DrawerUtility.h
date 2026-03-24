@@ -48,9 +48,15 @@ inline shared_ptr<_Tp> custom_pointer_cast(const shared_ptr<_Up>& __r) noexcept 
 #endif
 }
 namespace DRAWER {
+#ifndef ASSERT
 #define ASSERT(var) {do{if(!(var)){exit(EXIT_FAILURE);}}while(0);}
+#endif
+#ifndef ASSERT_MSG
 #define ASSERT_MSG(var,msg) {do{if(!(var)){printf(msg);exit(EXIT_FAILURE);}}while(0);}
+#endif
+#ifndef ASSERT_MSGV
 #define ASSERT_MSGV(var,msg,...) {do{if(!(var)){printf(msg,__VA_ARGS__);exit(EXIT_FAILURE);}}while(0);}
+#endif
 inline void reportGLError() {
   GLenum ret=glGetError();
   ASSERT_MSGV(ret==GL_NO_ERROR,"OpenGL Error: %d",ret)
